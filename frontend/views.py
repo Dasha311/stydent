@@ -19,7 +19,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('main_menu')
+            return redirect('select_role')
         else:
             return render(request, 'Login.html', {'error': 'Неверный логин или пароль'})
 
@@ -42,7 +42,7 @@ def register(request):
 
         user = User.objects.create_user(username=username, email=email, password=password1)
         login(request, user)
-        return redirect('main_menu')
+        return redirect('select_role')
 
     return render(request, 'Register.html')
 
@@ -61,3 +61,8 @@ def contact_view(request):
 
 def terms_view(request):
     return render(request, 'terms.html')
+
+
+# Страница выбора роли
+def select_role(request):
+    return render(request, 'select_role.html')
