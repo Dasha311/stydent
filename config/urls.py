@@ -30,8 +30,6 @@ urlpatterns = [
     path('course/video2/', TemplateView.as_view(template_name='video_detail2.html'), name='video_detail2'),
     path('course/video3/', TemplateView.as_view(template_name='video_detail3.html'), name='video_detail3'),
 
-
-
     # API (backend)
     path('api/', include('api.urls', namespace='api')),  # важно, чтобы в api/urls.py было app_name = 'api'
 ]
