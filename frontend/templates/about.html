@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <title>О нас — EduPath</title>
   <script src="https://cdn.tailwindcss.com"></script>
-    <style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
     :root {
       --color-primary: #6C4DFF;
       --color-bg: #F9F9FB;
@@ -14,10 +15,7 @@
       --color-text-secondary: rgba(60, 60, 67, 0.6);
       --color-border: #D1D1D6;
     }
-  </style>
-  <script src="https://unpkg.com/css-doodle@0.36.0/css-doodle.min.js"></script>
 
-  <style>
     html, body {
       height: 100%;
       margin: 0;
@@ -31,9 +29,9 @@
       align-items: center;
       justify-content: space-between;
       position: relative;
+      font-family: 'Inter', sans-serif;
     }
 
-    /* Волны */
     .wave-background {
       position: fixed;
       top: 0;
@@ -85,9 +83,36 @@
     }
   </style>
 </head>
-<body>
-    {% include 'partials/header.html' %}
-  <!-- Волны -->
+<body class="bg-gradient-to-br from-violet-100 to-white text-gray-800">
+
+  <!-- 🔵 Шапка -->
+  <header class="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <!-- Логотип -->
+      <div class="flex items-center gap-2">
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8" />
+        <span class="text-xl font-semibold text-violet-600">EduPath</span>
+      </div>
+
+      <!-- Навигация -->
+      <nav class="hidden md:flex gap-6 items-center text-sm font-medium text-gray-700">
+        <a href="{% url 'main_menu' %}" class="hover:text-violet-600">Главная</a>
+        <a href="{% url 'course_view' %}" class="hover:text-violet-600">Курсы</a>
+        <a href="{% url 'about' %}" class="hover:text-violet-600">О нас</a>
+        <a href="{% url 'contacts' %}" class="hover:text-violet-600">Контакты</a>
+      </nav>
+
+      <!-- Кнопки -->
+      <div class="flex gap-4">
+        <a href="{% url 'login' %}" class="text-sm font-medium text-gray-600 hover:text-violet-600">Войти</a>
+        <a href="{% url 'register' %}" class="text-sm font-semibold bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700">
+          Регистрация
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 🌊 Волны -->
   <div class="wave-background">
     <div class="air air1"></div>
     <div class="air air2"></div>
@@ -95,18 +120,17 @@
     <div class="air air4"></div>
   </div>
 
-  <!-- Мелкие пузырьки -->
+  <!-- 💨 Пузырьки -->
   <css-doodle>
-  <style>
-    @grid: 60x1 / 100vmin;
-    background: @m(...);
-  </style>
-</css-doodle>
+    <style>
+      @grid: 60x1 / 100vmin;
+      background: @m(...);
+    </style>
+  </css-doodle>
 
-
-  <!-- Контент -->
-  <main class="flex-grow flex items-center justify-center w-full">
-    <div class="max-w-3xl bg-white bg-opacity-90 rounded-xl shadow-lg p-10 mt-20 mb-10 text-center">
+  <!-- 📄 Контент -->
+  <main class="flex-grow flex items-center justify-center w-full pt-24">
+    <div class="max-w-3xl bg-white bg-opacity-90 rounded-xl shadow-lg p-10 mt-10 mb-10 text-center">
       <h1 class="text-4xl font-bold mb-6 text-violet-700">О нас</h1>
       <p class="text-gray-700 text-lg leading-relaxed">
         EduPath — это современная образовательная платформа, созданная для того, чтобы сделать знания доступными каждому.
@@ -118,7 +142,7 @@
     </div>
   </main>
 
-  <!-- Футер -->
+  <!-- ⚫ Футер -->
   <footer class="bg-violet-700 text-white text-center py-4 w-full">
     <p class="text-sm">© 2025 EduPath. Все права защищены.</p>
     <div class="text-sm mt-1">

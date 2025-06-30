@@ -48,7 +48,7 @@ def register(request):
 
         user = User.objects.create_user(username=username, email=email, password=password1)
         login(request, user)
-        return redirect('select_role')
+        return redirect('main_menu')
 
     return render(request, 'Register.html')
 
@@ -100,5 +100,10 @@ def tutors_view(request):
 def course_detail(request, course_id):
     """Dynamic course detail page rendered from localStorage data."""
     return render(request, 'course_detail.html', {'course_id': course_id})
+@login_required
+def profile(request):
+    """Unified profile page for both students and teachers."""
+    return render(request, 'profile.html')
+
 
 

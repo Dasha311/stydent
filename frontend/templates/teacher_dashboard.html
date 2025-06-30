@@ -105,10 +105,12 @@
         <a href="#my-courses" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
         <a href="#create-course" class="hover:text-[var(--brand-primary)]">Создать курс</a>
         <a href="#messages" class="hover:text-[var(--brand-primary)]">Сообщения</a>
-        <a href="#" class="hover:text-[var(--brand-primary)]">Профиль</a>
+        <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar" title="Профиль">
+        <a href="{% url 'profile' %}">
+          <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar" title="Профиль">
+        </a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -122,7 +124,9 @@
       <a href="#my-courses" class="p-3 hover:text-[var(--brand-primary)]">Мои курсы</a>
       <a href="#create-course" class="p-3 hover:text-[var(--brand-primary)]">Создать курс</a>
       <a href="#messages" class="p-3 hover:text-[var(--brand-primary)]">Сообщения</a>
-      <a href="#" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
+      <a href="{% url 'profile' %}">
+          <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль">
+        </a>
       <div class="p-3 flex flex-col gap-3">
         <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль">
       </div>
@@ -164,6 +168,10 @@
               <label for="course-assignment" class="block text-sm font-medium mb-1">Задание</label>
               <textarea id="course-assignment" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></textarea>
             </div>
+            <div class="mb-4 flex items-center gap-2">
+              <input id="with-test" type="checkbox" class="h-4 w-4">
+              <label for="with-test" class="text-sm">Добавить тест</label>
+            </div>
             <button type="submit" class="btn w-full text-center">Создать курс</button>
           </form>
         </div>
@@ -174,17 +182,6 @@
       <div class="max-w-7xl mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Ваши курсы</h2>
         <div id="teacher-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <article class="card">
-            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
-            <div class="p-5">
-              <h3 class="text-lg font-semibold mb-2">Математика: Подготовка к ЕГЭ</h3>
-              <p class="text-[var(--text-secondary)] text-sm mb-3">10 студентов</p>
-              <div class="flex gap-2">
-                <a href="#" class="btn w-full text-center">Редактировать</a>
-                <a href="#" class="btn w-full bg-red-500 hover:bg-red-600">Удалить</a>
-              </div>
-            </div>
-          </article>
         </div>
       </div>
     </section>
@@ -309,8 +306,11 @@
     });
 
     // Course creation with localStorage
+    const userKey = '{{ request.user.id }}';
+    const STORAGE = 'createdCourses_' + userKey;
     const courseForm = document.getElementById('create-course-form');
     const coursesContainer = document.getElementById('teacher-courses');
+    let editId = null;
 
       function addCourseCard(course) {
         const article = document.createElement('article');
@@ -322,15 +322,34 @@
             <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
             <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
             <div class="flex gap-2">
-              <a href="/course/${course.id}/" class="btn w-full text-center">Открыть</a>
-              <a href="#" class="btn w-full bg-red-500 hover:bg-red-600">Удалить</a>
+              <a href="#" class="btn w-full edit">Редактировать</a>
+              <a href="#" class="btn w-full bg-red-500 hover:bg-red-600 delete">Удалить</a>
             </div>
           </div>`;
+        article.querySelector('.delete').addEventListener('click', e => {
+          e.preventDefault();
+          let saved = JSON.parse(localStorage.getItem(STORAGE) || '[]');
+          saved = saved.filter(c => c.id !== course.id);
+          localStorage.setItem(STORAGE, JSON.stringify(saved));
+          article.remove();
+        });
+        article.querySelector('.edit').addEventListener('click', e => {
+          e.preventDefault();
+          document.getElementById('course-title').value = course.title;
+          document.getElementById('course-description').value = course.description || '';
+          document.getElementById('course-videos').value = (course.videos || []).join('\n');
+          document.getElementById('course-text').value = course.text || '';
+          document.getElementById('course-assignment').value = course.assignment || '';
+          document.getElementById('with-test').checked = !!course.test;
+          editId = course.id;
+          courseForm.querySelector('button[type=submit]').textContent = 'Сохранить';
+          window.scrollTo({top: courseForm.closest('section').offsetTop, behavior:'smooth'});
+        });          
         coursesContainer.appendChild(article);
       }
 
     function loadCourses() {
-      const saved = JSON.parse(localStorage.getItem('createdCourses') || '[]');
+      const saved = JSON.parse(localStorage.getItem(STORAGE) || '[]');
       saved.forEach(addCourseCard);
     }
 
@@ -342,11 +361,27 @@
         const text = document.getElementById('course-text').value.trim();
         const assignment = document.getElementById('course-assignment').value.trim();
         if (!title) return;
-        const newCourse = { id: Date.now(), title, description, videos, text, assignment };
-        const saved = JSON.parse(localStorage.getItem('createdCourses') || '[]');
-        saved.push(newCourse);
-        localStorage.setItem('createdCourses', JSON.stringify(saved));
-        addCourseCard(newCourse);
+        const withTest = document.getElementById('with-test').checked;
+        const saved = JSON.parse(localStorage.getItem(STORAGE) || '[]');
+        if(editId){
+          const idx = saved.findIndex(c => c.id === editId);
+          if(idx !== -1){
+            saved[idx] = {id: editId, title, description, videos, text, assignment};
+            if(withTest) saved[idx].test = saved[idx].test || [];
+            else delete saved[idx].test;
+          }
+          localStorage.setItem(STORAGE, JSON.stringify(saved));
+          coursesContainer.innerHTML = '';
+          saved.forEach(addCourseCard);
+          editId = null;
+          courseForm.querySelector('button[type=submit]').textContent = 'Создать курс';
+        }else{
+          const newCourse = { id: Date.now(), title, description, videos, text, assignment };
+          if(withTest) newCourse.test = [];
+          saved.push(newCourse);
+          localStorage.setItem(STORAGE, JSON.stringify(saved));
+          addCourseCard(newCourse);
+        }
         courseForm.reset();
       });
 

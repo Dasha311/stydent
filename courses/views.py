@@ -20,7 +20,16 @@ class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_update(self, serializer):
+        course = self.get_object()
+        if course.instructor != self.request.user:
+            raise permissions.PermissionDenied("Not allowed")
         serializer.save(instructor=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        course = self.get_object()
+        if course.instructor != request.user:
+            raise permissions.PermissionDenied("Not allowed")
+        return super().destroy(request, *args, **kwargs)
 
 
 class LessonListView(generics.ListAPIView):
@@ -36,6 +45,17 @@ class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = LessonSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def update(self, request, *args, **kwargs):
+        lesson = self.get_object()
+        if lesson.course.instructor != request.user:
+            raise permissions.PermissionDenied("Not allowed")
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        lesson = self.get_object()
+        if lesson.course.instructor != request.user:
+            raise permissions.PermissionDenied("Not allowed")
+        return super().destroy(request, *args, **kwargs)
 
 class EnrollmentView(generics.CreateAPIView):
     serializer_class = EnrollmentSerializer

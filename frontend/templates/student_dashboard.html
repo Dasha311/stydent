@@ -62,10 +62,12 @@
         <a href="{% url 'student_dashboard' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
         <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
         <a href="{% url 'tutors' %}" class="hover:text-[var(--brand-primary)]">Репетиторы</a>
-        <a href="#" class="hover:text-[var(--brand-primary)]">Профиль</a>
+        <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar" title="Перейти в профиль">
+        <a href="{% url 'profile' %}">
+          <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar" title="Перейти в профиль">
+        </a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -78,9 +80,11 @@
       <a href="{% url 'student_dashboard' %}" class="p-3 hover:text-[var(--brand-primary)]">Главная</a>
       <a href="{% url 'course_view' %}?course_id=1" class="p-3 hover:text-[var(--brand-primary)]">Мои курсы</a>
       <a href="{% url 'tutors' %}" class="p-3 hover:text-[var(--brand-primary)]">Репетиторы</a>
-      <a href="#" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
+      <a href="{% url 'profile' %}" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
       <div class="p-3 flex flex-col gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Перейти в профиль">
+        <a href="{% url 'profile' %}">
+          <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Перейти в профиль">
+        </a>
       </div>
     </nav>
   </header>
@@ -94,16 +98,7 @@
     <section class="bg-white py-12">
       <div class="max-w-7xl mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Ваши текущие курсы</h2>
-         <div id="current-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <article class="card">
-            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Математика" class="w-full h-40 object-cover rounded-t-lg">
-            <div class="p-5">
-              <h3 class="text-lg font-semibold mb-2">Математика: Подготовка к ЕГЭ</h3>
-              <p class="text-[var(--text-secondary)] text-sm mb-3">Репетитор: Анна С. • 60% завершено</p>
-              <div class="progress-bar mb-3"><div class="progress-bar-inner" style="width: 60%;"></div></div>
-              <a href="{% url 'video_detail' %}" class="btn w-full text-center">Продолжить</a>
-            </div>
-          </article>
+        <div id="current-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         </div>
       </div>
     </section>
@@ -112,14 +107,6 @@
       <div class="max-w-7xl mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Рекомендуемые курсы</h2>
         <div id="recommended-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <article class="card">
-            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Физика" class="w-full h-40 object-cover rounded-t-lg">
-            <div class="p-5">
-              <h3 class="text-lg font-semibold mb-2">Физика: Основы механики</h3>
-              <p class="text-[var(--text-secondary)] text-sm mb-3">Изучите законы Ньютона и кинематику.</p>
-              <a href="#" class="text-[var(--brand-primary)] hover:underline text-sm enroll">Записаться</a>
-            </div>
-          </article>
         </div>
       </div>
     </section>
@@ -242,6 +229,11 @@
       }, 1000);
     });
 
+    const userKey = '{{ request.user.id }}';
+    const STORAGE_CREATED = 'createdCourses_' + userKey;
+    const STORAGE_ENROLLED = 'enrolledCourses_' + userKey;
+    const STORAGE_PROGRESS_PREFIX = 'courseProgress_' + userKey + ':';
+
     // Enrollment from recommended to current
       function attachEnrollHandlers() {
         document.querySelectorAll('#recommended-courses .enroll').forEach(link => {
@@ -260,10 +252,10 @@
             cont.textContent = 'Продолжить';
             card.querySelector('.p-5').appendChild(cont);
             document.getElementById('current-courses').appendChild(card);
-            const enrolled = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
+            const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
             if(!enrolled.includes(id)) enrolled.push(id);
-            localStorage.setItem('enrolledCourses', JSON.stringify(enrolled));
-            localStorage.setItem('courseProgress:'+id, 0);
+            localStorage.setItem(STORAGE_ENROLLED, JSON.stringify(enrolled));
+            localStorage.setItem(STORAGE_PROGRESS_PREFIX+id, 0);
           });
         });
       }
@@ -271,8 +263,8 @@
 
     // Load courses created by teachers
       function loadTeacherCourses() {
-        const saved = JSON.parse(localStorage.getItem('createdCourses') || '[]');
-        const enrolled = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
+        const saved = JSON.parse(localStorage.getItem(STORAGE_CREATED) || '[]');
+        const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
         const rec = document.getElementById('recommended-courses');
         const cur = document.getElementById('current-courses');
         saved.forEach(c => {
@@ -306,12 +298,18 @@
           }
         });
         attachEnrollHandlers();
+        if(!cur.children.length){
+          cur.innerHTML = '<p class="col-span-full text-center">Нет курсов</p>';
+        }
+        if(!rec.children.length){
+          rec.innerHTML = '<p class="col-span-full text-center">Нет рекомендаций</p>';
+        }
       }
 
       function updateProgressBars() {
         document.querySelectorAll('[data-course-id]').forEach(card => {
           const id = card.dataset.courseId;
-          const p = localStorage.getItem('courseProgress:'+id) || 0;
+          const p = localStorage.getItem(STORAGE_PROGRESS_PREFIX+id) || 0;
           const bar = card.querySelector('.progress-bar-inner');
           if(bar) bar.style.width = p + '%';
         });

@@ -61,21 +61,35 @@
 
   <!-- Кнопка чата -->
   <button onclick="toggleChat()" class="fixed bottom-4 right-4 bg-[var(--brand-primary)] text-white px-4 py-2 rounded-full shadow-lg hover:bg-indigo-700 transition">
-    💬 Чат
+    💬 Напиши мне
   </button>
 
   <!-- Окно чата -->
-  <div id="chatBox" class="hidden fixed bottom-20 right-4 w-80 h-96 bg-white border rounded-xl shadow-lg flex flex-col">
-    <div class="bg-[var(--brand-primary)] text-white p-2 rounded-t-xl flex justify-between items-center">
-      <span>Чат поддержки</span>
-      <button onclick="toggleChat()">✖</button>
-    </div>
+  <div id="chatBox" class="hidden fixed bottom-20 right-4 w-[350px] h-[470px] bg-white border rounded-xl shadow-lg flex flex-col">
+    <div class="bg-indigo-700 text-white px-4 py-3 rounded-t-xl flex items-center justify-center relative">
+  <h3 class="text-base font-semibold mx-auto">Чат поддержки</h3>
+  <button onclick="toggleChat()" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg">✖</button>
+</div>
+
     <div class="flex-1 p-2 overflow-y-auto text-sm" id="chatMessages">
       <p class="text-gray-500">Напишите ваше сообщение...</p>
     </div>
-    <div class="p-2 border-t">
-      <input type="text" id="chatInput" placeholder="Введите сообщение..." class="w-full border rounded px-2 py-1 text-sm" onkeydown="handleSend(event)">
-    </div>
+    <div class="p-3 border-t flex gap-2 items-center">
+  <input
+    type="text"
+    id="chatInput"
+    placeholder="Введите сообщение..."
+    class="flex-1 border rounded px-4 py-2 text-base focus:outline-none"
+    onkeydown="handleSend(event)"
+  >
+  <button
+    onclick="sendMessage()"
+    class="text-2xl bg-[var(--brand-primary)] text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition transform hover:scale-110"
+    title="Отправить"
+  >
+    📩
+  </button>
+</div>
   </div>
 
   <script>
@@ -130,20 +144,42 @@
     }
 
     function handleSend(e) {
-      if (e.key === 'Enter') {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
-        if (message) {
-          const chatBox = document.getElementById('chatMessages');
-          const msgEl = document.createElement('div');
-          msgEl.textContent = message;
-          msgEl.className = "bg-gray-100 p-2 my-1 rounded";
-          chatBox.appendChild(msgEl);
-          input.value = '';
-          chatBox.scrollTop = chatBox.scrollHeight;
-        }
-      }
+  if (e.key === 'Enter') {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (message) {
+      const chatBox = document.getElementById('chatMessages');
+
+      // Показываем сообщение пользователя
+      const userMsg = document.createElement('div');
+      userMsg.textContent = message;
+      userMsg.className = "bg-gray-100 p-2 my-1 rounded text-right";
+      chatBox.appendChild(userMsg);
+
+      // Определяем ответ
+      const responses = {
+        "что такое курс": "Курс — это набор видеоуроков и заданий по одной теме.",
+        "как записаться на курс": "На странице курса нажмите 'Записаться', и он появится в вашем профиле.",
+        "можно ли пройти курс бесплатно": "Да, большинство курсов доступны бесплатно.",
+        "что входит в курс": "В курсы входят видео, тесты, практические задания и поддержка наставника.",
+        "ты человек": "Нет, я являюсь виртуальным помощником данного сайта, если же вы хотите, я могу позвать ассистента. Просто напишите 'Позвать ассистента'",
+        "позвать ассистента": "Зову ассистента, минуту",
+      };
+
+      const normalized = message.toLowerCase();
+      const botReply = responses[normalized] || "Сейчас я переключу на ассистента, подождите пожалуйста";
+
+      // Показываем ответ бота
+      const botMsg = document.createElement('div');
+      botMsg.textContent = botReply;
+      botMsg.className = "bg-[var(--bg-secondary)] p-2 my-1 rounded text-left";
+      chatBox.appendChild(botMsg);
+
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
+  }
+}
   </script>
 
 </body>
