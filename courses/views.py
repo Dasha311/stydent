@@ -1,18 +1,26 @@
 from rest_framework import generics, permissions, filters
 from .models import Course, Lesson, Enrollment, Assignment
-from .serializers import CourseSerializer, LessonSerializer, EnrollmentSerializer, AssignmentSerializer
+from .serializers import (
+    CourseSerializer,
+    LessonSerializer,
+    EnrollmentSerializer,
+    AssignmentSerializer,
+)
 from django_filters.rest_framework import DjangoFilterBackend
+
 
 class CourseListView(generics.ListAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    search_fields = ['title', 'description']
-    filterset_fields = ['is_free', 'instructor']
+    search_fields = ["title", "description"]
+    filterset_fields = ["is_free", "instructor"]
+
 
 class CourseDetailView(generics.RetrieveAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+
 
 class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
@@ -35,9 +43,11 @@ class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
 class LessonListView(generics.ListAPIView):
     serializer_class = LessonSerializer
     
+
     def get_queryset(self):
-        course_id = self.kwargs['course_id']
-        return Lesson.objects.filter(course_id=course_id).order_by('order')
+        course_id = self.kwargs["course_id"]
+        return Lesson.objects.filter(course_id=course_id).order_by("order")
+
     
 
 class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -56,13 +66,17 @@ class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
         if lesson.course.instructor != request.user:
             raise permissions.PermissionDenied("Not allowed")
         return super().destroy(request, *args, **kwargs)
+    
 
 class EnrollmentView(generics.CreateAPIView):
     serializer_class = EnrollmentSerializer
     permission_classes = [permissions.IsAuthenticated]
-    
+
+
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        enrollment = serializer.save(user=self.request.user)
+        self.request.user.userprofile.courses_enrolled.add(enrollment.course)
+
 
 class UserEnrollmentsView(generics.ListAPIView):
     serializer_class = EnrollmentSerializer
@@ -70,6 +84,13 @@ class UserEnrollmentsView(generics.ListAPIView):
 
     def get_queryset(self):
         return Enrollment.objects.filter(user=self.request.user)
+
+class TeacherCoursesView(generics.ListAPIView):
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Course.objects.filter(instructor=self.request.user)
 
 
 class AssignmentCreateView(generics.CreateAPIView):
