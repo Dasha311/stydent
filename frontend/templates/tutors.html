@@ -129,10 +129,12 @@
          <a href="{% url 'student_dashboard' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
         <a href="{% url 'tutors' %}" class="hover:text-[var(--brand-primary)]">Мои репетиторы</a>
         <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Курсы</a>
-        <a href="#" class="hover:text-[var(--brand-primary)]">Профиль</a>
+        <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="Аватар пользователя" class="avatar">
+       <a href="{% url 'profile' %}">
+          <img src="{% static 'Icons/Logo.png' %}" alt="Аватар пользователя" class="avatar">
+        </a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -145,10 +147,12 @@
       <a href="{% url 'student_dashboard' %}" class="p-3 hover:text-[var(--brand-primary)]">Главная</a>
       <a href="{% url 'tutors' %}" class="p-3 hover:text-[var(--brand-primary)]">Мои репетиторы</a>
       <a href="{% url 'course_view' %}?course_id=1" class="p-3 hover:text-[var(--brand-primary)]">Курсы</a>
-      <a href="#" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
+      <a href="{% url 'profile' %}" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
       <div class="p-3 flex items-center gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="Аватар пользователя" class="avatar w-8 h-8">
-        <span class="text-sm font-medium">Мой профиль</span>
+        <a href="{% url 'profile' %}" class="flex items-center gap-3">
+          <img src="{% static 'Icons/Logo.png' %}" alt="Аватар пользователя" class="avatar w-8 h-8">
+          <span class="text-sm font-medium">Мой профиль</span>
+        </a>
       </div>
     </nav>
   </header>

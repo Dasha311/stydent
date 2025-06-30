@@ -1,0 +1,506 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - EduPath</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="font-inter bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8">
+      <nav class="hidden md:flex gap-6 text-sm font-medium">
+        <a href="{% url 'student_dashboard' %}" class="hover:text-purple-600">Главная</a>
+        <a href="{% url 'course_view' %}?course_id=1" class="hover:text-purple-600">Курсы</a>
+        <a href="{% url 'tutors' %}" class="hover:text-purple-600">Репетиторы</a>
+        <a href="{% url 'about' %}" class="hover:text-purple-600">О нас</a>
+      </nav>
+      <div class="hidden md:flex items-center gap-3">
+        <button class="text-purple-600 text-sm font-medium hover:underline">Профиль</button>
+        <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Выйти</button>
+      </div>
+      <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
+        <svg id="menu-icon-open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg id="menu-icon-close" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-menu-backdrop" class="fixed inset-0 bg-black/30 z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <nav id="mobile-menu" class="fixed top-16 left-0 right-0 bottom-0 bg-white z-40 p-6 flex flex-col md:hidden translate-y-full transition-transform duration-300">
+      <a href="{% url 'student_dashboard' %}" class="p-3 text-lg hover:text-purple-600">Главная</a>
+      <a href="{% url 'course_view' %}?course_id=1" class="p-3 text-lg hover:text-purple-600">Курсы</a>
+      <a href="{% url 'tutors' %}" class="p-3 text-lg hover:text-purple-600">Репетиторы</a>
+      <a href="{% url 'about' %}" class="p-3 text-lg hover:text-purple-600">О нас</a>
+      <div class="p-3 flex flex-col gap-3">
+        <button class="text-purple-600 text-lg font-medium hover:underline">Профиль</button>
+        <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Выйти</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+    <!-- Profile Header -->
+    <section class="bg-gray-200 rounded-2xl p-6 mb-8 relative overflow-hidden">
+      <img src="{% static 'Icons/background-placeholder1.jpg' %}" alt="Profile Background" class="absolute inset-0 w-full h-full object-cover opacity-70" id="profile-bg">
+      <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6">
+        <img src="{% static 'Icons/avatar-placeholder.png' %}" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-600" id="profile-avatar">
+        <div class="flex-1 text-center md:text-left">
+          <h1 class="text-2xl font-bold flex items-center justify-center md:justify-start gap-2">
+            <span class="status-online before:inline-block before:w-2.5 before:h-2.5 before:bg-teal-500 before:rounded-full" id="profile-username">GrokMaster</span>
+          </h1>
+          <p class="text-sm text-gray-500">Уровень: <span class="font-semibold" id="profile-level">42</span></p>
+          <div class="w-40 h-2 bg-gray-300 rounded-full mt-2">
+            <div class="h-full bg-purple-600 rounded-full" id="level-progress" style="width: 80%"></div>
+          </div>
+          <p class="text-sm text-gray-500 mt-2" id="profile-bio">Люблю изучать программирование и играть в стратегии!</p>
+          <div class="mt-4 flex flex-wrap gap-3 justify-center md:justify-start">
+            <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Добавить в друзья</button>
+            <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Отправить сообщение</button>
+          </div>
+        </div>
+        <div class="text-sm text-gray-500">
+          <p>Очки: <span class="font-semibold" id="profile-points">5000</span></p>
+          <p>Значков: <span class="font-semibold" id="profile-badges-count">4</span></p>
+          <p>Друзей: <span class="font-semibold">127</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab Navigation -->
+    <nav class="bg-white border-b border-gray-200 flex flex-wrap gap-4 mb-6">
+      <button class="tab-button active px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="overview">Обзор</button>
+      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="certificates">Сертификаты</button>
+      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="badges">Значки</button>
+      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="friends">Друзья</button>
+      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="customize">Настройка профиля</button>
+    </nav>
+
+    <!-- Tab Content -->
+    <div id="overview" class="tab-content active">
+      <h2 class="text-2xl font-bold mb-6">Обзор профиля</h2>
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-4">О себе</h3>
+        <p class="text-gray-500 mb-4" id="profile-about">Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.</p>
+        <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition" id="edit-profile-btn">Редактировать профиль</button>
+        <div id="edit-profile-form" class="hidden mt-4 space-y-4">
+          <div>
+            <label for="edit-username" class="block text-sm font-medium">Имя пользователя</label>
+            <input type="text" id="edit-username" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" value="GrokMaster">
+          </div>
+          <div>
+            <label for="edit-bio" class="block text-sm font-medium">Краткое описание</label>
+            <textarea id="edit-bio" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="2">Люблю изучать программирование и играть в стратегии!</textarea>
+          </div>
+          <div>
+            <label for="edit-about" class="block text-sm font-medium">О себе</label>
+            <textarea id="edit-about" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="6">Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.</textarea>
+          </div>
+          <div class="flex gap-3">
+            <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition" id="save-profile-btn">Сохранить</button>
+            <button class="bg-gray-300 text-gray-700 rounded-xl px-4 py-2 font-medium hover:bg-gray-400 transition" id="cancel-profile-btn">Отмена</button>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold mb-4">Витрина достижений</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="showcase-grid">
+          <!-- Populated via JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <div id="certificates" class="tab-content hidden">
+      <h2 class="text-2xl font-bold mb-6">Сертификаты</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="certificates-grid">
+        <!-- Populated via JavaScript -->
+      </div>
+    </div>
+
+    <div id="badges" class="tab-content hidden">
+      <h2 class="text-2xl font-bold mb-6">Значки</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6" id="badges-grid">
+        <!-- Populated via JavaScript -->
+      </div>
+    </div>
+
+    <div id="friends" class="tab-content hidden">
+      <h2 class="text-2xl font-bold mb-6">Друзья</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6" id="friends-grid">
+        <!-- Populated via JavaScript -->
+      </div>
+    </div>
+
+    <div id="customize" class="tab-content hidden">
+      <h2 class="text-2xl font-bold mb-6">Настройка профиля</h2>
+      <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold mb-4">Прокачка уровня</h3>
+        <p class="text-gray-500 mb-4">Текущий уровень: <span id="customize-level">42</span> | Очки: <span id="customize-points">5000</span></p>
+        <div class="w-full h-2 bg-gray-300 rounded-full mb-4">
+          <div class="h-full bg-purple-600 rounded-full" id="customize-progress" style="width: 80%"></div>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">Прокачайте уровень за 1000 очков, чтобы разблокировать новые возможности!</p>
+        <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed" id="level-up-btn" disabled>Прокачать уровень (1000 очков)</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div>
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8 mb-3">
+        <p class="text-gray-500 text-sm">Ваш проводник в мир знаний с лучшими репетиторами.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Направления</h3>
+        <ul class="space-y-1 text-sm text-gray-500">
+          <li><a href="#" class="hover:text-purple-600">Математика</a></li>
+          <li><a href="#" class="hover:text-purple-600">Английский язык</a></li>
+          <li><a href="#" class="hover:text-purple-600">Программирование</a></li>
+          <li><a href="#" class="hover:text-purple-600">Физика</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Партнеры</h3>
+        <ul class="space-y-1 text-sm text-gray-500">
+          <li><a href="#" class="hover:text-purple-600">Apple</a></li>
+          <li><a href="#" class="hover:text-purple-600">Google</a></li>
+          <li><a href="#" class="hover:text-purple-600">Meta</a></li>
+          <li><a href="#" class="hover:text-purple-600">Amazon</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Связаться с нами</h3>
+        <ul class="space-y-1 text-sm text-gray-500">
+          <li>support@edumentor.ru</li>
+          <li>+7 (495) 123-45-67</li>
+          <li>Москва, ул. Лермонтова, 15</li>
+          <li><a href="#" class="hover:text-purple-600">Политика конфиденциальности</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Assistant Button and Modal -->
+  <button id="assistant-button" class="fixed bottom-6 right-6 w-14 h-14 bg-purple-600 rounded-full grid place-items-center z-50 hover:bg-purple-700 transition" aria-label="Чат">
+    <img src="{% static 'Icons/assistant-icon.png' %}" alt="Assistant" class="w-7 h-7">
+  </button>
+  <div id="assistant-modal" class="hidden fixed bottom-24 right-4 w-[min(380px,calc(100%-32px))] max-h-[500px] bg-white rounded-2xl shadow-lg z-50 flex flex-col">
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center font-semibold">
+      <span>Ваш помощник по обучению</span>
+      <button id="close-assistant" aria-label="Закрыть">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div id="chat-container" class="flex-1 p-4 overflow-y-auto flex flex-col gap-2">
+      <div class="bg-gray-200 text-gray-900 rounded-xl px-3 py-2 max-w-[80%] self-start">Здравствуйте! Какой предмет хотите изучать? Я помогу найти лучшего репетитора!</div>
+    </div>
+    <div class="p-4 border-t border-gray-200 bg-white rounded-b-2xl flex gap-2">
+      <input id="chat-input" type="text" placeholder="Напишите ваш вопрос..." class="flex-1 p-2 border border-gray-300 rounded-xl bg-gray-50 text-sm focus:border-purple-600 focus:ring-2 focus:ring-purple-600" aria-label="Сообщение">
+      <button id="send-button" class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed" aria-label="Отправить" disabled>Отправить</button>
+    </div>
+  </div>
+
+  <script>
+    // Mock API data
+    const mockData = {
+      user: {
+        username: 'GrokMaster',
+        level: 42,
+        points: 5000,
+        progress: 80,
+        bio: 'Люблю изучать программирование и играть в стратегии!',
+        about: 'Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.',
+        background: '{% static "Icons/background-placeholder1.jpg" %}',
+        avatarFrame: '4px solid #6C4DFF',
+        showcaseBadges: ['badge1', 'badge3'],
+      },
+      certificates: [
+        { id: 'cert1', name: 'Python Developer', image: '{% static "Icons/cert-placeholder1.png" %}', description: 'Завершил курс Python с отличием' },
+        { id: 'cert2', name: 'JavaScript Basics', image: '{% static "Icons/cert-placeholder2.png" %}', description: 'Основы JavaScript для веб-разработки' },
+      ],
+      badges: [
+        { id: 'badge1', name: 'Кодер-энтузиаст', image: '{% static "Icons/badge-placeholder1.png" %}', description: 'Завершено 10 курсов Python' },
+        { id: 'badge2', name: 'Стратег года', image: '{% static "Icons/badge-placeholder2.png" %}', description: '100 побед в Civilization VI' },
+        { id: 'badge3', name: 'Полиглот', image: '{% static "Icons/badge-placeholder3.png" %}', description: 'Уровень B2 по английскому' },
+        { id: 'badge4', name: 'Ветеран Steam', image: '{% static "Icons/badge-placeholder4.png" %}', description: '5 лет в Steam' },
+      ],
+      friends: [
+        { id: 'friend1', name: 'CodeNinja', image: '{% static "Icons/friend-placeholder1.png" %}', status: 'online', activity: 'В игре: Dota 2' },
+        { id: 'friend2', name: 'PixelWizard', image: '{% static "Icons/friend-placeholder2.png" %}', status: 'offline', activity: 'Оффлайн' },
+        { id: 'friend3', name: 'StarGazer', image: '{% static "Icons/friend-placeholder3.png" %}', status: 'online', activity: 'В игре: Among Us' },
+      ],
+    };
+
+    // API fetch with mock fallback
+    async function fetchData(endpoint) {
+      try {
+        const response = await fetch(`/api/${endpoint}`);
+        if (!response.ok) throw new Error('API error');
+        return await response.json();
+      } catch (error) {
+        console.warn(`API fetch failed for ${endpoint}, using mock data:`, error);
+        return mockData[endpoint];
+      }
+    }
+
+    // Mobile Menu
+    function toggleMobileMenu(isOpen) {
+      const mobileMenu = document.getElementById('mobile-menu');
+      const backdrop = document.getElementById('mobile-menu-backdrop');
+      const mobileBtn = document.getElementById('mobile-btn');
+      const menuIconOpen = document.getElementById('menu-icon-open');
+      const menuIconClose = document.getElementById('menu-icon-close');
+
+      mobileMenu.classList.toggle('translate-y-full', !isOpen);
+      backdrop.classList.toggle('hidden', !isOpen);
+      backdrop.classList.toggle('opacity-0', !isOpen);
+      mobileBtn.setAttribute('aria-expanded', isOpen);
+      menuIconOpen.classList.toggle('hidden', isOpen);
+      menuIconClose.classList.toggle('hidden', !isOpen);
+      document.body.classList.toggle('overflow-hidden', isOpen);
+    }
+
+    document.getElementById('mobile-btn').addEventListener('click', () => {
+      const isOpen = document.getElementById('mobile-menu').classList.contains('translate-y-full');
+      toggleMobileMenu(isOpen);
+    });
+
+    document.getElementById('mobile-menu-backdrop').addEventListener('click', () => toggleMobileMenu(false));
+
+    // Assistant Chat
+    const assistantButton = document.getElementById('assistant-button');
+    const assistantModal = document.getElementById('assistant-modal');
+    const closeAssistant = document.getElementById('close-assistant');
+    const chatInput = document.getElementById('chat-input');
+    const chatContainer = document.getElementById('chat-container');
+    const sendButton = document.getElementById('send-button');
+
+    assistantButton.addEventListener('click', () => assistantModal.classList.toggle('hidden'));
+    closeAssistant.addEventListener('click', () => assistantModal.classList.add('hidden'));
+
+    const responses = {
+      'математика|алгебра|геометрия': 'Ищу репетитора по математике! Нужна помощь с экзаменами или углубленное изучение?',
+      'английский|english': 'Английский язык: от разговорной практики до подготовки к IELTS. Какой формат вам подходит?',
+      'программирование|python|javascript': 'Программирование: Python, JavaScript и не только. Начинающий или продвинутый уровень?',
+      'регистрация': 'Нажмите "Начать учиться" вверху или внизу страницы.',
+      'контакты|связаться': 'Свяжитесь с нами: support@edumentor.ru, +7 (495) 123-45-67, Москва, ул. Лермонтова, 15.',
+      'цена|стоимость': 'Стоимость зависит от предмета и репетитора. Назови предмет, и я подскажу детали!',
+      'привет|здравствуйте': 'Привет! Какой предмет хочешь изучать? Помогу найти репетитора!',
+      '': 'Назови предмет или задай вопрос, я помогу!'
+    };
+
+    function addMessage(content, isUser) {
+      const div = document.createElement('div');
+      div.className = `rounded-xl px-3 py-2 max-w-[80%] text-sm ${isUser ? 'bg-purple-600 text-white self-end' : 'bg-gray-200 text-gray-900 self-start'}`;
+      div.textContent = content;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTyping() {
+      const div = document.createElement('div');
+      div.className = 'bg-gray-200 text-gray-900 rounded-xl px-3 py-2 max-w-[80%] self-start text-sm';
+      div.textContent = 'Думаю…';
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return div;
+    }
+
+    function getBotResponse(message) {
+      const lower = message.toLowerCase().trim();
+      return Object.keys(responses).find(key => new RegExp(key).test(lower)) ? responses[key] : responses[''];
+    }
+
+    async function handleSendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+      addMessage(message, true);
+      const typing = showTyping();
+      sendButton.disabled = true;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      typing.remove();
+      addMessage(getBotResponse(message), false);
+      sendButton.disabled = false;
+      chatInput.value = '';
+    }
+
+    sendButton.addEventListener('click', handleSendMessage);
+    chatInput.addEventListener('input', () => sendButton.disabled = !chatInput.value.trim());
+    chatInput.addEventListener('keypress', e => e.key === 'Enter' && handleSendMessage());
+
+    // Profile Management
+    let userData, certificates, badges, friends;
+
+    async function initData() {
+      [userData, certificates, badges, friends] = await Promise.all([
+        fetchData('user'),
+        fetchData('certificates'),
+        fetchData('badges'),
+        fetchData('friends'),
+      ]);
+      updateProfile();
+      renderCertificates();
+      renderBadges();
+      renderFriends();
+      renderShowcase();
+    }
+
+    function updateProfile() {
+      document.getElementById('profile-username').textContent = userData.username;
+      document.getElementById('profile-level').textContent = userData.level;
+      document.getElementById('customize-level').textContent = userData.level;
+      document.getElementById('level-progress').style.width = `${userData.progress}%`;
+      document.getElementById('customize-progress').style.width = `${userData.progress}%`;
+      document.getElementById('profile-bio').textContent = userData.bio;
+      document.getElementById('profile-about').textContent = userData.about;
+      document.getElementById('profile-points').textContent = userData.points;
+      document.getElementById('customize-points').textContent = userData.points;
+      document.getElementById('profile-bg').src = userData.background;
+      document.getElementById('profile-avatar').style.border = userData.avatarFrame;
+      document.getElementById('profile-badges-count').textContent = userData.showcaseBadges.length;
+      const levelUpBtn = document.getElementById('level-up-btn');
+      levelUpBtn.disabled = userData.points < 1000;
+      levelUpBtn.classList.toggle('disabled:bg-gray-300', userData.points < 1000);
+    }
+
+    function renderCertificates() {
+      const grid = document.getElementById('certificates-grid');
+      grid.innerHTML = certificates.map(cert => `
+        <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
+          <img src="${cert.image}" alt="${cert.name}" class="w-12 h-12">
+          <div>
+            <p class="font-semibold text-sm">${cert.name}</p>
+            <p class="text-xs text-gray-500">${cert.description}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderBadges() {
+      const grid = document.getElementById('badges-grid');
+      grid.innerHTML = badges.map(badge => `
+        <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
+          <img src="${badge.image}" alt="${badge.name}" class="w-12 h-12">
+          <div>
+            <p class="font-semibold text-sm">${badge.name}</p>
+            <p class="text-xs text-gray-500">${badge.description}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderFriends() {
+      const grid = document.getElementById('friends-grid');
+      grid.innerHTML = friends.map(friend => `
+        <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
+          <img src="${friend.image}" alt="${friend.name}" class="w-12 h-12 rounded-full">
+          <div>
+            <p class="font-semibold text-sm ${friend.status === 'online' ? 'status-online before:inline-block before:w-2.5 before:h-2.5 before:bg-teal-500 before:rounded-full before:mr-1' : ''}">${friend.name}</p>
+            <p class="text-xs text-gray-500">${friend.activity}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderShowcase() {
+      const grid = document.getElementById('showcase-grid');
+      grid.innerHTML = userData.showcaseBadges.map(badgeId => {
+        const badge = badges.find(b => b.id === badgeId);
+        return `
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
+            <img src="${badge.image}" alt="${badge.name}" class="w-12 h-12">
+            <div>
+              <p class="font-semibold text-sm">${badge.name}</p>
+              <p class="text-xs text-gray-500">${badge.description}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Tab Navigation
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active', 'text-purple-600', 'border-purple-600');
+          btn.classList.add('text-gray-500', 'border-transparent');
+        });
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+        button.classList.add('active', 'text-purple-600', 'border-purple-600');
+        button.classList.remove('text-gray-500', 'border-transparent');
+        document.getElementById(button.getAttribute('data-tab')).classList.remove('hidden');
+      });
+    });
+
+    // Profile Editing
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    const editProfileForm = document.getElementById('edit-profile-form');
+    const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+
+    editProfileBtn.addEventListener('click', () => {
+      editProfileForm.classList.remove('hidden');
+      editProfileBtn.classList.add('hidden');
+    });
+
+    cancelProfileBtn.addEventListener('click', () => {
+      editProfileForm.classList.add('hidden');
+      editProfileBtn.classList.remove('hidden');
+      document.getElementById('edit-username').value = userData.username;
+      document.getElementById('edit-bio').value = userData.bio;
+      document.getElementById('edit-about').value = userData.about;
+    });
+
+    saveProfileBtn.addEventListener('click', async () => {
+      userData.username = document.getElementById('edit-username').value.trim();
+      userData.bio = document.getElementById('edit-bio').value.trim();
+      userData.about = document.getElementById('edit-about').value.trim();
+      try {
+        await fetch('/api/user', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData),
+        });
+      } catch (error) {
+        console.warn('Failed to save profile to API, using local data:', error);
+      }
+      updateProfile();
+      editProfileForm.classList.add('hidden');
+      editProfileBtn.classList.remove('hidden');
+    });
+
+    // Level Up
+    document.getElementById('level-up-btn').addEventListener('click', async () => {
+      if (userData.points >= 1000) {
+        userData.points -= 1000;
+        userData.level += 1;
+        userData.progress = 0;
+        try {
+          await fetch('/api/user', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData),
+          });
+        } catch (error) {
+          console.warn('Failed to save level up to API, using local data:', error);
+        }
+        updateProfile();
+      }
+    });
+
+    // Initialize
+    initData();
+  </script>
+</body>
+</html>

@@ -11,7 +11,8 @@ urlpatterns = [
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('tutors/', views.tutors_view, name='tutors'),
     path('course/', views.course_view, name='course_view'),
-
+    path('profile/', views.profile, name='profile'),
+    
     # Футер-страницы
     path('about/', views.about_view, name='about'),
     path('contacts/', views.contact_view, name='contacts'),

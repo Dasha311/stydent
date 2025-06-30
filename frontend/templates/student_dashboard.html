@@ -62,10 +62,12 @@
         <a href="{% url 'student_dashboard' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
         <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
         <a href="{% url 'tutors' %}" class="hover:text-[var(--brand-primary)]">Репетиторы</a>
-        <a href="#" class="hover:text-[var(--brand-primary)]">Профиль</a>
+        <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar" title="Перейти в профиль">
+        <a href="{% url 'profile' %}">
+          <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar" title="Перейти в профиль">
+        </a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -78,9 +80,11 @@
       <a href="{% url 'student_dashboard' %}" class="p-3 hover:text-[var(--brand-primary)]">Главная</a>
       <a href="{% url 'course_view' %}?course_id=1" class="p-3 hover:text-[var(--brand-primary)]">Мои курсы</a>
       <a href="{% url 'tutors' %}" class="p-3 hover:text-[var(--brand-primary)]">Репетиторы</a>
-      <a href="#" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
+      <a href="{% url 'profile' %}" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
       <div class="p-3 flex flex-col gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Перейти в профиль">
+        <a href="{% url 'profile' %}">
+          <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Перейти в профиль">
+        </a>
       </div>
     </nav>
   </header>
