@@ -47,6 +47,8 @@ class Enrollment(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         related_name="enrollments",
+        null=True,
+        blank=True,
     )
     course = models.ForeignKey(
         Course,
@@ -60,9 +62,7 @@ class Enrollment(models.Model):
         unique_together = ("student", "course")
     
     def __str__(self):
-        return f"{self.student.username} enrolled in {self.course.title}"
-
-
+        return f"{self.student.username if self.student else 'Unknown student'} enrolled in {self.course.title}"
 
 class Assignment(models.Model):
     """Homework submitted by a student for a lesson."""
@@ -96,8 +96,7 @@ class Assignment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-            return f"Assignment for {self.lesson} by {self.student}"
-
+        return f"Assignment for {self.lesson} by {self.student}"
 
 class Test(models.Model):
     """A simple test associated with a course."""
@@ -108,7 +107,6 @@ class Test(models.Model):
     def __str__(self):
         return self.title
 
-
 class Question(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="questions")
     text = models.CharField(max_length=255)
@@ -116,7 +114,6 @@ class Question(models.Model):
 
     def __str__(self):
         return self.text
-
 
 @receiver(post_save, sender=Course)
 def create_course_content(sender, instance, created, **kwargs):
@@ -131,4 +128,3 @@ def create_course_content(sender, instance, created, **kwargs):
                 order=i,
                 duration=0,
             )
-
