@@ -40,14 +40,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     courses_enrolled = serializers.SerializerMethodField()
     courses_completed = serializers.SerializerMethodField()
     courses_taught = serializers.SerializerMethodField()
-
+    course_progress = serializers.SerializerMethodField()
     
     class Meta:
         model = UserProfile
         fields = [
             'user', 'profile_picture', 'bio',
             'courses_enrolled', 'courses_completed',
-            'courses_taught'
+            'courses_taught', 'course_progress'
         ]
 
     def get_courses_enrolled(self, obj):
@@ -61,6 +61,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_courses_taught(self, obj):
         from courses.serializers import CourseSerializer
         return CourseSerializer(obj.user.courses_taught.all(), many=True).data
+
+    def get_course_progress(self, obj):
+        progress = {}
+        for enrollment in obj.user.enrollments.select_related('course'):
+            progress[enrollment.course.id] = enrollment.progress
+        return progress
 
     def update(self, instance, validated_data):
         profile_picture = validated_data.pop('profile_picture', None)

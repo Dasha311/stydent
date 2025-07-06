@@ -1,5 +1,15 @@
 from rest_framework import serializers
-from .models import Course, Lesson, Enrollment, Assignment, Test, Question
+from .models import (
+    Course,
+    Lesson,
+    Module,
+    Category,
+    Enrollment,
+    Assignment,
+    Test,
+    Question,
+    LessonCompletion,
+)
 from accounts.serializers import UserSerializer
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -8,6 +18,23 @@ class CourseSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Course
+        fields = '__all__'
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class ModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Module
+        fields = '__all__'
+
+
+class LessonCompletionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LessonCompletion
         fields = '__all__'
 
 class LessonSerializer(serializers.ModelSerializer):

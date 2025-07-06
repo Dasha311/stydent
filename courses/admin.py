@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Course, Lesson, Enrollment, Assignment
+from .models import (
+    Course,
+    Lesson,
+    Module,
+    Category,
+    Enrollment,
+    Assignment,
+)
 
 class LessonInline(admin.TabularInline):
     model = Lesson
@@ -14,3 +21,5 @@ class CourseAdmin(admin.ModelAdmin):
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Enrollment)
 admin.site.register(Assignment)
+admin.site.register(Module)
+admin.site.register(Category)

@@ -14,6 +14,8 @@ from courses.views import (
     CourseDetailView,
     CourseCreateView,
     LessonListView,
+    ModuleListView,
+    ModuleDetailView,
     EnrollmentView,
     UserEnrollmentsView,
     EnrollmentCompleteView,
@@ -21,6 +23,7 @@ from courses.views import (
     LessonDetailView,
     AssignmentCreateView,
     LessonAssignmentsView,
+    LessonCompleteView,
     TeacherCoursesView,
 )
 
@@ -43,8 +46,11 @@ urlpatterns = [
     path('courses/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
     path('courses/<int:pk>/manage/', CourseManageView.as_view(), name='course-manage'),
     path('courses/my/', TeacherCoursesView.as_view(), name='teacher-courses'),
+        path('courses/<int:course_id>/modules/', ModuleListView.as_view(), name='module-list'),
+    path('modules/<int:pk>/', ModuleDetailView.as_view(), name='module-detail'),
     path('courses/<int:course_id>/lessons/', LessonListView.as_view(), name='lesson-list'),
     path('lessons/<int:pk>/', LessonDetailView.as_view(), name='lesson-detail'),
+        path('lessons/<int:lesson_id>/complete/', LessonCompleteView.as_view(), name='lesson-complete'),
 
     # Enrollments
     path('enroll/', EnrollmentView.as_view(), name='enroll'),

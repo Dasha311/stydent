@@ -1,11 +1,15 @@
 from rest_framework import generics, permissions, filters
+from django.shortcuts import get_object_or_404
 from accounts.permissions import IsTeacher, IsStudent
-from .models import Course, Lesson, Enrollment, Assignment
+from .models import Course, Lesson, Module, Category, Enrollment, Assignment, LessonCompletion
 from .serializers import (
     CourseSerializer,
     LessonSerializer,
+    ModuleSerializer,
+    CategorySerializer,
     EnrollmentSerializer,
     AssignmentSerializer,
+    LessonCompletionSerializer,
 )
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -16,7 +20,7 @@ class CourseListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ["title", "description"]
-    filterset_fields = ["is_free", "instructor"]
+    filterset_fields = ["is_free", "instructor", "categories"]
 
 
 class CourseCreateView(generics.CreateAPIView):
@@ -31,6 +35,31 @@ class CourseCreateView(generics.CreateAPIView):
 class CourseDetailView(generics.RetrieveAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+
+class ModuleListView(generics.ListAPIView):
+    serializer_class = ModuleSerializer
+
+    def get_queryset(self):
+        course_id = self.kwargs["course_id"]
+        return Module.objects.filter(course_id=course_id).order_by("order")
+
+
+class ModuleDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Module.objects.all()
+    serializer_class = ModuleSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+
+    def update(self, request, *args, **kwargs):
+        module = self.get_object()
+        if module.course.instructor != request.user:
+            raise permissions.PermissionDenied("Not allowed")
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        module = self.get_object()
+        if module.course.instructor != request.user:
+            raise permissions.PermissionDenied("Not allowed")
+        return super().destroy(request, *args, **kwargs)
 
 
 class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
@@ -129,3 +158,12 @@ class LessonAssignmentsView(generics.ListAPIView):
     def get_queryset(self):
         lesson_id = self.kwargs["lesson_id"]
         return Assignment.objects.filter(lesson_id=lesson_id)
+
+
+class LessonCompleteView(generics.CreateAPIView):
+    serializer_class = LessonCompletionSerializer
+    permission_classes = [permissions.IsAuthenticated, IsStudent]
+
+    def perform_create(self, serializer):
+        lesson = get_object_or_404(Lesson, pk=self.kwargs["lesson_id"])
+        serializer.save(student=self.request.user, lesson=lesson)
