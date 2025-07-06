@@ -64,10 +64,16 @@
         <a href="{% url 'tutors' %}" class="hover:text-[var(--brand-primary)]">Репетиторы</a>
         <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
-      <div class="hidden md:flex items-center gap-3">
-        <a href="{% url 'profile' %}">
-          <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar" title="Перейти в профиль">
-        </a>
+      <div class="hidden md:flex items-center gap-3 relative">
+        <img src="{% static 'Icons/Logo.png' %}" id="profile-icon" alt="User Avatar" class="avatar cursor-pointer" title="Профиль">
+        <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+          <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm hover:bg-gray-100">Профиль</a>
+          <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm hover:bg-gray-100">Выйти</a>
+          <form method="post" action="{% url 'delete_account' %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Удалить</button>
+          </form>
+        </div>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -330,7 +336,18 @@
 
       loadTeacherCourses();
       updateProgressBars();
-    
+
+      // profile dropdown
+      const profileIcon = document.getElementById('profile-icon');
+      const profileMenu = document.getElementById('profile-menu');
+      document.addEventListener('click', (e) => {
+        if (profileIcon.contains(e.target)) {
+          profileMenu.classList.toggle('hidden');
+        } else if (!profileMenu.contains(e.target)) {
+          profileMenu.classList.add('hidden');
+        }
+      });
+          
   </script>
 </body>
 </html>

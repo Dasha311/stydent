@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Удаление профиля</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-50">
+  <form method="post" class="bg-white p-6 rounded-xl shadow-md space-y-4">
+    {% csrf_token %}
+    <p class="text-lg">Вы уверены, что хотите удалить профиль?</p>
+    <div class="flex gap-4 justify-end">
+      <a href="{% url 'profile' %}" class="px-4 py-2 rounded-lg border">Отмена</a>
+      <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 text-white">Удалить</button>
+    </div>
+  </form>
+</body>
+</html>

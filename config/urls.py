@@ -14,6 +14,8 @@ urlpatterns = [
     path('', frontend_views.main_menu, name='main_menu'),
     path('login/', frontend_views.login_view, name='login'),
     path('register/', frontend_views.register, name='register'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='main_menu'), name='logout'),
+    path('delete-account/', frontend_views.delete_account, name='delete_account'),
     path('select-role/', frontend_views.select_role, name='select_role'),
     path('student/dashboard/', frontend_views.student_dashboard, name='student_dashboard'),
     path('teacher/dashboard/', frontend_views.teacher_dashboard, name='teacher_dashboard'),

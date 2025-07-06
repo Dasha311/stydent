@@ -125,3 +125,12 @@ def course_detail(request, course_id):
 def profile(request):
     """Unified profile page for both students and teachers."""
     return render(request, 'profile.html')
+
+
+@login_required
+def delete_account(request):
+    """Delete the current user account."""
+    if request.method == 'POST':
+        request.user.delete()
+        return redirect('main_menu')
+    return render(request, 'delete_account.html')
