@@ -20,8 +20,8 @@
         <a href="{% url 'about' %}" class="hover:text-purple-600">О нас</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
-        <button class="text-purple-600 text-sm font-medium hover:underline">Профиль</button>
-        <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Выйти</button>
+        <a href="{% url 'profile' %}" class="text-purple-600 text-sm font-medium hover:underline">Профиль</a>
+        <a href="{% url 'logout' %}" class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Выйти</a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
         <svg id="menu-icon-open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,8 +39,8 @@
       <a href="{% url 'tutors' %}" class="p-3 text-lg hover:text-purple-600">Репетиторы</a>
       <a href="{% url 'about' %}" class="p-3 text-lg hover:text-purple-600">О нас</a>
       <div class="p-3 flex flex-col gap-3">
-        <button class="text-purple-600 text-lg font-medium hover:underline">Профиль</button>
-        <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Выйти</button>
+        <a href="{% url 'profile' %}" class="text-purple-600 text-lg font-medium hover:underline">Профиль</a>
+        <a href="{% url 'logout' %}" class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Выйти</a>
       </div>
     </nav>
   </header>

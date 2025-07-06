@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.db.utils import OperationalError
 
 User = get_user_model()
 
@@ -129,8 +130,22 @@ def profile(request):
 
 @login_required
 def delete_account(request):
-    """Delete the current user account."""
+    """Delete the current user account after password confirmation."""
     if request.method == 'POST':
-        request.user.delete()
-        return redirect('main_menu')
+        password = request.POST.get('password')
+        password = request.POST.get('password')
+        if request.user.check_password(password):
+            try:
+                request.user.delete()
+                logout(request)
+            except OperationalError:
+                return render(
+                    request,
+                    'delete_account.html',
+                    {'error': 'Ошибка базы данных. Попробуйте позже.'},
+                )
+            return redirect('main_menu')
+        return render(request, 'delete_account.html', {
+            'error': 'Неверный пароль'
+        })
     return render(request, 'delete_account.html')

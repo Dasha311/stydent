@@ -7,13 +7,24 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen flex items-center justify-center bg-gray-50">
-  <form method="post" class="bg-white p-6 rounded-xl shadow-md space-y-4">
+  <form method="post" id="delete-form" class="bg-white p-6 rounded-xl shadow-md space-y-4 hidden">
     {% csrf_token %}
-    <p class="text-lg">Вы уверены, что хотите удалить профиль?</p>
+    <p class="text-lg">Введите пароль для подтверждения удаления</p>
+    {% if error %}
+      <p class="text-red-600 text-sm">{{ error }}</p>
+    {% endif %}
+    <input type="password" name="password" required class="w-full border rounded-lg p-2" />
     <div class="flex gap-4 justify-end">
       <a href="{% url 'profile' %}" class="px-4 py-2 rounded-lg border">Отмена</a>
       <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 text-white">Удалить</button>
     </div>
   </form>
+  <script>
+    if (confirm('Вы уверены, что хотите удалить ваш профиль?')) {
+      document.getElementById('delete-form').classList.remove('hidden');
+    } else {
+      window.location.href = '{% url 'profile' %}';
+    }
+  </script>
 </body>
 </html>

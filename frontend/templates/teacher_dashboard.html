@@ -110,12 +110,24 @@
       <div class="hidden md:flex items-center gap-3 relative">
         <img src="{% static 'Icons/Logo.png' %}" id="profile-icon" alt="Avatar" class="avatar cursor-pointer" title="Профиль">
         <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
-          <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm hover:bg-gray-100">Профиль</a>
-          <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm hover:bg-gray-100">Выйти</a>
-          <form method="post" action="{% url 'delete_account' %}">
-            {% csrf_token %}
-            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Удалить</button>
-          </form>
+          <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-sm hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+            </svg>
+            Профиль
+          </a>
+          <a href="{% url 'logout' %}" class="flex items-center px-4 py-2 text-sm hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+            </svg>
+            Выйти
+          </a>
+          <a href="{% url 'delete_account' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+            </svg>
+            Удалить
+          </a>
         </div>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
