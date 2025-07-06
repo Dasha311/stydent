@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
 from .models import CustomUser, UserProfile
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,15 +29,8 @@ class UserSerializer(serializers.ModelSerializer):
             bio=validated_data.get('bio', '')
         )
 
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-    
-    def validate(self, data):
-        user = authenticate(**data)
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError("Incorrect credentials")
+class LoginSerializer(TokenObtainPairSerializer):
+    username_field = CustomUser.USERNAME_FIELD
 
 
 class ProfileSerializer(serializers.ModelSerializer):

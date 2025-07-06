@@ -1,5 +1,14 @@
 from django.urls import path
-from accounts.views import RegisterView, LoginView, LogoutView, ProfileView
+from accounts.views import (
+    RegisterView,
+    LoginView,
+    LogoutView,
+    ProfileView,
+    ActivateAccountView,
+    PasswordResetRequestView,
+    PasswordResetConfirmView,
+)
+from rest_framework_simplejwt.views import TokenRefreshView
 from courses.views import (
     CourseListView,
     CourseDetailView,
@@ -21,8 +30,12 @@ urlpatterns = [
     # Authentication
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('activate/<uidb64>/<token>/', ActivateAccountView.as_view(), name='activate'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset'),
+    path('password-reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 
     # Courses
     path('courses/', CourseListView.as_view(), name='course-list'),

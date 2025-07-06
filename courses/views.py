@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, filters
+from accounts.permissions import IsTeacher, IsStudent
 from .models import Course, Lesson, Enrollment, Assignment
 from .serializers import (
     CourseSerializer,
@@ -21,7 +22,7 @@ class CourseListView(generics.ListAPIView):
 class CourseCreateView(generics.CreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def perform_create(self, serializer):
         serializer.save(instructor=self.request.user, created_by=self.request.user)
@@ -35,7 +36,7 @@ class CourseDetailView(generics.RetrieveAPIView):
 class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def perform_update(self, serializer):
         course = self.get_object()
@@ -61,7 +62,7 @@ class LessonListView(generics.ListAPIView):
 class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def update(self, request, *args, **kwargs):
         lesson = self.get_object()
@@ -78,7 +79,7 @@ class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class EnrollmentView(generics.CreateAPIView):
     serializer_class = EnrollmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsStudent]
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
@@ -87,7 +88,7 @@ class EnrollmentView(generics.CreateAPIView):
 class EnrollmentCompleteView(generics.UpdateAPIView):
     queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsStudent]
 
     def perform_update(self, serializer):
         grade = self.request.data.get("grade")
@@ -99,7 +100,7 @@ class EnrollmentCompleteView(generics.UpdateAPIView):
 
 class UserEnrollmentsView(generics.ListAPIView):
     serializer_class = EnrollmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsStudent]
 
     def get_queryset(self):
         return Enrollment.objects.filter(student=self.request.user)
@@ -107,7 +108,7 @@ class UserEnrollmentsView(generics.ListAPIView):
 
 class TeacherCoursesView(generics.ListAPIView):
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def get_queryset(self):
         return Course.objects.filter(instructor=self.request.user)
@@ -115,7 +116,7 @@ class TeacherCoursesView(generics.ListAPIView):
 
 class AssignmentCreateView(generics.CreateAPIView):
     serializer_class = AssignmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsStudent]
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
