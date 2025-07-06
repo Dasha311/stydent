@@ -172,12 +172,81 @@ class Test(models.Model):
         return self.title
 
 class Question(models.Model):
+    SINGLE = "single"
+    MULTIPLE = "multiple"
+    TEXT = "text"
+    QUESTION_TYPES = [
+        (SINGLE, "Single Choice"),
+        (MULTIPLE, "Multiple Choice"),
+        (TEXT, "Text"),
+    ]
+
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="questions")
     text = models.CharField(max_length=255)
-    correct_answer = models.CharField(max_length=255)
+    type = models.CharField(max_length=10, choices=QUESTION_TYPES, default=SINGLE)
+    choices = models.JSONField(blank=True, null=True)
+    correct_answer = models.JSONField()
+    explanation = models.TextField(blank=True)
 
     def __str__(self):
         return self.text
+
+class TestAttempt(models.Model):
+    """Stores a student's attempt for a test."""
+
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="attempts")
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    score = models.FloatField(default=0)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+
+class QuestionAttempt(models.Model):
+    """Stores answer for a single question inside a test attempt."""
+
+    attempt = models.ForeignKey(TestAttempt, on_delete=models.CASCADE, related_name="question_attempts")
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.JSONField()
+    is_correct = models.BooleanField()
+    feedback = models.TextField(blank=True)
+
+
+class ChatRoom(models.Model):
+    participants = models.ManyToManyField(CustomUser, related_name="chatrooms")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ChatMessage(models.Model):
+    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ForumThread(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="threads")
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class ForumComment(models.Model):
+    thread = models.ForeignKey(ForumThread, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies")
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Rating(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    mentor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name="mentor_ratings")
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="given_ratings")
+    score = models.PositiveSmallIntegerField()
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 @receiver(post_save, sender=Course)
 def create_course_content(sender, instance, created, **kwargs):

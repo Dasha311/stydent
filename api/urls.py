@@ -25,6 +25,13 @@ from courses.views import (
     LessonAssignmentsView,
     LessonCompleteView,
     TeacherCoursesView,
+    TestDetailView,
+    TestSubmitView,
+    ForumThreadView,
+    ForumCommentView,
+    RatingView,
+    ChatRoomView,
+    ChatMessageView,
 )
 
 app_name = 'api'
@@ -60,5 +67,20 @@ urlpatterns = [
     # Assignments
     path('lessons/<int:lesson_id>/assignments/', LessonAssignmentsView.as_view(), name='lesson-assignments'),
     path('assignments/submit/', AssignmentCreateView.as_view(), name='assignment-submit'),
+
+    # Tests
+    path('tests/<int:pk>/', TestDetailView.as_view(), name='test-detail'),
+    path('tests/<int:test_id>/submit/', TestSubmitView.as_view(), name='test-submit'),
+
+    # Forum
+    path('courses/<int:course_id>/threads/', ForumThreadView.as_view(), name='forum-thread'),
+    path('threads/<int:thread_id>/comment/', ForumCommentView.as_view(), name='forum-comment'),
+
+    # Ratings
+    path('ratings/', RatingView.as_view(), name='rating-create'),
+
+    # Chat
+    path('chats/', ChatRoomView.as_view(), name='chatrooms'),
+    path('chats/<int:room_id>/messages/', ChatMessageView.as_view(), name='chat-messages'),
 
 ]

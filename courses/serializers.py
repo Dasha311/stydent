@@ -8,6 +8,13 @@ from .models import (
     Assignment,
     Test,
     Question,
+    TestAttempt,
+    QuestionAttempt,
+    ChatRoom,
+    ChatMessage,
+    ForumThread,
+    ForumComment,
+    Rating,
     LessonCompletion,
 )
 from accounts.serializers import UserSerializer
@@ -69,5 +76,65 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignment
-        
+        fields = '__all__'
+
+
+class QuestionAttemptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionAttempt
+        fields = '__all__'
+
+
+class TestAttemptSerializer(serializers.ModelSerializer):
+    question_attempts = QuestionAttemptSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TestAttempt
+        fields = '__all__'
+
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    sender = UserSerializer(read_only=True)
+
+    class Meta:
+        model = ChatMessage
+        fields = '__all__'
+
+
+class ChatRoomSerializer(serializers.ModelSerializer):
+    participants = UserSerializer(many=True, read_only=True)
+    messages = ChatMessageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ChatRoom
+        fields = '__all__'
+
+
+class ForumCommentSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    replies = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ForumComment
+        fields = '__all__'
+
+    def get_replies(self, obj):
+        return ForumCommentSerializer(obj.replies.all(), many=True).data
+
+
+class ForumThreadSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    comments = ForumCommentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ForumThread
+        fields = '__all__'
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    student = UserSerializer(read_only=True)
+    mentor = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Rating
         fields = '__all__'
