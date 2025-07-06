@@ -59,13 +59,10 @@ def register(request):
             role=role
         )
         login(request, user)
-<<<<<<< HEAD
+        # Перенаправляем сразу на дашборд в зависимости от роли
         if role == 'teacher':
             return redirect('teacher_dashboard')
         return redirect('student_dashboard')
-=======
-        return redirect('main_menu')
->>>>>>> 7870c4f309b50f733c4222170418b5e647d1efc7
 
     return render(request, 'Register.html')
 
@@ -86,25 +83,26 @@ def terms_view(request):
     return render(request, 'terms.html')
 
 
-
 # Страница выбора роли
 def select_role(request):
-        if request.method == 'POST':
-            role = request.POST.get('role')
-            if role in ['student', 'teacher']:
-                request.user.role = role
-                request.user.save()
-                if role == 'student':
-                    return redirect('student_dashboard')
-                else:
-                    return redirect('teacher_dashboard')
-        return render(request, 'select_role.html')
+    if request.method == 'POST':
+        role = request.POST.get('role')
+        if role in ['student', 'teacher']:
+            request.user.role = role
+            request.user.save()
+            if role == 'student':
+                return redirect('student_dashboard')
+            else:
+                return redirect('teacher_dashboard')
+    return render(request, 'select_role.html')
+
 
 @login_required
 def student_dashboard(request):
     if request.user.role == 'teacher':
         return redirect('teacher_dashboard')
     return render(request, 'student_dashboard.html')
+
 
 @login_required
 def teacher_dashboard(request):
@@ -121,10 +119,9 @@ def tutors_view(request):
 def course_detail(request, course_id):
     """Dynamic course detail page rendered from localStorage data."""
     return render(request, 'course_detail.html', {'course_id': course_id})
+
+
 @login_required
 def profile(request):
     """Unified profile page for both students and teachers."""
     return render(request, 'profile.html')
-
-
-
