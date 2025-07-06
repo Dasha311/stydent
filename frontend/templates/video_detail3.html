@@ -258,6 +258,15 @@
     const chatMessages = document.getElementById('chat-messages');
     const chatFileInput = document.getElementById('chat-file');
 
+     const responses = {
+      "что такое курс": "Курс — это набор видеоуроков и заданий по одной теме.",
+      "как записаться на курс": "На странице курса нажмите 'Записаться', и он появится в вашем профиле.",
+      "можно ли пройти курс бесплатно": "Да, большинство курсов доступны бесплатно.",
+      "что входит в курс": "В курсы входят видео, тесты, практические задания и поддержка наставника.",
+      "ты человек": "Нет, я являюсь виртуальным помощником данного сайта, если же вы хотите, я могу позвать ассистента. Просто напишите 'Позвать ассистента'",
+      "позвать ассистента": "Зову ассистента, минуту",
+    };
+
     function toggleChat(open) {
       if (open) {
         chatWindow.style.transform = 'scale(1)';
@@ -323,13 +332,16 @@
       chatInput.value = '';
       chatInput.focus();
 
+      const normalized = message.toLowerCase();
+      const botReply = responses[normalized] || 'Сейчас я переключу на ассистента, подождите пожалуйста';
+
       setTimeout(() => {
         const authorMsg = document.createElement('div');
         authorMsg.className = 'text-left animate-fade-in';
-        authorMsg.innerHTML = `<span class="inline-block bg-[var(--color-bg)] text-[var(--color-text)] px-4 py-2 rounded-xl max-w-[75%] break-words border border-[var(--color-border)]">Спасибо за ваше сообщение! Я скоро свяжусь с вами.</span>`;
+        authorMsg.innerHTML = `<span class="inline-block bg-[var(--color-bg)] text-[var(--color-text)] px-4 py-2 rounded-xl max-w-[75%] break-words border border-[var(--color-border)]">${botReply}</span>`;
         chatMessages.appendChild(authorMsg);
         chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-      }, 1500);
+      }, 500);
     });
 
     // Quiz Functionality

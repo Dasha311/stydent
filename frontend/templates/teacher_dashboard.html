@@ -105,12 +105,10 @@
         <a href="#my-courses" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
         <a href="#create-course" class="hover:text-[var(--brand-primary)]">Создать курс</a>
         <a href="#messages" class="hover:text-[var(--brand-primary)]">Сообщения</a>
-        <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
+        <a href="#" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
-        <a href="{% url 'profile' %}">
-          <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar" title="Профиль">
-        </a>
+        <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar" title="Профиль">
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -124,9 +122,7 @@
       <a href="#my-courses" class="p-3 hover:text-[var(--brand-primary)]">Мои курсы</a>
       <a href="#create-course" class="p-3 hover:text-[var(--brand-primary)]">Создать курс</a>
       <a href="#messages" class="p-3 hover:text-[var(--brand-primary)]">Сообщения</a>
-      <a href="{% url 'profile' %}">
-          <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль">
-        </a>
+      <a href="#" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
       <div class="p-3 flex flex-col gap-3">
         <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль">
       </div>
@@ -276,6 +272,16 @@
     const sendBtn = document.getElementById('send-button');
     const chatContainer = document.getElementById('chat-container');
 
+    const responses = {
+      "что такое курс": "Курс — это набор видеоуроков и заданий по одной теме.",
+      "как записаться на курс": "На странице курса нажмите 'Записаться', и он появится в вашем профиле.",
+      "можно ли пройти курс бесплатно": "Да, большинство курсов доступны бесплатно.",
+      "что входит в курс": "В курсы входят видео, тесты, практические задания и поддержка наставника.",
+      "ты человек": "Нет, я являюсь виртуальным помощником данного сайта, если же вы хотите, я могу позвать ассистента. Просто напишите 'Позвать ассистента'",
+      "позвать ассистента": "Зову ассистента, минуту",
+    };
+
+
     assistantBtn.addEventListener('click', () => {
       assistantModal.classList.add('show');
       chatInput.focus();
@@ -296,13 +302,16 @@
       chatInput.value = '';
       sendBtn.disabled = true;
       chatContainer.scrollTop = chatContainer.scrollHeight;
+      const normalized = msg.toLowerCase();
+      const botReply = responses[normalized] || 'Сейчас я переключу на ассистента, подождите пожалуйста';
+
       setTimeout(() => {
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot-message';
-        botMsg.textContent = 'Спасибо за ваше сообщение!';
+        botMsg.textContent = botReply;
         chatContainer.appendChild(botMsg);
         chatContainer.scrollTop = chatContainer.scrollHeight;
-      }, 1000);
+      }, 500);
     });
 
     // Course creation with localStorage

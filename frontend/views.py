@@ -8,6 +8,11 @@ User = get_user_model()
 
 # Главное меню
 def main_menu(request):
+    if request.user.is_authenticated:
+        if request.user.role == 'teacher':
+            return redirect('teacher_dashboard')
+        elif request.user.role == 'student':
+            return redirect('student_dashboard')
     return render(request, 'MainMenu.html')
 
 
@@ -39,6 +44,7 @@ def register(request):
         email = request.POST.get('email')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
+        role = request.POST.get('role')
 
         if password1 != password2:
             return render(request, 'Register.html', {'error': 'Пароли не совпадают'})
@@ -46,9 +52,16 @@ def register(request):
         if User.objects.filter(username=username).exists():
             return render(request, 'Register.html', {'error': 'Имя пользователя уже занято'})
 
-        user = User.objects.create_user(username=username, email=email, password=password1)
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password1,
+            role=role
+        )
         login(request, user)
-        return redirect('main_menu')
+        if role == 'teacher':
+            return redirect('teacher_dashboard')
+        return redirect('student_dashboard')
 
     return render(request, 'Register.html')
 
@@ -83,12 +96,16 @@ def select_role(request):
                     return redirect('teacher_dashboard')
         return render(request, 'select_role.html')
 
-
+@login_required
 def student_dashboard(request):
+    if request.user.role == 'teacher':
+        return redirect('teacher_dashboard')
     return render(request, 'student_dashboard.html')
 
-
+@login_required
 def teacher_dashboard(request):
+    if request.user.role == 'student':
+        return redirect('student_dashboard')
     return render(request, 'teacher_dashboard.html')
 
 
@@ -100,10 +117,5 @@ def tutors_view(request):
 def course_detail(request, course_id):
     """Dynamic course detail page rendered from localStorage data."""
     return render(request, 'course_detail.html', {'course_id': course_id})
-@login_required
-def profile(request):
-    """Unified profile page for both students and teachers."""
-    return render(request, 'profile.html')
-
 
 
