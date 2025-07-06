@@ -12,9 +12,10 @@ from courses.views import (
     LessonDetailView,
     AssignmentCreateView,
     LessonAssignmentsView,
+    TeacherCoursesView,
 )
 
-app_name = 'api'  # ← обязательно для работы namespace
+app_name = 'api'
 
 urlpatterns = [
     # Authentication
@@ -27,6 +28,7 @@ urlpatterns = [
     path('courses/create/', CourseCreateView.as_view(), name='course-create'),
     path('courses/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
     path('courses/<int:pk>/manage/', CourseManageView.as_view(), name='course-manage'),
+    path('courses/my/', TeacherCoursesView.as_view(), name='teacher-courses'),
     path('courses/<int:course_id>/lessons/', LessonListView.as_view(), name='lesson-list'),
     path('lessons/<int:pk>/', LessonDetailView.as_view(), name='lesson-detail'),
 

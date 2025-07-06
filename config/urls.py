@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
-from frontend import views as frontend_views  # импорт из frontend
-from accounts import views as account_views  # если где-то нужны представления из accounts
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
+from frontend import views as frontend_views
 
 
 urlpatterns = [
@@ -18,6 +19,7 @@ urlpatterns = [
     path('teacher/dashboard/', frontend_views.teacher_dashboard, name='teacher_dashboard'),
     path('tutors/', frontend_views.tutors_view, name='tutors'),
     path('course/', frontend_views.course_view, name='course_view'),
+    path('profile/', frontend_views.profile, name='profile'),
     path('about/', frontend_views.about_view, name='about'),
     path('contacts/', frontend_views.contact_view, name='contacts'),
     path('terms/', frontend_views.terms_view, name='terms'),
@@ -29,8 +31,10 @@ urlpatterns = [
     path('course/video2/', TemplateView.as_view(template_name='video_detail2.html'), name='video_detail2'),
     path('course/video3/', TemplateView.as_view(template_name='video_detail3.html'), name='video_detail3'),
 
-
-
-    # API (backend)
-    path('api/', include('api.urls', namespace='api')),  # важно, чтобы в api/urls.py было app_name = 'api'
+    # API
+    path('api/', include('api.urls', namespace='api')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
