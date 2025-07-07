@@ -294,11 +294,17 @@ class ChatRoomView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return ChatRoom.objects.filter(participants=self.request.user)
-
+        qs = ChatRoom.objects.filter(participants=self.request.user)
+        course_id = self.request.query_params.get("course")
+        if course_id:
+            qs = qs.filter(course_id=course_id)
+        return qs
+    
     def perform_create(self, serializer):
-        room = serializer.save()
-        room.participants.add(self.request.user)
+        course_id = self.request.data.get("course")
+        course = get_object_or_404(Course, pk=course_id)
+        room = serializer.save(course=course)
+        room.participants.add(self.request.user, course.instructor)
 
 
 class ChatMessageView(generics.ListCreateAPIView):

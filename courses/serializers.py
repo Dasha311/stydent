@@ -106,6 +106,7 @@ class ChatMessageSerializer(serializers.ModelSerializer):
 class ChatRoomSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
     messages = ChatMessageSerializer(many=True, read_only=True)
+    course = CourseSerializer(read_only=True)    
 
     class Meta:
         model = ChatRoom

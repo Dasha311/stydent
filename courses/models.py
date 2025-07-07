@@ -236,6 +236,13 @@ class QuestionAttempt(models.Model):
 
 
 class ChatRoom(models.Model):
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="chatrooms",
+        null=True,
+        blank=True,
+    )
     participants = models.ManyToManyField(CustomUser, related_name="chatrooms")
     created_at = models.DateTimeField(auto_now_add=True)
 
