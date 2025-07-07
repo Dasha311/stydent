@@ -52,6 +52,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     badges = serializers.SlugRelatedField(
         source='user.badges', many=True, read_only=True, slug_field='name'
     )
+    certificates = serializers.SerializerMethodField()
     
     class Meta:
         model = UserProfile
@@ -64,6 +65,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'courses_completed',
             'courses_taught',
             'course_progress',
+            'certificates',
             'level',
             'xp',
             'badges',
@@ -86,6 +88,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         for enrollment in obj.user.enrollments.select_related('course'):
             progress[enrollment.course.id] = enrollment.progress
         return progress
+    
+    def get_certificates(self, obj):
+        return [
+            {
+                'course_id': e.course.id,
+                'course_title': e.course.title,
+            }
+            for e in obj.user.enrollments.filter(certificate_issued=True)
+        ]
 
     def update(self, instance, validated_data):
         profile_picture = validated_data.pop('profile_picture', None)

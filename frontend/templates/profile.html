@@ -79,7 +79,6 @@
       <button class="tab-button active px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="overview">Обзор</button>
       <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="certificates">Сертификаты</button>
       <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="badges">Значки</button>
-      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="friends">Друзья</button>
       <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="customize">Настройка профиля</button>
     </nav>
 
@@ -116,6 +115,14 @@
         </div>
       </div>
     </div>
+      <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+        <h3 class="text-lg font-semibold mb-4">В обучении</h3>
+        <ul id="courses-enrolled" class="list-disc list-inside text-gray-500"></ul>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+        <h3 class="text-lg font-semibold mb-4">Завершенные курсы</h3>
+        <ul id="courses-completed" class="list-disc list-inside text-gray-500"></ul>
+      </div>
 
     <div id="certificates" class="tab-content hidden">
       <h2 class="text-2xl font-bold mb-6">Сертификаты</h2>
@@ -127,13 +134,6 @@
     <div id="badges" class="tab-content hidden">
       <h2 class="text-2xl font-bold mb-6">Значки</h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6" id="badges-grid">
-        <!-- Populated via JavaScript -->
-      </div>
-    </div>
-
-    <div id="friends" class="tab-content hidden">
-      <h2 class="text-2xl font-bold mb-6">Друзья</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6" id="friends-grid">
         <!-- Populated via JavaScript -->
       </div>
     </div>
@@ -213,45 +213,13 @@
 
   <script>
     // Mock API data
-    const mockData = {
-      user: {
-        username: 'GrokMaster',
-        level: 42,
-        points: 5000,
-        progress: 80,
-        bio: 'Люблю изучать программирование и играть в стратегии!',
-        about: 'Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.',
-        background: '{% static "Icons/background-placeholder1.jpg" %}',
-        avatarFrame: '4px solid #6C4DFF',
-        showcaseBadges: ['badge1', 'badge3'],
-      },
-      certificates: [
-        { id: 'cert1', name: 'Python Developer', image: '{% static "Icons/cert-placeholder1.png" %}', description: 'Завершил курс Python с отличием' },
-        { id: 'cert2', name: 'JavaScript Basics', image: '{% static "Icons/cert-placeholder2.png" %}', description: 'Основы JavaScript для веб-разработки' },
-      ],
-      badges: [
-        { id: 'badge1', name: 'Кодер-энтузиаст', image: '{% static "Icons/badge-placeholder1.png" %}', description: 'Завершено 10 курсов Python' },
-        { id: 'badge2', name: 'Стратег года', image: '{% static "Icons/badge-placeholder2.png" %}', description: '100 побед в Civilization VI' },
-        { id: 'badge3', name: 'Полиглот', image: '{% static "Icons/badge-placeholder3.png" %}', description: 'Уровень B2 по английскому' },
-        { id: 'badge4', name: 'Ветеран Steam', image: '{% static "Icons/badge-placeholder4.png" %}', description: '5 лет в Steam' },
-      ],
-      friends: [
-        { id: 'friend1', name: 'CodeNinja', image: '{% static "Icons/friend-placeholder1.png" %}', status: 'online', activity: 'В игре: Dota 2' },
-        { id: 'friend2', name: 'PixelWizard', image: '{% static "Icons/friend-placeholder2.png" %}', status: 'offline', activity: 'Оффлайн' },
-        { id: 'friend3', name: 'StarGazer', image: '{% static "Icons/friend-placeholder3.png" %}', status: 'online', activity: 'В игре: Among Us' },
-      ],
-    };
-
-    // API fetch with mock fallback
-    async function fetchData(endpoint) {
-      try {
-        const response = await fetch(`/api/${endpoint}`);
-        if (!response.ok) throw new Error('API error');
-        return await response.json();
-      } catch (error) {
-        console.warn(`API fetch failed for ${endpoint}, using mock data:`, error);
-        return mockData[endpoint];
+    // Fetch profile data from API
+    async function fetchProfile() {
+      const response = await fetch('/api/profile/');
+      if (!response.ok) {
+        throw new Error('API error');
       }
+      return await response.json();      
     }
 
     // Mobile Menu
@@ -340,93 +308,69 @@
     chatInput.addEventListener('keypress', e => e.key === 'Enter' && handleSendMessage());
 
     // Profile Management
-    let userData, certificates, badges, friends;
+    let userData, certificates, badges;
 
     async function initData() {
-      [userData, certificates, badges, friends] = await Promise.all([
-        fetchData('user'),
-        fetchData('certificates'),
-        fetchData('badges'),
-        fetchData('friends'),
-      ]);
+      userData = await fetchProfile();
+      certificates = userData.certificates || [];
+      badges = userData.badges || [];
       updateProfile();
       renderCertificates();
       renderBadges();
-      renderFriends();
       renderShowcase();
+      renderCourses();
     }
 
     function updateProfile() {
       document.getElementById('profile-username').textContent = userData.username;
       document.getElementById('profile-level').textContent = userData.level;
       document.getElementById('customize-level').textContent = userData.level;
-      document.getElementById('level-progress').style.width = `${userData.progress}%`;
-      document.getElementById('customize-progress').style.width = `${userData.progress}%`;
-      document.getElementById('profile-bio').textContent = userData.bio;
-      document.getElementById('profile-about').textContent = userData.about;
-      document.getElementById('profile-points').textContent = userData.points;
-      document.getElementById('customize-points').textContent = userData.points;
-      document.getElementById('profile-bg').src = userData.background;
-      document.getElementById('profile-avatar').style.border = userData.avatarFrame;
-      document.getElementById('profile-badges-count').textContent = userData.showcaseBadges.length;
+      document.getElementById('profile-bio').textContent = userData.bio || '';
+      document.getElementById('profile-about').textContent = userData.bio || '';
+      document.getElementById('profile-points').textContent = userData.xp;
+      document.getElementById('customize-points').textContent = userData.xp;
+      document.getElementById('profile-badges-count').textContent = badges.length;
       const levelUpBtn = document.getElementById('level-up-btn');
-      levelUpBtn.disabled = userData.points < 1000;
-      levelUpBtn.classList.toggle('disabled:bg-gray-300', userData.points < 1000);
+      levelUpBtn.disabled = userData.xp < 1000;
+      levelUpBtn.classList.toggle('disabled:bg-gray-300', userData.xp < 1000);
+      const progress = userData.xp % 100;
+      document.getElementById('level-progress').style.width = `${progress}%`;
+      document.getElementById('customize-progress').style.width = `${progress}%`;
     }
 
     function renderCertificates() {
       const grid = document.getElementById('certificates-grid');
       grid.innerHTML = certificates.map(cert => `
-        <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
-          <img src="${cert.image}" alt="${cert.name}" class="w-12 h-12">
-          <div>
-            <p class="font-semibold text-sm">${cert.name}</p>
-            <p class="text-xs text-gray-500">${cert.description}</p>
-          </div>
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+          <p class="font-semibold text-sm">${cert.course_title}</p>
         </div>
       `).join('');
     }
 
     function renderBadges() {
       const grid = document.getElementById('badges-grid');
-      grid.innerHTML = badges.map(badge => `
-        <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
-          <img src="${badge.image}" alt="${badge.name}" class="w-12 h-12">
-          <div>
-            <p class="font-semibold text-sm">${badge.name}</p>
-            <p class="text-xs text-gray-500">${badge.description}</p>
-          </div>
+      grid.innerHTML = badges.map(name => `
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+          <p class="font-semibold text-sm">${name}</p>
         </div>
       `).join('');
     }
 
-    function renderFriends() {
-      const grid = document.getElementById('friends-grid');
-      grid.innerHTML = friends.map(friend => `
-        <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
-          <img src="${friend.image}" alt="${friend.name}" class="w-12 h-12 rounded-full">
-          <div>
-            <p class="font-semibold text-sm ${friend.status === 'online' ? 'status-online before:inline-block before:w-2.5 before:h-2.5 before:bg-teal-500 before:rounded-full before:mr-1' : ''}">${friend.name}</p>
-            <p class="text-xs text-gray-500">${friend.activity}</p>
-          </div>
-        </div>
-      `).join('');
-    }
 
     function renderShowcase() {
       const grid = document.getElementById('showcase-grid');
-      grid.innerHTML = userData.showcaseBadges.map(badgeId => {
-        const badge = badges.find(b => b.id === badgeId);
-        return `
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
-            <img src="${badge.image}" alt="${badge.name}" class="w-12 h-12">
-            <div>
-              <p class="font-semibold text-sm">${badge.name}</p>
-              <p class="text-xs text-gray-500">${badge.description}</p>
-            </div>
-          </div>
-        `;
-      }).join('');
+      grid.innerHTML = badges.map(name => `
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+          <p class="font-semibold text-sm">${name}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderCourses() {
+      const enrolled = document.getElementById('courses-enrolled');
+      enrolled.innerHTML = (userData.courses_enrolled || []).map(c => `<li>${c.title}</li>`).join('');
+      const completed = document.getElementById('courses-completed');
+      completed.innerHTML = (userData.courses_completed || []).map(c => `<li>${c.title}</li>`).join('');
     }
 
     // Tab Navigation
@@ -467,7 +411,7 @@
       userData.bio = document.getElementById('edit-bio').value.trim();
       userData.about = document.getElementById('edit-about').value.trim();
       try {
-        await fetch('/api/user', {
+        await fetch('/api/profile/', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(userData),
@@ -482,12 +426,11 @@
 
     // Level Up
     document.getElementById('level-up-btn').addEventListener('click', async () => {
-      if (userData.points >= 1000) {
-        userData.points -= 1000;
+      if (userData.xp >= 1000) {
+        userData.xp -= 1000;
         userData.level += 1;
-        userData.progress = 0;
         try {
-          await fetch('/api/user', {
+          await fetch('/api/profile/', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
