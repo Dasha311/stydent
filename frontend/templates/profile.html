@@ -263,16 +263,23 @@
     assistantButton.addEventListener('click', () => assistantModal.classList.toggle('hidden'));
     closeAssistant.addEventListener('click', () => assistantModal.classList.add('hidden'));
 
-    const responses = {
-      'математика|алгебра|геометрия': 'Ищу репетитора по математике! Нужна помощь с экзаменами или углубленное изучение?',
-      'английский|english': 'Английский язык: от разговорной практики до подготовки к IELTS. Какой формат вам подходит?',
-      'программирование|python|javascript': 'Программирование: Python, JavaScript и не только. Начинающий или продвинутый уровень?',
-      'регистрация': 'Нажмите "Начать учиться" вверху или внизу страницы.',
-      'контакты|связаться': 'Свяжитесь с нами: support@edumentor.ru, +7 (495) 123-45-67, Москва, ул. Лермонтова, 15.',
-      'цена|стоимость': 'Стоимость зависит от предмета и репетитора. Назови предмет, и я подскажу детали!',
-      'привет|здравствуйте': 'Привет! Какой предмет хочешь изучать? Помогу найти репетитора!',
-      '': 'Назови предмет или задай вопрос, я помогу!'
-    };
+    const faq = [
+      {keywords:['математика','алгебра','геометрия','арифметика','математике','математикой'],
+       answer:'Ищу репетитора по математике! Нужна помощь с экзаменами или углубленное изучение?'},
+      {keywords:['английский','english','англ','инглиш'],
+       answer:'Английский язык: от разговорной практики до подготовки к IELTS. Какой формат вам подходит?'},
+      {keywords:['программирование','python','javascript','код','coding','программист'],
+       answer:'Программирование: Python, JavaScript и не только. Начинающий или продвинутый уровень?'},
+      {keywords:['регистрация','зарегистрироваться','аккаунт','начать'],
+       answer:'Нажмите "Начать учиться" вверху или внизу страницы.'},
+      {keywords:['контакты','связаться','поддержка','email','почта','телефон'],
+       answer:'Свяжитесь с нами: support@edumentor.ru, +7 (495) 123-45-67, Москва, ул. Лермонтова, 15.'},
+      {keywords:['цена','стоимость','сколько','оплата','прайс'],
+       answer:'Стоимость зависит от предмета и репетитора. Назови предмет, и я подскажу детали!'},
+      {keywords:['привет','здравствуйте','hello','hi','добрый','утро','день','вечер'],
+       answer:'Привет! Какой предмет хочешь изучать? Помогу найти репетитора!'}
+    ];
+    const defaultAnswer = 'Назови предмет или задай вопрос, я помогу!';
 
     function addMessage(content, isUser) {
       const div = document.createElement('div');
@@ -292,8 +299,15 @@
     }
 
     function getBotResponse(message) {
-      const lower = message.toLowerCase().trim();
-      return Object.keys(responses).find(key => new RegExp(key).test(lower)) ? responses[key] : responses[''];
+      const words = message.toLowerCase().split(/[^a-zа-яё0-9]+/).filter(Boolean);
+      let best = {answer: defaultAnswer, score: 0};
+      faq.forEach(item => {
+        const score = item.keywords.reduce((c, k) => words.includes(k) ? c + 1 : c, 0);
+        if (score > best.score) {
+          best = {answer: item.answer, score};
+        }
+      });
+      return best.answer;
     }
 
     async function handleSendMessage() {

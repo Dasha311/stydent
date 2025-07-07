@@ -301,14 +301,33 @@
     const sendBtn = document.getElementById('send-button');
     const chatContainer = document.getElementById('chat-container');
 
-    const responses = {
-      "что такое курс": "Курс — это набор видеоуроков и заданий по одной теме.",
-      "как записаться на курс": "На странице курса нажмите 'Записаться', и он появится в вашем профиле.",
-      "можно ли пройти курс бесплатно": "Да, большинство курсов доступны бесплатно.",
-      "что входит в курс": "В курсы входят видео, тесты, практические задания и поддержка наставника.",
-      "ты человек": "Нет, я являюсь виртуальным помощником данного сайта, если же вы хотите, я могу позвать ассистента. Просто напишите 'Позвать ассистента'",
-      "позвать ассистента": "Зову ассистента, минуту",
-    };
+    const faq = [
+      {keywords:['что','такое','курс'],
+       answer:'Курс — это набор видеоуроков и заданий по одной теме.'},
+      {keywords:['как','записаться','курс','присоединиться','начать'],
+       answer:"На странице курса нажмите 'Записаться', и он появится в вашем профиле."},
+      {keywords:['можно','пройти','бесплатно','без','оплаты'],
+       answer:'Да, большинство курсов доступны бесплатно.'},
+      {keywords:['что','входит','курс','содержит'],
+       answer:'В курсы входят видео, тесты, практические задания и поддержка наставника.'},
+      {keywords:['ты','человек'],
+       answer:"Нет, я являюсь виртуальным помощником данного сайта, если же вы хотите, я могу позвать ассистента. Просто напишите 'Позвать ассистента'"},
+      {keywords:['позвать','ассистента'],
+       answer:'Зову ассистента, минуту'}
+    ];
+    const defaultReply = 'Сейчас я переключу на ассистента, подождите пожалуйста';
+
+    function findAnswer(message) {
+      const words = message.toLowerCase().split(/[^a-zа-яё0-9]+/).filter(Boolean);
+      let best = {answer: defaultReply, score: 0};
+      faq.forEach(item => {
+        const score = item.keywords.reduce((c, k) => words.includes(k) ? c + 1 : c, 0);
+        if (score > best.score) {
+          best = {answer: item.answer, score};
+        }
+      });
+      return best.answer;
+    }
 
 
     assistantBtn.addEventListener('click', () => {
@@ -331,8 +350,7 @@
       chatInput.value = '';
       sendBtn.disabled = true;
       chatContainer.scrollTop = chatContainer.scrollHeight;
-      const normalized = msg.toLowerCase();
-      const botReply = responses[normalized] || 'Сейчас я переключу на ассистента, подождите пожалуйста';
+      const botReply = findAnswer(msg);
 
       setTimeout(() => {
         const botMsg = document.createElement('div');
