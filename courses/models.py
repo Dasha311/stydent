@@ -114,6 +114,12 @@ class Enrollment(models.Model):
             fields.append("certificate_issued")
             profile, _ = UserProfile.objects.get_or_create(user=self.student)
             profile.courses_completed.add(self.course)
+            from accounts.models import Badge
+            badge, _ = Badge.objects.get_or_create(
+                name="Course Completed",
+                defaults={"description": "Completed a course"},
+            )
+            self.student.badges.add(badge)
             instructor = self.course.instructor
             instructor.level = instructor.level + 20
             instructor.save(update_fields=["level"])            
@@ -140,6 +146,12 @@ def update_enrollment_progress(sender, instance, created, **kwargs):
     except Enrollment.DoesNotExist:
         return
     enrollment.update_progress()
+    student = instance.student
+    student.xp += 10
+    if student.xp >= 100:
+        student.level += student.xp // 100
+        student.xp = student.xp % 100
+    student.save(update_fields=["xp", "level"])
 
 class Assignment(models.Model):
     """Homework submitted by a student for a lesson."""

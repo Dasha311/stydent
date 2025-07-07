@@ -4,12 +4,17 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
+    badges = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='name'
+    )
+        
     class Meta:
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'password',
             'first_name', 'last_name', 'role',
-            'profile_picture', 'bio'
+            'profile_picture', 'bio',
+            'level', 'xp', 'badges'
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -42,6 +47,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     courses_completed = serializers.SerializerMethodField()
     courses_taught = serializers.SerializerMethodField()
     course_progress = serializers.SerializerMethodField()
+    level = serializers.IntegerField(source='user.level', read_only=True)
+    xp = serializers.IntegerField(source='user.xp', read_only=True)
+    badges = serializers.SlugRelatedField(
+        source='user.badges', many=True, read_only=True, slug_field='name'
+    )
     
     class Meta:
         model = UserProfile
@@ -54,6 +64,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             'courses_completed',
             'courses_taught',
             'course_progress',
+            'level',
+            'xp',
+            'badges',
         ]
 
     def get_courses_enrolled(self, obj):

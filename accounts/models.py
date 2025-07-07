@@ -15,7 +15,9 @@ class CustomUser(AbstractUser):
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True)
     level = models.PositiveIntegerField(default=0)
-    
+    xp = models.PositiveIntegerField(default=0)
+    badges = models.ManyToManyField('Badge', blank=True, related_name='users')
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     
@@ -30,3 +32,11 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username}'s profile"
+
+
+class Badge(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.CharField(max_length=255, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
