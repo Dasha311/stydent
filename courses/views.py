@@ -322,15 +322,33 @@ class CourseSearchView(generics.ListAPIView):
         query = self.request.query_params.get("q", "")
         return Course.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
 
+class CategoryListView(generics.ListAPIView):
+    """Return all available course categories."""
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.AllowAny]
+
 
 class RecommendedCoursesView(generics.ListAPIView):
+    """Return courses for the recommendations section."""
+
     serializer_class = CourseSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        completed = user.userprofile.courses_completed.all()
-        categories = Category.objects.filter(courses__in=completed).distinct()
-        qs = Course.objects.filter(categories__in=categories).exclude(enrollments__student=user).distinct()
-        qs = qs.annotate(avg_rating=Avg("rating__score")).order_by("-avg_rating")
-        return qs[:10]
+        qs = Course.objects.all()
+
+        category = self.request.query_params.get("category")
+        if category:
+            qs = qs.filter(categories__id=category)
+
+        sort = self.request.query_params.get("sort")
+        if sort == "rating":
+            qs = qs.annotate(avg_rating=Avg("rating__score")).order_by("-avg_rating")
+        elif sort == "date":
+            qs = qs.order_by("-created_at")
+        else:
+            qs = qs.order_by("?")
+
+        return qs.distinct()[:10]

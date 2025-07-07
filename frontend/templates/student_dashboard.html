@@ -124,6 +124,13 @@
     <section class="bg-[var(--bg-secondary)] py-12">
       <div class="max-w-7xl mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Рекомендуемые курсы</h2>
+        <div class="flex justify-end mb-4">
+          <select id="sort-select" class="p-2 border rounded-lg text-sm">
+            <option value="random">Случайно</option>
+            <option value="rating">По рейтингу</option>
+            <option value="date">По дате</option>
+          </select>
+        </div>
         <div id="recommended-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         </div>
       </div>
@@ -166,8 +173,7 @@
       </div>
       <div>
         <h3 class="font-semibold mb-2">Направления</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Математика</a></li>
+        <ul id="category-list" class="space-y-1 text-sm text-[var(--text-secondary)]"></ul>
         </ul>
       </div>
     </div>
@@ -292,49 +298,79 @@
       }
     attachEnrollHandlers();
 
-    // Load courses created by teachers
-      function loadTeacherCourses() {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_CREATED) || '[]');
-        const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
+    // Fetch categories and courses from the API
+      let selectedCategory = null;
+
+      function loadCategories() {
+        fetch('/api/categories/')
+          .then(r => r.json())
+          .then(data => {
+            const list = document.getElementById('category-list');
+            list.innerHTML = '';
+            data.forEach(cat => {
+              const li = document.createElement('li');
+              const a = document.createElement('a');
+              a.href = '#';
+              a.textContent = cat.name;
+              a.className = 'hover:text-[var(--brand-primary)]';
+              a.addEventListener('click', e => {
+                e.preventDefault();
+                selectedCategory = cat.id;
+                loadRecommended();
+              });
+              li.appendChild(a);
+              list.appendChild(li);
+            });
+          });
+      }
+
+      function loadRecommended() {
         const rec = document.getElementById('recommended-courses');
-        const cur = document.getElementById('current-courses');
-        saved.forEach(c => {
-          const article = document.createElement('article');
-          article.className = 'card';
-          article.dataset.courseId = c.id;
-          article.innerHTML = `
-            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="${c.title}" class="w-full h-40 object-cover rounded-t-lg">
-            <div class="p-5">
-              <h3 class="text-lg font-semibold mb-2">${c.title}</h3>
-              <p class="text-[var(--text-secondary)] text-sm mb-3">${c.description}</p>
-            </div>`;
-          if(enrolled.includes(String(c.id))){
-            const progress = document.createElement('div');
-            progress.className='progress-bar mb-3';
-            progress.innerHTML='<div class="progress-bar-inner" style="width:0%"></div>';
-            article.querySelector('.p-5').appendChild(progress);
-            const cont=document.createElement('a');
-            cont.href='/course/'+c.id+'/';
-            cont.className='btn w-full text-center';
-            cont.textContent='Продолжить';
-            article.querySelector('.p-5').appendChild(cont);
-            cur.appendChild(article);
-          }else{
-            const enroll = document.createElement('a');
-            enroll.href='#';
-            enroll.className='text-[var(--brand-primary)] hover:underline text-sm enroll';
-            enroll.textContent='Записаться';
-            article.querySelector('.p-5').appendChild(enroll);
-            rec.appendChild(article);
-          }
-        });
-        attachEnrollHandlers();
-        if(!cur.children.length){
-          cur.innerHTML = '<p class="col-span-full text-center">Нет курсов</p>';
-        }
-        if(!rec.children.length){
-          rec.innerHTML = '<p class="col-span-full text-center">Нет рекомендаций</p>';
-        }
+        rec.innerHTML = '';
+        const params = new URLSearchParams();
+        const sort = document.getElementById('sort-select').value;
+        if (sort && sort !== 'random') params.set('sort', sort);
+        if (selectedCategory) params.set('category', selectedCategory);
+        fetch('/api/recommendations/?' + params.toString())
+          .then(r => r.json())
+          .then(data => {
+            const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
+            data.forEach(c => {
+              const article = document.createElement('article');
+              article.className = 'card';
+              article.dataset.courseId = c.id;
+              article.innerHTML = `
+                <img src="${c.thumbnail}" alt="${c.title}" class="w-full h-40 object-cover rounded-t-lg">
+                <div class="p-5">
+                  <h3 class="text-lg font-semibold mb-2">${c.title}</h3>
+                  <p class="text-[var(--text-secondary)] text-sm mb-3">${c.description}</p>
+                </div>`;
+              if(enrolled.includes(String(c.id))){
+                const progress = document.createElement('div');
+                progress.className='progress-bar mb-3';
+                progress.innerHTML='<div class="progress-bar-inner" style="width:0%"></div>';
+                article.querySelector('.p-5').appendChild(progress);
+                const cont=document.createElement('a');
+                cont.href='/course/'+c.id+'/';
+                cont.className='btn w-full text-center';
+                cont.textContent='Продолжить';
+                article.querySelector('.p-5').appendChild(cont);
+                document.getElementById('current-courses').appendChild(article);
+              } else {
+                const enroll = document.createElement('a');
+                enroll.href='#';
+                enroll.className='text-[var(--brand-primary)] hover:underline text-sm enroll';
+                enroll.textContent='Записаться';
+                article.querySelector('.p-5').appendChild(enroll);
+                rec.appendChild(article);
+              }
+            });
+            attachEnrollHandlers();
+            updateProgressBars();
+            if(!rec.children.length){
+              rec.innerHTML = '<p class="col-span-full text-center">Нет рекомендаций</p>';
+            }
+          });
       }
 
       function updateProgressBars() {
@@ -346,7 +382,10 @@
         });
       }
 
-      loadTeacherCourses();
+      document.getElementById('sort-select').addEventListener('change', loadRecommended);
+
+      loadCategories();
+      loadRecommended();
       updateProgressBars();
 
       // profile dropdown

@@ -175,6 +175,10 @@
               <input id="course-image" type="file" accept="image/*" class="w-full p-2 border border-[var(--border-color)] rounded-lg">
             </div>
             <div class="mb-4">
+              <label for="course-category" class="block text-sm font-medium mb-1">Категория</label>
+              <select id="course-category" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></select>
+            </div>        
+            <div class="mb-4">
                             <label for="course-videos" class="block text-sm font-medium mb-1">Ссылки на видео (по одному на строке)</label>
               <textarea id="course-videos" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder="https://...\nhttps://..."></textarea>
             </div>
@@ -339,9 +343,26 @@
     // Course creation with localStorage
     const userKey = '{{ request.user.id }}';
     const STORAGE = 'createdCourses_' + userKey;
-    const courseForm = document.getElementById('create-course-form');
-    const coursesContainer = document.getElementById('teacher-courses');
-    let editId = null;
+const courseForm = document.getElementById('create-course-form');
+const coursesContainer = document.getElementById('teacher-courses');
+let editId = null;
+let categories = [];
+
+function loadCategoryOptions() {
+  fetch('/api/categories/')
+    .then(r => r.json())
+    .then(data => {
+      categories = data;
+      const select = document.getElementById('course-category');
+      select.innerHTML = '';
+      data.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        select.appendChild(opt);
+      });
+    });
+}
 
       function addCourseCard(course) {
         const article = document.createElement('article');
@@ -372,10 +393,13 @@
           document.getElementById('course-text').value = course.text || '';
           document.getElementById('course-assignment').value = course.assignment || '';
           document.getElementById('with-test').checked = !!course.test;
+          if(course.category){
+            document.getElementById('course-category').value = course.category;
+          }
           editId = course.id;
           courseForm.querySelector('button[type=submit]').textContent = 'Сохранить';
           window.scrollTo({top: courseForm.closest('section').offsetTop, behavior:'smooth'});
-        });          
+        });
         coursesContainer.appendChild(article);
       }
 
@@ -397,7 +421,7 @@
         if(editId){
           const idx = saved.findIndex(c => c.id === editId);
           if(idx !== -1){
-            saved[idx] = {id: editId, title, description, videos, text, assignment};
+            saved[idx] = {id: editId, title, description, videos, text, assignment, category: document.getElementById('course-category').value};
             if(withTest) saved[idx].test = saved[idx].test || [];
             else delete saved[idx].test;
           }
@@ -407,7 +431,7 @@
           editId = null;
           courseForm.querySelector('button[type=submit]').textContent = 'Создать курс';
         }else{
-          const newCourse = { id: Date.now(), title, description, videos, text, assignment };
+          const newCourse = { id: Date.now(), title, description, videos, text, assignment, category: document.getElementById('course-category').value };
           if(withTest) newCourse.test = [];
           saved.push(newCourse);
           localStorage.setItem(STORAGE, JSON.stringify(saved));
@@ -427,6 +451,7 @@
       }
     });      
 
+    loadCategoryOptions();
     loadCourses();
   </script>
 </body>
