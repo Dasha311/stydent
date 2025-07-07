@@ -152,6 +152,9 @@ class EnrollmentView(generics.CreateAPIView):
         enrollment = serializer.save(student=self.request.user)
         profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
         profile.courses_enrolled.add(enrollment.course)
+        instructor = enrollment.course.instructor
+        instructor.level = instructor.level + 10
+        instructor.save(update_fields=["level"])
 
 
 class EnrollmentCompleteView(generics.UpdateAPIView):

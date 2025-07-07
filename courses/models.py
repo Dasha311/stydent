@@ -37,6 +37,11 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_free = models.BooleanField(default=False)
     categories = models.ManyToManyField('Category', related_name='courses', blank=True)
+
+    @property
+    def average_rating(self):
+        from django.db.models import Avg
+        return self.rating_set.aggregate(avg=Avg("score")).get("avg") or 0    
     
     def __str__(self):
         return self.title
@@ -109,6 +114,9 @@ class Enrollment(models.Model):
             fields.append("certificate_issued")
             profile, _ = UserProfile.objects.get_or_create(user=self.student)
             profile.courses_completed.add(self.course)
+            instructor = self.course.instructor
+            instructor.level = instructor.level + 20
+            instructor.save(update_fields=["level"])            
         self.save(update_fields=fields)
 
 

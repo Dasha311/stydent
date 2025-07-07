@@ -22,10 +22,12 @@ from accounts.serializers import UserSerializer
 class CourseSerializer(serializers.ModelSerializer):
     instructor = UserSerializer(read_only=True)
     created_by = UserSerializer(read_only=True)
+    average_rating = serializers.FloatField(read_only=True, source='average_rating')
     
     class Meta:
         model = Course
         fields = '__all__'
+        read_only_fields = ['average_rating']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

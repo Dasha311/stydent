@@ -14,6 +14,7 @@ class CustomUser(AbstractUser):
         ('teacher', 'Teacher'),  # legacy
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True)
+    level = models.PositiveIntegerField(default=0)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
