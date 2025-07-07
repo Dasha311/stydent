@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Avg
 from accounts.permissions import IsMentor, IsStudent
-from accounts.models import CustomUser
+from accounts.models import CustomUser, UserProfile
 from .models import (
     Course,
     Lesson,
@@ -51,6 +51,15 @@ class CourseListView(generics.ListAPIView):
     search_fields = ["title", "description"]
     filterset_fields = ["is_free", "instructor", "categories"]
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if (
+            user.is_authenticated
+            and user.role in {"mentor", "teacher"}
+        ):
+            qs = qs.filter(instructor=user)
+        return qs
 
 class CourseCreateView(generics.CreateAPIView):
     queryset = Course.objects.all()
@@ -140,7 +149,9 @@ class EnrollmentView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsStudent]
 
     def perform_create(self, serializer):
-        serializer.save(student=self.request.user)
+        enrollment = serializer.save(student=self.request.user)
+        profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
+        profile.courses_enrolled.add(enrollment.course)
 
 
 class EnrollmentCompleteView(generics.UpdateAPIView):
