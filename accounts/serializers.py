@@ -35,6 +35,7 @@ class LoginSerializer(TokenObtainPairSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    username = serializers.CharField(source='user.username', required=False)
     profile_picture = serializers.ImageField(write_only=True, required=False, allow_null=True)
     bio = serializers.CharField(write_only=True, required=False, allow_blank=True)
     courses_enrolled = serializers.SerializerMethodField()
@@ -45,9 +46,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
-            'user', 'profile_picture', 'bio',
-            'courses_enrolled', 'courses_completed',
-            'courses_taught', 'course_progress'
+            'user',
+            'username',
+            'profile_picture',
+            'bio',
+            'courses_enrolled',
+            'courses_completed',
+            'courses_taught',
+            'course_progress',
         ]
 
     def get_courses_enrolled(self, obj):
@@ -71,10 +77,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         profile_picture = validated_data.pop('profile_picture', None)
         bio = validated_data.pop('bio', None)
+        username = validated_data.pop('username', None)
         user = instance.user
         if profile_picture is not None:
             user.profile_picture = profile_picture
         if bio is not None:
             user.bio = bio
+        if username is not None:
+            user.username = username
         user.save()
         return super().update(instance, validated_data)
