@@ -28,12 +28,11 @@ class RegisterView(generics.CreateAPIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         activation_link = settings.DEFAULT_DOMAIN + reverse('api:activate', args=[uid, token])
-        send_mail(
+        from .tasks import send_email
+        send_email.delay(
             'Activate your account',
             f'Please activate your account: {activation_link}',
-            settings.DEFAULT_FROM_EMAIL,
             [user.email],
-            fail_silently=True,
         )
 
 
@@ -92,7 +91,8 @@ class PasswordResetRequestView(generics.GenericAPIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         reset_link = settings.DEFAULT_DOMAIN + reverse('api:password-reset-confirm', args=[uid, token])
-        send_mail('Reset password', f'Reset your password: {reset_link}', settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=True)
+        from .tasks import send_email
+        send_email.delay('Reset password', f'Reset your password: {reset_link}', [user.email])
         return Response(status=status.HTTP_200_OK)
 
 

@@ -2,6 +2,11 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from accounts.models import CustomUser, UserProfile
+from accounts.tasks import (
+    send_new_message_email,
+    send_module_reminder_email,
+    send_new_course_invitation,
+)
 import os
 from .utils import generate_course_topics
 
@@ -222,6 +227,16 @@ class ChatMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+@receiver(post_save, sender=ChatMessage)
+def notify_new_message(sender, instance, created, **kwargs):
+    if not created:
+        return
+    participants = instance.room.participants.exclude(id=instance.sender_id)
+    for user in participants:
+        if user.email:
+            send_new_message_email.delay(user.email, instance.sender.username, instance.text)
+
+
 class ForumThread(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="threads")
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -261,3 +276,6 @@ def create_course_content(sender, instance, created, **kwargs):
                 order=i,
                 duration=0,
             )
+        for user in CustomUser.objects.filter(role='student'):
+            if user.email:
+                send_new_course_invitation.delay(user.email, instance.title)

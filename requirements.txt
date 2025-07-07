@@ -5,3 +5,5 @@ Pillow
 django-cors-headers
 django-filter
 djangorestframework-simplejwt
+celery
+redis

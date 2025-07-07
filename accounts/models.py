@@ -9,7 +9,9 @@ class CustomUser(AbstractUser):
     bio = models.TextField(blank=True)
     ROLE_CHOICES = [
         ('student', 'Student'),
-        ('teacher', 'Teacher'),
+        ('mentor', 'Mentor'),
+        ('admin', 'Admin'),
+        ('teacher', 'Teacher'),  # legacy
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True)
     

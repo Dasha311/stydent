@@ -24,7 +24,7 @@ from courses.views import (
     AssignmentCreateView,
     LessonAssignmentsView,
     LessonCompleteView,
-    TeacherCoursesView,
+    MentorCoursesView,
     TestDetailView,
     TestSubmitView,
     ForumThreadView,
@@ -32,6 +32,8 @@ from courses.views import (
     RatingView,
     ChatRoomView,
     ChatMessageView,
+    CourseSearchView,
+    RecommendedCoursesView,
 )
 
 app_name = 'api'
@@ -52,8 +54,8 @@ urlpatterns = [
     path('courses/create/', CourseCreateView.as_view(), name='course-create'),
     path('courses/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
     path('courses/<int:pk>/manage/', CourseManageView.as_view(), name='course-manage'),
-    path('courses/my/', TeacherCoursesView.as_view(), name='teacher-courses'),
-        path('courses/<int:course_id>/modules/', ModuleListView.as_view(), name='module-list'),
+    path('courses/my/', MentorCoursesView.as_view(), name='mentor-courses'),
+    path('courses/<int:course_id>/modules/', ModuleListView.as_view(), name='module-list'),
     path('modules/<int:pk>/', ModuleDetailView.as_view(), name='module-detail'),
     path('courses/<int:course_id>/lessons/', LessonListView.as_view(), name='lesson-list'),
     path('lessons/<int:pk>/', LessonDetailView.as_view(), name='lesson-detail'),
@@ -82,5 +84,9 @@ urlpatterns = [
     # Chat
     path('chats/', ChatRoomView.as_view(), name='chatrooms'),
     path('chats/<int:room_id>/messages/', ChatMessageView.as_view(), name='chat-messages'),
+    
+    # Search and recommendations
+    path('search/', CourseSearchView.as_view(), name='course-search'),
+    path('recommendations/', RecommendedCoursesView.as_view(), name='course-recommend'),
 
 ]

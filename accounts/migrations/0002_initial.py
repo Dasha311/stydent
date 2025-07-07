@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("accounts", "0001_initial"),
+        ("accounts", "0001_initial"),
+        ("courses", "0001_initial"),
     ]
 
     operations = [

@@ -126,3 +126,14 @@ CORS_ALLOWED_ORIGINS = [
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@edupath.local'
 DEFAULT_DOMAIN = 'http://localhost:8000'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {
+    'module-reminders': {
+        'task': 'accounts.tasks.send_module_reminders',
+        'schedule': crontab(hour=9, minute=0),
+    },
+}

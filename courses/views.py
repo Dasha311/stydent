@@ -1,7 +1,8 @@
 from rest_framework import generics, permissions, filters
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from accounts.permissions import IsTeacher, IsStudent
+from django.db.models import Q, Avg
+from accounts.permissions import IsMentor, IsStudent
 from accounts.models import CustomUser
 from .models import (
     Course,
@@ -54,7 +55,7 @@ class CourseListView(generics.ListAPIView):
 class CourseCreateView(generics.CreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+    permission_classes = [permissions.IsAuthenticated, IsMentor]
 
     def perform_create(self, serializer):
         serializer.save(instructor=self.request.user, created_by=self.request.user)
@@ -75,7 +76,7 @@ class ModuleListView(generics.ListAPIView):
 class ModuleDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+    permission_classes = [permissions.IsAuthenticated, IsMentor]
 
     def update(self, request, *args, **kwargs):
         module = self.get_object()
@@ -93,7 +94,7 @@ class ModuleDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+    permission_classes = [permissions.IsAuthenticated, IsMentor]
 
     def perform_update(self, serializer):
         course = self.get_object()
@@ -119,7 +120,7 @@ class LessonListView(generics.ListAPIView):
 class LessonDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+    permission_classes = [permissions.IsAuthenticated, IsMentor]
 
     def update(self, request, *args, **kwargs):
         lesson = self.get_object()
@@ -163,9 +164,9 @@ class UserEnrollmentsView(generics.ListAPIView):
         return Enrollment.objects.filter(student=self.request.user)
 
 
-class TeacherCoursesView(generics.ListAPIView):
+class MentorCoursesView(generics.ListAPIView):
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+    permission_classes = [permissions.IsAuthenticated, IsMentor]
 
     def get_queryset(self):
         return Course.objects.filter(instructor=self.request.user)
@@ -297,3 +298,25 @@ class ChatMessageView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         room = get_object_or_404(ChatRoom, pk=self.kwargs["room_id"], participants=self.request.user)
         serializer.save(room=room, sender=self.request.user)
+
+
+class CourseSearchView(generics.ListAPIView):
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        query = self.request.query_params.get("q", "")
+        return Course.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
+
+
+class RecommendedCoursesView(generics.ListAPIView):
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        completed = user.userprofile.courses_completed.all()
+        categories = Category.objects.filter(courses__in=completed).distinct()
+        qs = Course.objects.filter(categories__in=categories).exclude(enrollments__student=user).distinct()
+        qs = qs.annotate(avg_rating=Avg("rating__score")).order_by("-avg_rating")
+        return qs[:10]
