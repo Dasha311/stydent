@@ -20,6 +20,7 @@ urlpatterns = [
     path('student/dashboard/', frontend_views.student_dashboard, name='student_dashboard'),
     path('teacher/dashboard/', frontend_views.teacher_dashboard, name='teacher_dashboard'),
     path('tutors/', frontend_views.tutors_view, name='tutors'),
+    path('tutors/<int:teacher_id>/', frontend_views.teacher_profile_view, name='teacher_profile'),
     path('course/', frontend_views.course_view, name='course_view'),
     path('profile/', frontend_views.profile, name='profile'),
     path('about/', frontend_views.about_view, name='about'),

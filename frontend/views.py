@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.db.utils import OperationalError
+from django.db.models import Avg
 
 User = get_user_model()
 
@@ -113,8 +114,25 @@ def teacher_dashboard(request):
 
 
 def tutors_view(request):
-    """Display the tutors catalog for students."""
-    return render(request, 'tutors.html')
+    """Display the tutors catalog for students with real teachers."""
+    teachers = User.objects.filter(role='teacher')
+    return render(request, 'tutors.html', {'teachers': teachers})
+
+
+def teacher_profile_view(request, teacher_id):
+    """Public profile page of a teacher."""
+    teacher = get_object_or_404(User, id=teacher_id, role='teacher')
+    courses = teacher.courses_taught.all()
+    avg_rating = teacher.mentor_ratings.aggregate(avg=Avg('score'))['avg']
+    return render(
+        request,
+        'teacher_profile.html',
+        {
+            'teacher': teacher,
+            'courses': courses,
+            'avg_rating': avg_rating,
+        },
+    )
 
 
 def course_detail(request, course_id):

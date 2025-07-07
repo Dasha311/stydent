@@ -116,12 +116,15 @@
             </svg>
             Профиль
           </a>
-          <a href="{% url 'logout' %}" class="flex items-center px-4 py-2 text-sm hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
-            </svg>
-            Выйти
-          </a>
+          <form method="post" action="{% url 'logout' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+            {% csrf_token %}
+            <button type="submit" class="flex items-center text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+              </svg>
+              Выйти
+            </button>
+          </form>
           <a href="{% url 'delete_account' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
