@@ -35,6 +35,7 @@ from courses.views import (
     CourseSearchView,
     RecommendedCoursesView,
 )
+from api.views import AdminAnalyticsView
 
 app_name = 'api'
 
@@ -88,5 +89,8 @@ urlpatterns = [
     # Search and recommendations
     path('search/', CourseSearchView.as_view(), name='course-search'),
     path('recommendations/', RecommendedCoursesView.as_view(), name='course-recommend'),
+
+    # Admin analytics
+    path('analytics/', AdminAnalyticsView.as_view(), name='admin-analytics'),
 
 ]
