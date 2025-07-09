@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from accounts.models import CustomUser, UserProfile
+import datetime
 from accounts.tasks import (
     send_new_message_email,
     send_module_reminder_email,
@@ -21,7 +22,7 @@ class Category(models.Model):
 
 class Course(models.Model):
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     instructor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='courses_taught')
     created_by = models.ForeignKey(
         CustomUser,
@@ -30,8 +31,8 @@ class Course(models.Model):
         null=True,
         blank=True,
     )
-    thumbnail = models.ImageField(upload_to='course_thumbnails/')
-    duration = models.DurationField()  # in minutes
+    thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
+    duration = models.DurationField(default=datetime.timedelta())
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
