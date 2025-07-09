@@ -21,11 +21,24 @@ const id = window.location.pathname.split('/').filter(Boolean).pop();
 const params = new URLSearchParams(window.location.search);
 const owner = params.get('owner') || '{{ request.user.id }}';
 const courses = JSON.parse(localStorage.getItem('createdCourses_' + owner) || '[]');
-const course = courses.find(c => String(c.id) === id);
+let course = courses.find(c => String(c.id) === id);
 const container = document.getElementById('course-content');
 if(!course){
-  container.textContent = 'Курс не найден';
+  fetch(`/api/courses/${id}/`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if(!data){
+        container.textContent = 'Курс не найден';
+        return;
+      }
+      course = data;
+      renderCourse();
+    });
 }else{
+  renderCourse();
+}
+
+function renderCourse(){  
   document.getElementById('course-title').textContent = course.title;
   document.title = course.title;
   const videos = course.videos || [];
@@ -55,13 +68,13 @@ if(!course){
   if(course.text){
     const text = document.createElement('div');
     text.className='bg-white p-4 rounded shadow';
-    text.innerHTML = `<h2 class="font-semibold mb-2">Материалы</h2><p>${course.text}</p>`;
+    text.innerHTML = `<h2 class="font-semibold mb-2">Материалы</h2><p class="whitespace-pre-wrap break-words">${course.text}</p>`
     container.appendChild(text);
   }
   if(course.assignment){
     const ass = document.createElement('div');
     ass.className='bg-white p-4 rounded shadow';
-    ass.innerHTML = `<h2 class="font-semibold mb-2">Задание</h2><p>${course.assignment}</p>`;
+    ass.innerHTML = `<h2 class="font-semibold mb-2">Задание</h2><p class="whitespace-pre-wrap break-words">${course.assignment}</p>`;
     container.appendChild(ass);
   }
   const questions = course.test || [];
