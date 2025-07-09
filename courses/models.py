@@ -302,7 +302,7 @@ def create_course_content(sender, instance, created, **kwargs):
                 course=instance,
                 title=topic,
                 order=i,
-                duration=0,
+                duration=datetime.timedelta(),
             )
         for user in CustomUser.objects.filter(role='student'):
             if user.email:
