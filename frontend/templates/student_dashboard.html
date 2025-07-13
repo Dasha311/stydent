@@ -887,11 +887,15 @@
       const article = document.createElement('article');
       article.className = 'card';
       article.dataset.courseId = course.id;
+      const instructor = course.instructor || course.tutor || (course.course ? course.course.instructor : null) || {};
+      const instructorName = instructor.username || instructor.name || 'Не указан';
+      const instructorId = instructor.id;
+
       article.innerHTML = `
         <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="${course.title}" class="card-img" loading="lazy">
         <div class="card-content">
           <h3 class="card-title">${course.title}</h3>
-          <p class="card-text">Репетитор: ${course.tutor || 'Не указан'} • ${course.progress || 0}% завершено</p>
+          <p class="card-text">Репетитор: ${instructorId ? `<a href="/tutors/${instructorId}/" class="text-purple-600 hover:underline">${instructorName}</a>` : instructorName} • ${course.progress || 0}% завершено</p>
           <div class="progress-bar"><div class="progress-bar-inner" style="width: ${course.progress || 0}%;"></div></div>
           <a href="/course/${course.id}/" class="btn-primary">Продолжить</a>
         </div>`;
@@ -902,11 +906,17 @@
       const article = document.createElement('article');
       article.className = 'card';
       article.dataset.courseId = course.id;
+
+      const instructor = course.instructor || (course.course ? course.course.instructor : null) || {};
+      const instructorName = instructor.username || instructor.name || 'Не указан';
+      const instructorId = instructor.id;
+
       article.innerHTML = `
         <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="${course.title}" class="card-img" loading="lazy">
         <div class="card-content">
           <h3 class="card-title">${course.title}</h3>
           <p class="card-text">${course.description || 'Нет описания'}</p>
+          <p class="card-text mt-1">Репетитор: ${instructorId ? `<a href="/tutors/${instructorId}/" class="text-purple-600 hover:underline">${instructorName}</a>` : instructorName}</p>
           <a href="#" class="btn-secondary enroll">Записаться</a>
         </div>`;
       document.getElementById('recommended-courses').appendChild(article);

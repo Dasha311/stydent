@@ -106,7 +106,7 @@
         <img src="{% static 'Icons/Left.png' %}" alt="Назад" class="w-8 md:w-10 opacity-80 hover:opacity-100">
       </a>
       <h1 id="course-title" class="text-4xl md:text-6xl font-bold tracking-tight mb-4"></h1>
-      <p class="text-lg md:text-xl mb-2 opacity-90">Автор: {{ request.user.username }}</p>
+      <p class="text-lg md:text-xl mb-2 opacity-90">Автор: <a id="course-author-link" class="hover:underline"></a></p>
       <p class="text-sm md:text-base opacity-70" id="course-info"></p>
     </div>
   </section>
@@ -202,6 +202,9 @@
     function renderCourse() {
       document.getElementById('course-title').textContent = course.title;
       document.getElementById('page-title').textContent = course.title;
+      const authorLink = document.getElementById('course-author-link');
+      authorLink.textContent = course.instructor.username;
+      authorLink.href = `/tutors/${course.instructor.id}/`;
       document.getElementById('course-info').textContent = `${course.videos?.length || 0} уроков • ${course.duration || 'Не указана'}`;
       const videos = course.videos || [];
       const watched = JSON.parse(localStorage.getItem('courseProgressData:' + id) || '[]');

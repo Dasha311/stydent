@@ -44,7 +44,7 @@
       <div class="absolute inset-0 bg-black bg-opacity-50"></div>
       <div class="relative z-10 max-w-4xl mx-auto h-full flex flex-col justify-center items-center text-center text-white px-4">
         <h1 class="text-4xl md:text-5xl font-bold mb-4" id="course-title">Название курса</h1>
-        <p class="text-lg mb-2" id="course-author">Автор</p>
+        <p class="text-lg mb-2" id="course-author"><a id="course-author-link"></a></p>
         <p class="text-sm opacity-90" id="lesson-count">0 уроков • 0 минут</p>
       </div>
     </section>
@@ -106,7 +106,9 @@
         const course = await response.json();
 
         document.getElementById('course-title').textContent = course.title;
-        document.getElementById('course-author').textContent = `Автор: ${course.instructor.username}`;
+        const authorLink = document.getElementById('course-author-link');
+        authorLink.textContent = course.instructor.username;
+        authorLink.href = `/tutors/${course.instructor.id}/`;
 
         const lessonsRes = await fetch(`http://localhost:8000/api/courses/${courseId}/lessons/`);
         const lessons = await lessonsRes.json();
