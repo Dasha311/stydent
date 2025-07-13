@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.core.mail import send_mail
+import random
 from django.conf import settings
 from django.urls import reverse
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -23,17 +23,11 @@ class RegisterView(generics.CreateAPIView):
 
     
     def perform_create(self, serializer):
-        user = serializer.save(is_active=False)
+        code = f"{random.randint(1000, 9999)}"
+        user = serializer.save(is_active=False, verification_code=code)
         UserProfile.objects.create(user=user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-        activation_link = settings.DEFAULT_DOMAIN + reverse('api:activate', args=[uid, token])
-        from .tasks import send_email
-        send_email.delay(
-            'Activate your account',
-            f'Please activate your account: {activation_link}',
-            [user.email],
-        )
+        from .tasks import send_verification_code_email
+        send_verification_code_email.delay(user.email, code)
 
 
 class LoginView(TokenObtainPairView):
@@ -75,6 +69,24 @@ class ActivateAccountView(generics.GenericAPIView):
             user.save()
             return Response({'status': 'account activated'})
         return Response({'error': 'Invalid link'}, status=status.HTTP_400_BAD_REQUEST)
+
+class VerifyCodeView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        code = request.data.get('code')
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.verification_code != code:
+            return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+        user.is_active = True
+        user.verification_code = ''
+        user.save()
+        return Response({'status': 'account activated'})
+
 
 
 class PasswordResetRequestView(generics.GenericAPIView):

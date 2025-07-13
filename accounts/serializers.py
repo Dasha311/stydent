@@ -31,7 +31,9 @@ class UserSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', ''),
             role=validated_data.get('role'),
             profile_picture=validated_data.get('profile_picture'),
-            bio=validated_data.get('bio', '')
+            bio=validated_data.get('bio', ''),
+            is_active=validated_data.get('is_active', True),
+            verification_code=validated_data.get('verification_code', '')
         )
 
 class LoginSerializer(TokenObtainPairSerializer):

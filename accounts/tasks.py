@@ -9,6 +9,13 @@ def send_email(subject, message, recipient_list):
 
 
 @shared_task
+def send_verification_code_email(email, code):
+    subject = 'Email Verification'
+    message = f'Your verification code is {code}'
+    send_email(subject, message, [email])
+
+
+@shared_task
 def send_new_message_email(email, sender_name, text):
     subject = 'Новое сообщение от наставника'
     message = f'{sender_name}: {text}'
