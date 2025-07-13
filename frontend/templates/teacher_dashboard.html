@@ -469,10 +469,10 @@
       <div class="max-w-7xl mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Создать новый курс</h2>
         <div class="card p-6 max-w-lg mx-auto">
-          <form id="create-course-form">
+          <form id="create-course-form" enctype="multipart/form-data">
             <div class="mb-4">
               <label for="course-title" class="block text-sm font-medium mb-1">Название курса</label>
-              <input id="course-title" type="text" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder="Например, Математика: Подготовка к ЕГЭ">
+              <input id="course-title" type="text" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder="Например, Математика: Подготовка к ЕГЭ" required>
             </div>
             <div class="mb-4">
               <label for="course-description" class="block text-sm font-medium mb-1">Описание курса</label>
@@ -484,26 +484,42 @@
             </div>
             <div class="mb-4">
               <label for="course-category" class="block text-sm font-medium mb-1">Категория</label>
-              <select id="course-category" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></select>
+              <select id="course-category" class="w-full p-2 border border-[var(--border-color)] rounded-lg" required>
+                <option value="" disabled selected>Выберите категорию</option>
+              </select>
             </div>
             <div class="mb-4">
               <label for="course-videos" class="block text-sm font-medium mb-1">Ссылки на видео (по одному на строке)</label>
               <textarea id="course-videos" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder="https://...\nhttps://..."></textarea>
             </div>
             <div class="mb-4">
-              <label for="course-text" class="block text-sm font-medium mb-1">Текстовые материалы</label>
-              <textarea id="course-text" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></textarea>
+              <label for="course-text" class="block text-sm font-medium mb-1">Текстовые материалы (PDF или TXT)</label>
+              <input id="course-text" type="file" accept=".pdf,.txt" class="w-full p-2 border border-[var(--border-color)] rounded-lg" required>
             </div>
             <div class="mb-4">
               <label for="course-assignment" class="block text-sm font-medium mb-1">Задание</label>
-              <textarea id="course-assignment" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></textarea>
+              <textarea id="course-assignment" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder="Опишите задание для студентов..."></textarea>
             </div>
             <div class="mb-4 flex items-center gap-2">
               <input id="with-test" type="checkbox" class="h-4 w-4">
               <label for="with-test" class="text-sm">Добавить тест</label>
             </div>
+            <input type="hidden" id="test-data" name="test-data">
             <button type="submit" class="btn w-full text-center">Создать курс</button>
           </form>
+        </div>
+      </div>
+
+      <!-- Test Creation Modal -->
+      <div id="test-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg max-w-lg w-full">
+          <h3 class="text-lg font-semibold mb-4">Создать тест</h3>
+          <div id="test-questions"></div>
+          <button id="add-question" class="btn mt-4">Добавить вопрос</button>
+          <div class="flex gap-2 mt-4">
+            <button id="save-test" class="btn flex-1">Сохранить</button>
+            <button id="cancel-test" class="btn btn-danger flex-1">Отменить</button>
+          </div>
         </div>
       </div>
     </section>
@@ -815,9 +831,34 @@
                   document.getElementById('course-title').value = course.title;
                   document.getElementById('course-description').value = course.description || '';
                   document.getElementById('course-videos').value = (course.videos || []).join('\n');
-                  document.getElementById('course-text').value = course.text || '';
                   document.getElementById('course-assignment').value = course.assignment || '';
                   document.getElementById('with-test').checked = !!course.test;
+                  if (course.test) {
+                    document.getElementById('test-data').value = JSON.stringify(course.test);
+                    const container = document.getElementById('test-questions');
+                    container.innerHTML = '';
+                    course.test.forEach((q, index) => {
+                      const block = document.createElement('div');
+                      block.className = 'question-block mb-4';
+                      block.innerHTML = `
+                        <label class="block text-sm font-medium mb-1">Вопрос ${index + 1}</label>
+                        <input type="text" class="w-full p-2 border border-[var(--border-color)] rounded-lg mb-2" value="${q.q}" required>
+                        <div class="answers">
+                          ${q.a.map((ans, i) => `
+                            <input type="text" class="answer-input w-full p-2 border border-[var(--border-color)] rounded-lg mb-2" value="${ans}" required>
+                          `).join('')}
+                        </div>
+                        <label class="block text-sm font-medium mb-1">Правильный ответ</label>
+                        <select class="w-full p-2 border border-[var(--border-color)] rounded-lg" required>
+                          <option value="" disabled>Выберите правильный ответ</option>
+                          ${q.a.map((_, i) => `
+                            <option value="${i}" ${i === q.c ? 'selected' : ''}>Вариант ${i + 1}</option>
+                          `).join('')}
+                        </select>
+                      `;
+                      container.appendChild(block);
+                    });
+                  }
                   if (course.category) {
                     document.getElementById('course-category').value = course.category;
                   }
@@ -925,19 +966,77 @@
     }
 
     function loadCategoryOptions() {
-      fetch('/api/categories/')
-        .then(r => r.json())
-        .then(data => {
-          categories = data;
-          const select = document.getElementById('course-category');
-          select.innerHTML = '';
-          data.forEach(cat => {
-            const opt = document.createElement('option');
-            opt.value = cat.id;
-            opt.textContent = cat.name;
-            select.appendChild(opt);
-          });
-        });
+      const categories = [
+        "Frontend-разработка",
+        "Backend-разработка",
+        "Мобильная разработка",
+        "Data Science и машинное обучение",
+        "DevOps и системное администрирование",
+        "QA и тестирование",
+        "UI/UX дизайн",
+        "Базы данных",
+        "Веб-дизайн",
+        "Кибербезопасность",
+        "Бизнес-аналитика",
+        "Общее программирование",
+        "Soft Skills",
+        "Иностранные языки",
+        "Подготовка к сертификациям",
+        "Математика",
+        "Русский язык",
+        "Литература",
+        "Информатика",
+        "Физика",
+        "Химия",
+        "Биология",
+        "История",
+        "География",
+        "Обществознание",
+        "Английский язык",
+        "Немецкий язык",
+        "Французский язык",
+        "Музыка",
+        "Изобразительное искусство",
+        "Физическая культура",
+        "Технология (трудовое обучение)",
+        "Основы безопасности жизнедеятельности (ОБЖ)",
+        "Экология",
+        "Астрономия"
+      ];
+      const select = document.getElementById('course-category');
+      select.innerHTML = '<option value="" disabled selected>Выберите категорию</option>';
+      categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        select.appendChild(opt);
+      });
+    }
+
+    function addQuestionField() {
+      const container = document.getElementById('test-questions');
+      const index = container.children.length + 1;
+      const block = document.createElement('div');
+      block.className = 'question-block mb-4';
+      block.innerHTML = `
+        <label class="block text-sm font-medium mb-1">Вопрос ${index}</label>
+        <input type="text" class="w-full p-2 border border-[var(--border-color)] rounded-lg mb-2" placeholder="Введите вопрос" required>
+        <div class="answers">
+          <input type="text" class="answer-input w-full p-2 border border-[var(--border-color)] rounded-lg mb-2" placeholder="Вариант 1" required>
+          <input type="text" class="answer-input w-full p-2 border border-[var(--border-color)] rounded-lg mb-2" placeholder="Вариант 2" required>
+          <input type="text" class="answer-input w-full p-2 border border-[var(--border-color)] rounded-lg mb-2" placeholder="Вариант 3" required>
+          <input type="text" class="answer-input w-full p-2 border border-[var(--border-color)] rounded-lg mb-2" placeholder="Вариант 4" required>
+        </div>
+        <label class="block text-sm font-medium mb-1">Правильный ответ</label>
+        <select class="w-full p-2 border border-[var(--border-color)] rounded-lg" required>
+          <option value="" disabled selected>Выберите правильный ответ</option>
+          <option value="0">Вариант 1</option>
+          <option value="1">Вариант 2</option>
+          <option value="2">Вариант 3</option>
+          <option value="3">Вариант 4</option>
+        </select>
+      `;
+      container.appendChild(block);
     }
 
     function addCourseCard(course) {
@@ -969,9 +1068,116 @@
         .then(data => { data.forEach(addCourseCard); });
     }
 
+    // Initialize Course Creation
+    function initCourseCreation() {
+      loadCategoryOptions();
+
+      const courseForm = document.getElementById('create-course-form');
+      let editId = null;
+
+      courseForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const title = document.getElementById('course-title').value.trim();
+        const description = document.getElementById('course-description').value.trim();
+        const image = document.getElementById('course-image').files[0];
+        const category = document.getElementById('course-category').value;
+        const videos = document.getElementById('course-videos').value.trim().split('\n').filter(v => v);
+        const textFile = document.getElementById('course-text').files[0];
+        const assignment = document.getElementById('course-assignment').value.trim();
+        const withTest = document.getElementById('with-test').checked;
+        const testData = document.getElementById('test-data').value;
+
+        // Validate inputs
+        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+        const invalidVideos = videos.filter(v => !youtubeRegex.test(v));
+        if (invalidVideos.length > 0) {
+          alert('Пожалуйста, введите корректные ссылки на YouTube.');
+          return;
+        }
+        if (!title || !category || !textFile) {
+          alert('Название курса, категория и текстовые материалы обязательны.');
+          return;
+        }
+        if (!['application/pdf', 'text/plain'].includes(textFile.type)) {
+          alert('Пожалуйста, загрузите файл в формате PDF или TXT.');
+          return;
+        }
+        if (withTest && !testData) {
+          alert('Пожалуйста, сохраните тест перед отправкой формы.');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('category', category);
+        formData.append('videos', JSON.stringify(videos));
+        formData.append('textFile', textFile);
+        formData.append('assignment', assignment);
+        formData.append('test', withTest ? testData : '');
+
+        if (image) formData.append('image', image);
+
+        const url = editId ? `/api/courses/${editId}/manage/` : '/api/courses/create/';
+        const method = editId ? 'PUT' : 'POST';
+        fetch(url, {
+          method,
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          body: formData
+        }).then(r => r.json()).then(data => {
+          editId = null;
+          courseForm.querySelector('button[type=submit]').textContent = 'Создать курс';
+          courseForm.reset();
+          document.getElementById('test-data').value = '';
+          document.getElementById('test-questions').innerHTML = '';
+          document.getElementById('with-test').checked = false;
+          document.getElementById('test-modal').classList.add('hidden');
+          loadCourses();
+        });
+      });
+
+      // Test Modal Handlers
+      document.getElementById('with-test').addEventListener('change', function () {
+        const modal = document.getElementById('test-modal');
+        modal.classList.toggle('hidden', !this.checked);
+        if (this.checked) {
+          addQuestionField();
+        } else {
+          document.getElementById('test-questions').innerHTML = '';
+          document.getElementById('test-data').value = '';
+        }
+      });
+
+      document.getElementById('add-question').addEventListener('click', addQuestionField);
+
+      document.getElementById('cancel-test').addEventListener('click', () => {
+        document.getElementById('with-test').checked = false;
+        document.getElementById('test-modal').classList.add('hidden');
+        document.getElementById('test-questions').innerHTML = '';
+        document.getElementById('test-data').value = '';
+      });
+
+      document.getElementById('save-test').addEventListener('click', () => {
+        const questions = [];
+        document.querySelectorAll('#test-questions .question-block').forEach((block, i) => {
+          const question = block.querySelector('input[type="text"]').value.trim();
+          const answers = Array.from(block.querySelectorAll('.answer-input')).map(input => input.value.trim());
+          const correct = block.querySelector('select').value;
+          if (question && answers.every(a => a) && correct !== '') {
+            questions.push({ q: question, a: answers, c: Number(correct) });
+          }
+        });
+        if (questions.length === 0) {
+          alert('Добавьте хотя бы один полный вопрос.');
+          return;
+        }
+        document.getElementById('test-data').value = JSON.stringify(questions);
+        document.getElementById('test-modal').classList.add('hidden');
+      });
+    }
+
     // Initialize Application
     let editId = null;
-    let categories = [];
 
     const initApp = () => {
       new MobileMenu({
@@ -990,37 +1196,6 @@
       new ChatAssistant();
       new CourseManager();
 
-      // Course Form Submission
-      const courseForm = document.getElementById('create-course-form');
-      courseForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const title = document.getElementById('course-title').value.trim();
-        const description = document.getElementById('course-description').value.trim();
-        const image = document.getElementById('course-image').files[0];
-        const category = document.getElementById('course-category').value;
-        const videos = document.getElementById('course-videos').value.trim().split('\n').filter(v => v);
-        const text = document.getElementById('course-text').value.trim();
-        const assignment = document.getElementById('course-assignment').value.trim();
-        const withTest = document.getElementById('with-test').checked;
-        if (!title) return;
-        const payload = { title, description, category, videos, text, assignment, test: withTest };
-        const url = editId ? `/api/courses/${editId}/manage/` : '/api/courses/create/';
-        const method = editId ? 'PUT' : 'POST';
-        fetch(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
-          body: JSON.stringify(payload)
-        }).then(r => r.json()).then(() => {
-          editId = null;
-          courseForm.querySelector('button[type=submit]').textContent = 'Создать курс';
-          courseForm.reset();
-          loadCourses();
-        });
-      });
-
       // Profile Dropdown
       const profileIcon = document.getElementById('profile-icon');
       const profileMenu = document.getElementById('profile-menu');
@@ -1032,7 +1207,7 @@
         }
       });
 
-      loadCategoryOptions();
+      initCourseCreation();
       loadCourses();
     };
 

@@ -1,116 +1,515 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Курс</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title id="page-title"></title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --color-primary: #007AFF;
+      --color-bg: #F5F5F7;
+      --color-bg-secondary: #FFFFFF;
+      --color-text: #1D1D1F;
+      --color-text-secondary: #6E6E73;
+      --color-border: #D2D2D7;
+      --color-shadow: rgba(0, 0, 0, 0.08);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .text-secondary { color: var(--color-text-secondary); }
+    button, a, input, iframe {
+      transition: all 0.3s ease;
+    }
+    input[type="radio"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--color-border);
+      border-radius: 50%;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="radio"]:checked {
+      border-color: var(--color-primary);
+      background: var(--color-primary);
+      box-shadow: inset 0 0 0 5px var(--color-bg-secondary);
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+      box-shadow: 0 4px 30px var(--color-shadow);
+    }
+    button:hover, a:hover {
+      transform: translateY(-1px);
+    }
+    .video-container {
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 4px 30px var(--color-shadow);
+    }
+    @keyframes slide-in {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .animate-slide-in { animation: slide-in 0.3s ease; }
+    .animate-fade-in { animation: fade-in 0.3s ease; }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-  <header class="bg-white border-b">
-    <div class="max-w-5xl mx-auto p-4 flex justify-between items-center">
-      <a href="{% url 'main_menu' %}" class="text-indigo-600">Главная</a>
-      <span id="course-title" class="font-semibold"></span>
+<body class="min-h-screen flex flex-col">
+  <header class="bg-[var(--color-bg-secondary)] sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10">
+      <nav class="hidden md:flex space-x-8 text-sm font-medium">
+        <a href="{% url 'main_menu' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Главная</a>
+        <a href="{% url 'course_view' %}?course_id=1" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Курсы</a>
+        <a href="{% url 'about' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">О нас</a>
+        <a href="{% url 'contacts' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Контакты</a>
+      </nav>
+      <div class="hidden md:flex items-center gap-4">
+        <button class="text-[var(--color-primary)] text-sm font-medium hover:underline">Войти</button>
+        <button class="bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-[#0051CC] shadow-sm">Регистрация</button>
+      </div>
+      <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
+        <img src="{% static 'Icons/Burger.png' %}" alt="Меню" class="w-6 h-6">
+      </button>
     </div>
+    <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-[var(--color-bg-secondary)] border-t border-[var(--color-border)] hidden">
+      <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
+      <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">Курсы</a>
+      <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
+      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
+      <div class="flex flex-col gap-4 mt-4">
+        <button class="text-[var(--color-primary)] hover:underline w-full text-left">Войти</button>
+        <button class="bg-[var(--color-primary)] text-white w-full rounded-full font-semibold py-3 hover:bg-[#0051CC] shadow-sm">Регистрация</button>
+      </div>
+    </nav>
   </header>
-  <main id="course-content" class="flex-1 max-w-5xl mx-auto p-4 space-y-8"></main>
-  <footer class="bg-white border-t p-4 text-center text-sm text-gray-500">EduPath</footer>
-<script>
-const id = window.location.pathname.split('/').filter(Boolean).pop();
-const params = new URLSearchParams(window.location.search);
-const owner = params.get('owner') || '{{ request.user.id }}';
-const courses = JSON.parse(localStorage.getItem('createdCourses_' + owner) || '[]');
-let course = courses.find(c => String(c.id) === id);
-const container = document.getElementById('course-content');
-if(!course){
-  fetch(`/api/courses/${id}/`)
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      if(!data){
-        container.textContent = 'Курс не найден';
+
+  <section class="relative h-[400px] md:h-[600px] bg-cover bg-center" style="background-image: url('{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}');">
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center px-6">
+      <a href="{% url 'main_menu' %}" class="absolute left-4 top-6">
+        <img src="{% static 'Icons/Left.png' %}" alt="Назад" class="w-8 md:w-10 opacity-80 hover:opacity-100">
+      </a>
+      <h1 id="course-title" class="text-4xl md:text-6xl font-bold tracking-tight mb-4"></h1>
+      <p class="text-lg md:text-xl mb-2 opacity-90">Автор: {{ request.user.username }}</p>
+      <p class="text-sm md:text-base opacity-70" id="course-info"></p>
+    </div>
+  </section>
+
+  <main id="course-content" class="max-w-5xl mx-auto px-6 py-12 flex-1 space-y-8"></main>
+
+  <button id="chat-toggle" aria-label="Открыть чат с автором" class="fixed bottom-6 right-6 bg-[var(--color-primary)] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#0051CC] transition-all z-60">
+    <img src="{% static 'Icons/Message circle.png' %}" alt="Чат" class="w-7 h-7">
+  </button>
+
+  <div id="chat-window" class="fixed bottom-20 right-6 bg-[var(--color-bg-secondary)] rounded-2xl shadow-xl flex flex-col overflow-hidden transform scale-0 opacity-0 transition-all duration-300 origin-bottom-right z-60 card" style="width: 360px; max-height: 500px; max-width: 90vw; max-height: 80vh;">
+    <header class="flex justify-between items-center p-4 border-b border-[var(--color-border)]">
+      <h3 class="font-semibold text-[var(--color-text)]">Чат с автором</h3>
+      <button id="chat-close" aria-label="Закрыть чат" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] text-xl font-bold">×</button>
+    </header>
+    <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-[var(--color-bg)]">
+      <div class="text-center text-sm text-secondary select-none">Начните переписку с автором</div>
+    </div>
+    <form id="chat-form" class="flex p-3 border-t border-[var(--color-border)] gap-2" enctype="multipart/form-data" style="flex-wrap: wrap;">
+      <input type="text" id="chat-input" placeholder="Напишите сообщение..." required class="flex-grow min-w-[150px] border border-[var(--color-border)] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]">
+      <label for="chat-file" class="cursor-pointer text-[var(--color-primary)] hover:underline flex items-center px-3 shrink-0" title="Прикрепить изображение">
+        <img src="{% static 'Icons/Message circle.png' %}" alt="Прикрепить" class="w-5 h-5">
+      </label>
+      <input type="file" id="chat-file" accept="image/*" style="display:none">
+      <button type="submit" class="bg-[var(--color-primary)] text-white rounded-xl font-semibold px-4 py-2 shrink-0 min-w-[80px] hover:bg-[#0051CC] shadow-sm">Отправить</button>
+    </form>
+  </div>
+
+  <footer class="bg-[var(--color-bg-secondary)] border-t border-[var(--color-border)] mt-auto py-12 px-6">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div>
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-8 mb-4">
+        <p class="text-secondary text-sm max-w-xs">Платформа для изучения различных дисциплин.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-3 text-lg">Курсы</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Программирование</a></li>
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Математика</a></li>
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Языки</a></li>
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Науки</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-3 text-lg">Компании</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Apple</a></li>
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Google</a></li>
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Meta</a></li>
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Amazon</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-3 text-lg">Контакты</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li>support@edumentor.ru</li>
+          <li>+7 (495) 123-45-67</li>
+          <li>Москва, ул. Лермонтова, 15</li>
+          <li><a href="#" class="hover:text-[var(--color-primary)]">Политика конфиденциальности</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function getCookie(name) {
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? m.pop() : '';
+    }
+
+    const id = window.location.pathname.split('/').filter(Boolean).pop();
+    const params = new URLSearchParams(window.location.search);
+    const owner = params.get('owner') || '{{ request.user.id }}';
+    const courses = JSON.parse(localStorage.getItem('createdCourses_' + owner) || '[]');
+    let course = courses.find(c => String(c.id) === id);
+    const container = document.getElementById('course-content');
+
+    if (!course) {
+      fetch(`/api/courses/${id}/`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data) {
+            container.textContent = 'Курс не найден';
+            return;
+          }
+          course = data;
+          renderCourse();
+        });
+    } else {
+      renderCourse();
+    }
+
+    function renderCourse() {
+      document.getElementById('course-title').textContent = course.title;
+      document.getElementById('page-title').textContent = course.title;
+      document.getElementById('course-info').textContent = `${course.videos?.length || 0} уроков • ${course.duration || 'Не указана'}`;
+      const videos = course.videos || [];
+      const watched = JSON.parse(localStorage.getItem('courseProgressData:' + id) || '[]');
+
+      function saveProgress() {
+        const p = videos.length ? Math.round(watched.length / videos.length * 100) : 0;
+        localStorage.setItem('courseProgress:' + id, p);
+        localStorage.setItem('courseProgressData:' + id, JSON.stringify(watched));
+        checkCourseCompletion();
+      }
+
+      // Video Section
+      videos.forEach((v, idx) => {
+        const section = document.createElement('section');
+        section.className = 'card p-6';
+        let embedUrl = v;
+        if (v.includes('youtu.be')) {
+          const videoId = v.split('youtu.be/')[1].split('?')[0];
+          embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        } else if (v.includes('youtube.com/watch')) {
+          const videoId = v.split('v=')[1].split('&')[0];
+          embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
+        section.innerHTML = `
+          <div class="video-container">
+            <div class="relative" style="padding-bottom: 56.25%;">
+              <iframe class="absolute top-0 left-0 w-full h-full" src="${embedUrl}" title="Учебное видео ${idx + 1}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>
+        `;
+        const btn = document.createElement('button');
+        btn.textContent = watched.includes(idx) ? 'Просмотрено' : 'Отметить просмотренным';
+        btn.className = 'mt-4 px-4 py-2 rounded bg-[var(--color-primary)] text-white hover:bg-[#0051CC]';
+        btn.onclick = () => {
+          if (!watched.includes(idx)) {
+            watched.push(idx);
+            btn.textContent = 'Просмотрено';
+            saveProgress();
+          }
+        };
+        section.appendChild(btn);
+        container.appendChild(section);
+      });
+
+      // Text Materials
+      if (course.textFile) {
+        const text = document.createElement('div');
+        text.className = 'card p-6';
+        text.innerHTML = `
+          <h2 class="font-semibold mb-2">Материалы</h2>
+          <a href="${course.textFile}" class="text-[var(--color-primary)] hover:underline" target="_blank">Скачать материалы (${course.textFile.endsWith('.pdf') ? 'PDF' : 'TXT'})</a>
+        `;
+        container.appendChild(text);
+      }
+
+      // Assignment
+      if (course.assignment) {
+        const ass = document.createElement('div');
+        ass.className = 'card p-6';
+        const isSubmitted = localStorage.getItem('assignmentSubmitted:' + id) === 'true';
+        ass.innerHTML = `
+          <h2 class="font-semibold mb-2">Задание</h2>
+          <p class="whitespace-pre-wrap break-words mb-4">${course.assignment}</p>
+          <div class="mb-4">
+            <label for="assignment-upload" class="block text-sm font-medium mb-1">Загрузите ваше задание</label>
+            <input id="assignment-upload" type="file" accept=".pdf,.doc,.docx,.txt" class="w-full p-2 border border-[var(--color-border)] rounded-xl" ${isSubmitted ? 'disabled' : ''}>
+          </div>
+          <button id="submit-assignment" class="px-4 py-2 rounded bg-[var(--color-primary)] text-white hover:bg-[#0051CC] ${isSubmitted ? 'opacity-50 cursor-not-allowed' : ''}" ${isSubmitted ? 'disabled' : ''}>Отправить задание</button>
+          ${isSubmitted ? '<p class="mt-2 text-green-600">Задание отправлено</p>' : ''}
+        `;
+        container.appendChild(ass);
+
+        if (!isSubmitted) {
+          const submitBtn = ass.querySelector('#submit-assignment');
+          const uploadInput = ass.querySelector('#assignment-upload');
+          submitBtn.addEventListener('click', () => {
+            if (!uploadInput.files[0]) {
+              alert('Пожалуйста, загрузите файл с заданием.');
+              return;
+            }
+            const formData = new FormData();
+            formData.append('assignmentFile', uploadInput.files[0]);
+            formData.append('courseId', id);
+            fetch('/api/courses/submit-assignment/', {
+              method: 'POST',
+              headers: { 'X-CSRFToken': getCookie('csrftoken') },
+              body: formData
+            }).then(r => r.json()).then(data => {
+              localStorage.setItem('assignmentSubmitted:' + id, 'true');
+              uploadInput.disabled = true;
+              submitBtn.disabled = true;
+              submitBtn.className += ' opacity-50 cursor-not-allowed';
+              const successMsg = document.createElement('p');
+              successMsg.className = 'mt-2 text-green-600';
+              successMsg.textContent = 'Задание отправлено';
+              ass.appendChild(successMsg);
+              checkCourseCompletion();
+            });
+          });
+        }
+      }
+
+      // Test Section
+      const questions = course.test || [];
+      if (questions.length) {
+        const quiz = document.createElement('div');
+        quiz.className = 'card p-8';
+        quiz.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Пройти тест</h2>';
+        questions.forEach((q, i) => {
+          const block = document.createElement('div');
+          block.className = 'p-6 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-border)] mb-4';
+          block.innerHTML = `
+            <p class="font-medium text-lg mb-4">${q.q}</p>
+            ${q.a.map((opt, j) => `
+              <label class="block mb-3 flex items-center cursor-pointer">
+                <input type="radio" name="q${i}" value="${j}" class="mr-3">${opt}
+              </label>
+            `).join('')}
+          `;
+          quiz.appendChild(block);
+        });
+        const result = document.createElement('p');
+        result.className = 'mt-4 text-lg hidden';
+        result.id = 'quiz-result';
+        const btn = document.createElement('button');
+        btn.textContent = 'Отправить ответы';
+        btn.className = 'mt-6 px-6 py-3 rounded-full bg-[var(--color-primary)] text-white font-semibold hover:bg-[#0051CC] shadow-sm';
+        btn.onclick = () => {
+          let correct = 0;
+          questions.forEach((q, i) => {
+            const val = document.querySelector(`input[name=q${i}]:checked`);
+            if (val && Number(val.value) === q.c) correct++;
+          });
+          result.textContent = `Результат: ${correct} из ${questions.length}`;
+          if (correct === questions.length) {
+            localStorage.setItem('testPassed:' + id, 'true');
+            result.className = 'mt-4 text-lg text-green-600 animate-fade-in';
+          } else {
+            result.className = 'mt-4 text-lg text-red-600 animate-fade-in';
+          }
+          result.classList.remove('hidden');
+          checkCourseCompletion();
+        };
+        quiz.appendChild(btn);
+        quiz.appendChild(result);
+        container.appendChild(quiz);
+      }
+
+      // Course Content Section
+      if (videos.length) {
+        const contentSection = document.createElement('section');
+        contentSection.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Содержание курса</h2>';
+        const grid = document.createElement('div');
+        grid.className = 'grid gap-4 md:grid-cols-2';
+        videos.forEach((v, idx) => {
+          const item = document.createElement('div');
+          item.className = 'flex items-center p-6 card';
+          item.innerHTML = `
+            <img src="{% static 'Icons/play-icon.png' %}" alt="Воспроизведение" class="w-10 h-10 mr-4 opacity-80">
+            <div class="flex-1">
+              <p class="font-medium">Урок ${idx + 1}: ${course.title} (Часть ${idx + 1})</p>
+              <p class="text-sm text-secondary">Длительность не указана</p>
+            </div>
+            <span class="text-sm text-secondary">${watched.includes(idx) ? 'Просмотрено' : '00:00'}</span>
+          `;
+          grid.appendChild(item);
+        });
+        contentSection.appendChild(grid);
+        container.appendChild(contentSection);
+      }
+
+      // Additional Videos (if any additional materials are added in the future)
+      if (course.videos?.length > 1) {
+        const additionalSection = document.createElement('section');
+        additionalSection.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Дополнительные материалы</h2>';
+        const grid = document.createElement('div');
+        grid.className = 'grid gap-8 md:grid-cols-2';
+        course.videos.slice(1).forEach(v => {
+          let embedUrl = v;
+          if (v.includes('youtu.be')) {
+            const videoId = v.split('outu.be/')[1].split('?')[0];
+            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+          } else if (v.includes('youtube.com/watch')) {
+            const videoId = v.split('v=')[1].split('&')[0];
+            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+          }
+          const videoDiv = document.createElement('div');
+          videoDiv.className = 'video-container card';
+          videoDiv.innerHTML = `
+            <iframe class="w-full h-full rounded-2xl" src="${embedUrl}" title="Дополнительное видео" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          `;
+          grid.appendChild(videoDiv);
+        });
+        additionalSection.appendChild(grid);
+        container.appendChild(additionalSection);
+      }
+
+      saveProgress();
+    }
+
+    function checkCourseCompletion() {
+      const videosWatched = JSON.parse(localStorage.getItem('courseProgressData:' + id) || '[]').length === (course.videos || []).length;
+      const assignmentSubmitted = localStorage.getItem('assignmentSubmitted:' + id) === 'true';
+      const testPassed = localStorage.getItem('testPassed:' + id) === 'true';
+      if (videosWatched && assignmentSubmitted && testPassed) {
+        const completionMsg = document.createElement('div');
+        completionMsg.className = 'card p-6 mt-4 text-green-600 font-semibold';
+        completionMsg.innerHTML = `
+          Курс успешно пройден! <a href="/api/courses/${id}/certificate/" class="text-[var(--color-primary)] hover:underline">Скачать сертификат</a>
+        `;
+        container.appendChild(completionMsg);
+      }
+    }
+
+    // Mobile Menu
+    const mobileBtn = document.getElementById('mobile-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileBtn.addEventListener('click', () => {
+      const expanded = mobileBtn.getAttribute('aria-expanded') === 'true';
+      mobileBtn.setAttribute('aria-expanded', !expanded);
+      mobileMenu.classList.toggle('hidden');
+      mobileMenu.classList.toggle('animate-slide-in');
+    });
+
+    // Chat Functionality
+    const chatToggle = document.getElementById('chat-toggle');
+    const chatWindow = document.getElementById('chat-window');
+    const chatClose = document.getElementById('chat-close');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatFileInput = document.getElementById('chat-file');
+
+    function toggleChat(open) {
+      if (open) {
+        chatWindow.style.transform = 'scale(1)';
+        chatWindow.style.opacity = '1';
+        chatInput.focus();
+      } else {
+        chatWindow.style.transform = 'scale(0)';
+        chatWindow.style.opacity = '0';
+      }
+    }
+
+    chatToggle.addEventListener('click', () => {
+      const isOpen = chatWindow.style.opacity === '1';
+      toggleChat(!isOpen);
+    });
+
+    chatClose.addEventListener('click', () => {
+      toggleChat(false);
+    });
+
+    let attachedImage = null;
+    chatFileInput.addEventListener('change', () => {
+      const file = chatFileInput.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        alert('Пожалуйста, выберите изображение');
+        chatFileInput.value = '';
         return;
       }
-      course = data;
-      renderCourse();
+      attachedImage = file;
     });
-}else{
-  renderCourse();
-}
 
-function renderCourse(){  
-  document.getElementById('course-title').textContent = course.title;
-  document.title = course.title;
-  const videos = course.videos || [];
-  const watched = JSON.parse(localStorage.getItem('courseProgressData:'+id) || '[]');
-  function saveProgress(){
-    const p = videos.length? Math.round(watched.length / videos.length * 100):0;
-    localStorage.setItem('courseProgress:'+id, p);
-    localStorage.setItem('courseProgressData:'+id, JSON.stringify(watched));
-  }
-  videos.forEach((v,idx)=>{
-    const section = document.createElement('section');
-    section.className = 'bg-white p-4 rounded shadow';
-    section.innerHTML = `<div class="aspect-video mb-2"><iframe class="w-full h-full" src="${v}" allowfullscreen></iframe></div>`;
-    const btn = document.createElement('button');
-    btn.textContent = watched.includes(idx)?'Просмотрено':'Отметить просмотренным';
-    btn.className='px-4 py-2 rounded bg-indigo-600 text-white';
-    btn.onclick=()=>{
-      if(!watched.includes(idx)){
-        watched.push(idx);
-        btn.textContent='Просмотрено';
-        saveProgress();
+    chatForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const message = chatInput.value.trim();
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'text-right flex flex-col items-end space-y-1 animate-fade-in';
+
+      if (message) {
+        const textSpan = document.createElement('span');
+        textSpan.className = 'inline-block bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl max-w-[75%] break-words';
+        textSpan.textContent = message;
+        userMsg.appendChild(textSpan);
       }
-    };
-    section.appendChild(btn);
-    container.appendChild(section);
-  });
-  if(course.text){
-    const text = document.createElement('div');
-    text.className='bg-white p-4 rounded shadow';
-    text.innerHTML = `<h2 class="font-semibold mb-2">Материалы</h2><p class="whitespace-pre-wrap break-words">${course.text}</p>`
-    container.appendChild(text);
-  }
-  if(course.assignment){
-    const ass = document.createElement('div');
-    ass.className='bg-white p-4 rounded shadow';
-    ass.innerHTML = `<h2 class="font-semibold mb-2">Задание</h2><p class="whitespace-pre-wrap break-words">${course.assignment}</p>`;
-    container.appendChild(ass);
-  }
-  const questions = course.test || [];
-  if(!questions.length){
-    for(let i=0;i<5;i++){
-      questions.push({q:`Вопрос ${i+1} по теме ${course.title}?`,a:['A','B','C'],c:0});
-    }
-    course.test=questions;localStorage.setItem('createdCourses',JSON.stringify(courses));
-  }
-  const quiz=document.createElement('div');
-  quiz.className='bg-white p-4 rounded shadow';
-  quiz.innerHTML='<h2 class="font-semibold mb-4">Тест</h2>';
-  questions.forEach((q,i)=>{
-    const block=document.createElement('div');
-    block.className='mb-4';
-    block.innerHTML=`<p class="mb-2">${q.q}</p>`+q.a.map((opt,j)=>`<label class="block"><input type="radio" name="q${i}" value="${j}" class="mr-2">${opt}</label>`).join('');
-    quiz.appendChild(block);
-  });
-  const result=document.createElement('p');
-  result.className='mt-2';
-  const btn=document.createElement('button');
-  btn.textContent='Проверить ответы';
-  btn.className='px-4 py-2 rounded bg-indigo-600 text-white';
-  btn.onclick=()=>{
-    let correct=0;
-    questions.forEach((q,i)=>{
-      const val=document.querySelector(`input[name=q${i}]:checked`);
-      if(val&&Number(val.value)===q.c)correct++;
+
+      if (attachedImage) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(attachedImage);
+        img.alt = 'Прикрепленное изображение';
+        img.className = 'max-w-[200px] rounded-xl shadow-md cursor-pointer';
+        img.onload = () => URL.revokeObjectURL(img.src);
+        userMsg.appendChild(img);
+        attachedImage = null;
+        chatFileInput.value = '';
+      }
+
+      if (!message && !userMsg.querySelector('img')) return;
+
+      chatMessages.appendChild(userMsg);
+      chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+
+      chatInput.value = '';
+      chatInput.focus();
+
+      const botReply = findAnswer(message);
+
+      setTimeout(() => {
+        const authorMsg = document.createElement('div');
+        authorMsg.className = 'text-left animate-fade-in';
+        authorMsg.innerHTML = `<span class="inline-block bg-[var(--color-bg)] text-[var(--color-text)] px-4 py-2 rounded-xl max-w-[75%] break-words border border-[var(--color-border)]">${botReply}</span>`;
+        chatMessages.appendChild(authorMsg);
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+      }, 500);
     });
-    result.textContent=`Результат: ${correct} из ${questions.length}`;
-  };
-  quiz.appendChild(btn);
-  quiz.appendChild(result);
-  container.appendChild(quiz);
-  saveProgress();
-}
-</script>
+  </script>
 </body>
 </html>
