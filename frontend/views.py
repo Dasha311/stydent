@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.db.utils import OperationalError
-from django.db.models import Avg
+from django.db.models import Avg, Q
 
 User = get_user_model()
 
@@ -114,9 +114,35 @@ def teacher_dashboard(request):
 
 
 def tutors_view(request):
-    """Display the tutors catalog for students with real teachers."""
+    """Display the tutors catalog with search and sorting options."""
+    q = request.GET.get('q', '')
+    sort = request.GET.get('sort', 'name')
+
     teachers = User.objects.filter(role='teacher')
-    return render(request, 'tutors.html', {'teachers': teachers})
+
+    if q:
+        teachers = teachers.filter(
+            Q(username__icontains=q)
+            | Q(first_name__icontains=q)
+            | Q(last_name__icontains=q)
+        )
+
+    teachers = teachers.annotate(avg_rating=Avg('mentor_ratings__score'))
+
+    if sort == 'rating':
+        teachers = teachers.order_by('-avg_rating', 'username')
+    else:
+        teachers = teachers.order_by('username')
+
+    return render(
+        request,
+        'tutors.html',
+        {
+            'teachers': teachers,
+            'q': q,
+            'sort': sort,
+        },
+    )
 
 
 def teacher_profile_view(request, teacher_id):
@@ -167,3 +193,8 @@ def delete_account(request):
             'error': 'Неверный пароль'
         })
     return render(request, 'delete_account.html')
+
+
+def messages_view(request):
+    """Simple chat page from profile."""
+    return render(request, 'message.html')

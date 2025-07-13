@@ -1,36 +1,30 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Репетиторы</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="min-h-screen flex flex-col bg-gray-50">
-<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-    <a href="{% url 'main_menu' %}"><img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8"></a>
-  </div>
-</header>
-<main class="max-w-7xl mx-auto px-4 py-8 flex-grow">
-  <h1 class="text-2xl font-bold mb-6">Наши преподаватели</h1>
+{% block title %}Репетиторы{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Наши преподаватели</h1>
+  <form method="get" class="flex flex-wrap gap-4 mb-6">
+    <input type="text" name="q" value="{{ q }}" placeholder="Поиск..." class="border rounded-lg px-3 py-2 flex-grow" />
+    <select name="sort" class="border rounded-lg px-3 py-2">
+      <option value="name" {% if sort == 'name' %}selected{% endif %}>По имени</option>
+      <option value="rating" {% if sort == 'rating' %}selected{% endif %}>По рейтингу</option>
+    </select>
+    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-lg">Найти</button>
+  </form>
   <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
     {% for teacher in teachers %}
     <article class="bg-white rounded-xl shadow p-5 flex flex-col items-center text-center">
-      {% if teacher.profile_picture %}
-        <img src="{{ teacher.profile_picture.url }}" alt="{{ teacher.username }}" class="w-24 h-24 rounded-full mb-4 object-cover">
-      {% else %}
-        <img src="{% static 'Icons/avatar-placeholder.png' %}" alt="{{ teacher.username }}" class="w-24 h-24 rounded-full mb-4 object-cover">
-      {% endif %}
+      <img src="{{ teacher.avatar_url }}" alt="{{ teacher.username }}" class="w-24 h-24 rounded-full mb-4 object-cover">
       <h2 class="text-lg font-semibold">{{ teacher.username }}</h2>
+      {% if teacher.avg_rating %}<p class="text-sm text-yellow-500 mb-2">★ {{ teacher.avg_rating|floatformat:1 }}</p>{% endif %}
       {% if teacher.bio %}<p class="text-sm text-gray-500 mb-3">{{ teacher.bio|truncatechars:80 }}</p>{% endif %}
-      <a href="{% url 'teacher_profile' teacher.id %}" class="text-purple-600 hover:underline text-sm">Подробнее</a>
+      <a href="{% url 'teacher_profile' teacher.id %}" class="text-purple-600 hover:underline text-sm">Профиль</a>
     </article>
     {% empty %}
       <p>Пока нет зарегистрированных преподавателей.</p>
     {% endfor %}
   </div>
-</main>
-</body>
-</html>
+</div>
+{% endblock %}

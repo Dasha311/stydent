@@ -13,6 +13,7 @@ urlpatterns = [
     path('tutors/<int:teacher_id>/', views.teacher_profile_view, name='teacher_profile'),
     path('course/', views.course_view, name='course_view'),
     path('profile/', views.profile, name='profile'),
+    path('messages/', views.messages_view, name='messages'),
     path('delete-account/', views.delete_account, name='delete_account'),
 
     # Футер-страницы

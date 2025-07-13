@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5; /* Softer indigo */
+      --secondary: #e0e7ff; /* Light indigo background */
+      --accent: #818cf8; /* Brighter accent */
+      --background: #f9fafb; /* Clean background */
+      --surface: #ffffff; /* Pure white */
+      --text-primary: #111827; /* Dark text */
+      --text-subtle: #6b7280; /* Gray text */
+      --border: #e5e7eb; /* Light border */
+      --transition: 0.3s ease; /* Smooth transition */
+    }
+
+    .container {
+      max-width: 72rem; 
+      margin: 0 auto;
+      padding: 0 1rem;
+      width: 100%;
+    }
+
+    header {
+      position: relative;
+      z-index: 50;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+    }
+
+    header img {
+      height: 2rem;
+      transition: transform var(--transition);
+    }
+
+    header img:hover {
+      transform: scale(1.05);
+    }
+
+    nav.desktop-nav {
+      display: none;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    nav.desktop-nav a {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    nav.desktop-nav a:hover {
+      color: var(--primary);
+    }
+
+    .auth-buttons {
+      display: none;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      object-fit: cover;
+      transition: transform var(--transition);
+    }
+
+    .avatar:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+      padding: 0.625rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: all var(--transition);
+    }
+
+    .btn-primary {
+      border: none;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent);
+    }
+
+    .btn-primary:disabled {
+      background: var(--border);
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary);
+      color: var(--accent);
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .mobile-menu-btn {
+      display: block;
+      padding: 0.5rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    .mobile-menu-btn svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .mobile-menu-btn .close-icon {
+      display: none;
+    }
+
+    .mobile-menu-btn[aria-expanded="true"] .open-icon {
+      display: none;
+    }
+
+    .mobile-menu-btn[aria-expanded="true"] .close-icon {
+      display: block;
+    }
+
+    .mobile-menu {
+      position: fixed;
+      top: 4rem;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      flex-direction: column;
+      padding: 1.5rem;
+      background: var(--surface);
+      transform: translateY(-100%);
+      opacity: 0;
+      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+      z-index: 40;
+    }
+
+    .mobile-menu.show {
+      display: flex;
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .mobile-menu a {
+      padding: 0.75rem 1rem;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .mobile-menu a:hover {
+      color: var(--primary);
+    }
+
+    .mobile-menu .auth-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .mobile-menu-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      opacity: 0;
+      background: rgba(0, 0, 0, 0.3);
+      transition: opacity 0.3s ease-in-out;
+      z-index: 39;
+    }
+
+    .mobile-menu-backdrop.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .teacher-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+    }
+
+    .teacher-item:hover {
+      background: var(--secondary);
+      transform: translateX(0.25rem);
+    }
+
+    .teacher-item.active {
+      background: var(--primary);
+      color: #fff;
+      transform: translateX(0.25rem);
+    }
+
+    .teacher-item img {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      margin-right: 1rem;
+      object-fit: cover;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 0.75rem 1.25rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    .message-image {
+      max-width: 50%;
+      padding: 0.25rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .message-image img {
+      width: 100%;
+      border-radius: 0.5rem;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 0.25rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-bottom-left-radius: 0.25rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-back {
+      padding: 0.625rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: all var(--transition);
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+    }
+
+    .btn-back:hover {
+      background: var(--secondary);
+      color: var(--accent);
+    }
+
+    .media-preview-item {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .media-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .media-preview-item button {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .media-preview-item button:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      z-index: 10;
+    }
+
+    footer .container {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    }
+
+    footer img {
+      height: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    footer h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    footer ul {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-subtle);
+    }
+
+    footer p,
+    footer a {
+      font-size: 0.875rem;
+      color: var(--text-subtle);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    footer a:hover {
+      color: var(--primary);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .mobile-menu-btn,
+      .mobile-menu {
+        display: none !important;
+      }
+
+      nav.desktop-nav {
+        display: flex;
+      }
+
+      .auth-buttons {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      nav.desktop-nav {
+        display: none;
+      }
+
+      .auth-buttons {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      footer .container {
+        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+        gap: 1rem;
+      }
+
+      footer img {
+        height: 1.75rem;
+      }
+
+      footer h3 {
+        font-size: 0.8125rem;
+      }
+
+      footer ul {
+        font-size: 0.8125rem;
+      }
+
+      footer p,
+      footer a {
+        font-size: 0.8125rem;
+      }
+    }
+
+    @media (max-width: 767px) {
+      header img {
+        height: 1.75rem;
+      }
+
+      .avatar {
+        width: 2.25rem;
+        height: 2.25rem;
+      }
+
+      aside {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        z-index: 60;
+        transition: left 0.3s ease-in-out;
+      }
+
+      aside.show {
+        left: 0;
+      }
+
+      .teacher-item img {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+
+      #chat-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      #mobile-menu-toggle {
+        display: block;
+        padding: 0.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      #mobile-menu-toggle svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--text-primary);
+      }
+
+      .media-preview-item {
+        width: 60px;
+        height: 60px;
+      }
+
+      footer .container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      footer img {
+        margin: 0 auto 0.75rem;
+      }
+
+      footer ul {
+        align-items: center;
+      }
+
+      footer h3 {
+        margin-top: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/"><img src="https://via.placeholder.com/120x40? Inch text=Logo" alt="Logo"></a>
+      <nav class="desktop-nav">
+        <a href="/">Home</a>
+        <a href="/courses">Courses</a>
+        <a href="/teachers">Teachers</a>
+        <a href="/profile">Profile</a>
+      </nav>
+      <div class="auth-buttons">
+        <a href="/login" class="btn-secondary">Log in</a>
+        <a href="/signup" class="btn-primary">Sign up</a>
+      </div>
+      <button class="mobile-menu-btn" aria-expanded="false">
+        <svg class="open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+  <div class="mobile-menu">
+    <a href="/">Home</a>
+    <a href="/courses">Courses</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/profile">Profile</a>
+    <div class="auth-buttons">
+      <a href="/login" class="btn-secondary">Log in</a>
+      <a href="/signup" class="btn-primary">Sign up</a>
+    </div>
+  </div>
+  <div class="mobile-menu-backdrop"></div>
+
+  <main class="container">
+    <a href="{% url 'tutors' %}" class="btn-back">
+  ← Назад
+</a>
+
+    <h1>Teachers</h1>
+    <div style="display: flex; gap: 1rem; height: calc(100vh - 10rem);">
+      <aside style="width: 20rem; background: var(--surface); border-right: 1px solid var(--border); padding: 1rem; overflow-y: auto;">
+        <ul id="teacher-list"></ul>
+      </aside>
+      <section style="flex: 1; display: flex; flex-direction: column;">
+        <div id="chat-header" class="hidden" style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+          <h2 id="current-teacher"></h2>
+          <button id="call-button" class="btn-primary">Call</button>
+        </div>
+        <div id="chat-container" style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column;"></div>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+          <div id="media-preview" class="hidden" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;"></div>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.9rem;">
+            <input type="file" id="photo-input" accept="image/*" multiple style="display: none;">
+            <button id="video-button" class="btn-secondary"><i class="fas fa-video"></i></button>
+            <button id="doc-button" class="btn-secondary"><i class="fas fa-file"></i></button>
+            <button id="send-button" class="btn-primary"><i class="fas fa-paper-plane"></i></button>
+            <button id="cancel-media" class="btn-danger hidden">Cancel</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div>
+        <img src="https://via.placeholder.com/120x40?text=Logo" alt="Logo">
+        <p>Empowering education through innovation.</p>
+      </div>
+      <div>
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/courses">Courses</a></li>
+          <li><a href="/teachers">Teachers</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Support</h3>
+        <ul>
+          <li><a href="/faq">FAQ</a></li>
+          <li><a href="/help">Help Center</a></li>
+          <li><a href="/terms">Terms</a></li>
+          <li><a href="/privacy">Privacy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contact Us</h3>
+        <p>Email: <a href="mailto:support@example.com">support@example.com</a></p>
+        <p>Phone: <a href="tel:+1234567890">+1 234 567 890</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const teachers = [
+        { id: 1, name: 'Dr. Alice Smith', avatar: 'https://i.pinimg.com/originals/fd/43/6f/fd436fcd22e5e456098e84a4b63c7fbf.jpg' },
+        { id: 2, name: 'Prof. Bob Johnson', avatar: 'https://zastavki.gas-kvas.com/uploads/posts/2024-09/zastavki-gas-kvas-com-g59n-p-zastavki-na-telefon-kotiki-multyashnie-3.jpg' },
+        { id: 3, name: 'Ms. Clara Davis', avatar: 'https://i.pinimg.com/736x/68/00/5d/68005d00e903f275ab1e5ff45364ddd6.jpg' },
+      ];
+
+      const chats = {};
+      let currentTeacherId = null;
+      let pendingMedia = [];
+
+      const teacherList = document.getElementById('teacher-list');
+      const chatContainer = document.getElementById('chat-container');
+      const chatInput = document.getElementById('chat-input');
+      const sendButton = document.getElementById('send-button');
+      const chatHeader = document.getElementById('chat-header');
+      const currentTeacher = document.getElementById('current-teacher');
+      const callButton = document.getElementById('call-button');
+      const photoInput = document.getElementById('photo-input');
+      const videoButton = document.getElementById('video-button');
+      const docButton = document.getElementById('doc-button');
+      const mediaPreview = document.getElementById('media-preview');
+      const cancelMediaButton = document.getElementById('cancel-media');
+      const mobileMenuToggle = document.createElement('button');
+      mobileMenuToggle.id = 'mobile-menu-toggle';
+      mobileMenuToggle.innerHTML = `
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      `;
+      chatHeader.appendChild(mobileMenuToggle);
+
+      const aside = document.querySelector('aside');
+
+      teachers.forEach(teacher => {
+        const li = document.createElement('li');
+        li.className = 'teacher-item';
+        li.dataset.teacherId = teacher.id;
+        li.innerHTML = `
+          <img src="${teacher.avatar}" alt="${teacher.name}">
+          <span>${teacher.name}</span>
+        `;
+        li.addEventListener('click', () => switchTeacher(teacher.id));
+        teacherList.appendChild(li);
+        chats[teacher.id] = [];
+      });
+
+      mobileMenuToggle.addEventListener('click', () => {
+        aside.classList.toggle('show');
+      });
+
+      function switchTeacher(teacherId) {
+        currentTeacherId = teacherId;
+        const teacher = teachers.find(t => t.id === teacherId);
+        currentTeacher.textContent = teacher.name;
+        chatHeader.classList.remove('hidden');
+        document.querySelectorAll('.teacher-item').forEach(item => {
+          item.classList.toggle('active', parseInt(item.dataset.teacherId) === teacherId);
+        });
+        renderChat();
+        aside.classList.remove('show');
+        clearMediaPreview();
+      }
+
+      function renderChat() {
+        chatContainer.innerHTML = '';
+        if (currentTeacherId && chats[currentTeacherId]) {
+          chats[currentTeacherId].forEach(message => {
+            const div = document.createElement('div');
+            div.className = `message ${message.type}-message${message.image ? ' message-image' : ''}`;
+            if (message.image) {
+              div.innerHTML = `<img src="${message.image}" alt="Sent image">`;
+            } else {
+              div.textContent = message.content;
+            }
+            chatContainer.appendChild(div);
+          });
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }
+
+      function sendMessage() {
+        const message = chatInput.value.trim();
+        const hasMedia = pendingMedia.length > 0;
+
+        if (!message && !hasMedia || !currentTeacherId) return;
+
+        if (message) {
+          chats[currentTeacherId].push({ type: 'user', content: message });
+        }
+
+        if (hasMedia) {
+          pendingMedia.forEach(media => {
+            chats[currentTeacherId].push({ type: 'user', image: media });
+          });
+        }
+
+        chatInput.value = '';
+        clearMediaPreview();
+        renderChat();
+
+        setTimeout(() => {
+          chats[currentTeacherId].push({
+            type: 'text',
+            bot: `Response from ${teachers.find(t => t.id === currentTeacherId).name}: Thanks for your ${hasMedia ? 'media' : 'message'}!`
+          });
+          renderChat();
+        }, 1000);
+      }
+
+      function clearMediaPreview() {
+        pendingMedia = [];
+        mediaPreview.innerHTML = '';
+        mediaPreview.classList.add('hidden');
+        cancelMediaButton.classList.add('hidden');
+      }
+
+      photoInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files.length) {
+          Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              pendingMedia.push(event.target.result);
+              updateMediaPreview();
+            };
+            reader.readAsDataURL(file);
+          });
+          photoInput.value = '';
+        }
+      });
+
+      function updateMediaPreview() {
+        mediaPreview.innerHTML = '';
+        pendingMedia.forEach((media, index) => {
+          const div = document.createElement('div');
+          div.className = 'media-preview-item';
+          div.innerHTML = `
+            <img src="${media}" alt="Preview">
+            <button data-index="${index}"><i class="fas fa-times"></i></button>
+          `;
+          mediaPreview.appendChild(div);
+          div.querySelector('button').addEventListener('click', () => {
+            pendingMedia.splice(index, 1);
+            updateMediaPreview();
+          });
+        });
+        mediaPreview.classList.toggle('hidden', pendingMedia.length === 0);
+        cancelMediaButton.classList.toggle('hidden', pendingMedia.length === 0);
+      }
+
+      callButton.addEventListener('click', () => {
+        console.log(`Initiating call with ${teachers.find(t => t.id === currentTeacherId)?.name}`);
+        alert('Call feature is not implemented in this demo.');
+      });
+
+      videoButton.addEventListener('click', () => {
+        alert('Video upload feature is not implemented in this demo.');
+      });
+
+      docButton.addEventListener('click', () => {
+        alert('Document upload feature is not implemented in this demo.');
+      });
+
+      cancelMediaButton.addEventListener('click', clearMediaPreview);
+
+      sendButton.addEventListener('click', sendMessage);
+
+      chatInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') sendMessage();
+      });
+
+      const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const mobileMenuBackdrop = document.querySelector('.mobile-menu-backdrop');
+
+      mobileMenuBtn.addEventListener('click', () => {
+        const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+        mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+        mobileMenu.classList.toggle('show');
+        mobileMenuBackdrop.classList.toggle('show');
+      });
+
+      mobileMenuBackdrop.addEventvault('click', () => {
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        mobileMenu.classList.remove('show');
+        mobileMenuBackdrop.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>

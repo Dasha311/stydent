@@ -381,11 +381,18 @@
         <a href="#my-courses" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
         <a href="#create-course" class="hover:text-[var(--brand-primary)]">Создать курс</a>
         <a href="#messages" class="hover:text-[var(--brand-primary)]">Сообщения</a>
+        <a href="{% url 'teacher_profile' request.user.id %}" class="hover:text-[var(--brand-primary)]">Моя страница</a>
         <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
       <div class="hidden md:flex items-center gap-3 relative auth-buttons">
-        <img src="{% static 'Icons/Logo.png' %}" id="profile-icon" alt="Avatar" class="avatar" title="Профиль">
+         <img src="{{ request.user.avatar_url }}" id="profile-icon" alt="Avatar" class="avatar" title="Профиль">
         <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-[var(--border-color)] rounded-lg shadow-lg hidden">
+          <a href="{% url 'teacher_profile' request.user.id %}" class="flex items-center px-4 py-2 text-sm hover:bg-[var(--bg-secondary)]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+            Моя страница
+          </a>
           <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-sm hover:bg-[var(--bg-secondary)]">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
@@ -1189,6 +1196,7 @@
           { href: '#my-courses', label: 'Мои курсы' },
           { href: '#create-course', label: 'Создать курс' },
           { href: '#messages', label: 'Сообщения' },
+          { href: '{% url "teacher_profile" request.user.id %}', label: 'Моя страница' },
           { href: '{% url "profile" %}', label: 'Профиль' },
         ],
         isAuthenticated: true,

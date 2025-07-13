@@ -1,26 +1,14 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ teacher.username }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="min-h-screen flex flex-col bg-gray-50">
-<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-    <a href="{% url 'tutors' %}" class="text-purple-600 hover:underline">Назад</a>
-  </div>
-</header>
-<main class="max-w-3xl mx-auto px-4 py-8 flex-grow">
+
+{% block title %}{{ teacher.username }}{% endblock %}
+{% block back_url %}{% url 'tutors' %}{% endblock %}
+
+{% block content %}
+<main class="max-w-3xl mx-auto px-4 py-8">
   <div class="bg-white rounded-xl shadow p-6">
     <div class="flex items-center gap-6 mb-6">
-      {% if teacher.profile_picture %}
-        <img src="{{ teacher.profile_picture.url }}" alt="{{ teacher.username }}" class="w-28 h-28 rounded-full object-cover">
-      {% else %}
-        <img src="{% static 'Icons/avatar-placeholder.png' %}" alt="{{ teacher.username }}" class="w-28 h-28 rounded-full object-cover">
-      {% endif %}
+      <img src="{{ teacher.avatar_url }}" alt="{{ teacher.username }}" class="w-28 h-28 rounded-full object-cover">
       <div>
         <h1 class="text-2xl font-semibold">{{ teacher.username }}</h1>
         {% if avg_rating %}<p class="text-sm text-gray-500">Рейтинг: {{ avg_rating|floatformat:1 }}</p>{% endif %}
@@ -35,7 +23,6 @@
       {% endfor %}
     </ul>
     {% endif %}
-  </div>
+ </div>
 </main>
-</body>
-</html>
+{% endblock %}

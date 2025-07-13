@@ -29,7 +29,7 @@
   <header class="bg-white border-b border-[var(--bg-secondary)] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
       <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10" />
-      <a href="{% url 'main_menu' %}" class="text-[var(--brand-primary)] hover:underline text-sm font-medium">Назад</a>
+       <a href="{% block back_url %}{% url 'main_menu' %}{% endblock %}" class="text-[var(--brand-primary)] hover:underline text-sm font-medium">Назад</a>
     </div>
   </header>
 

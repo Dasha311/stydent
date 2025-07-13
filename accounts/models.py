@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.templatetags.static import static
 
 
 class CustomUser(AbstractUser):
@@ -25,6 +26,13 @@ class CustomUser(AbstractUser):
     
     def __str__(self):
         return self.email
+
+    @property
+    def avatar_url(self) -> str:
+        """Return the profile picture URL or a default placeholder."""
+        return self.profile_picture.url if self.profile_picture else static(
+            "Icons/avatar-placeholder.png"
+        )
 
 
 class UserProfile(models.Model):
