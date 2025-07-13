@@ -31,13 +31,14 @@ class Course(models.Model):
         null=True,
         blank=True,
     )
-    thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
-    duration = models.DurationField(default=datetime.timedelta())
+    thumbnail = models.ImageField(upload_to='course_thumbnails/')
+    duration = models.DurationField()  # in minutes
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_free = models.BooleanField(default=False)
     categories = models.ManyToManyField('Category', related_name='courses', blank=True)
+    
 
     @property
     def average_rating(self):
@@ -302,7 +303,7 @@ def create_course_content(sender, instance, created, **kwargs):
                 course=instance,
                 title=topic,
                 order=i,
-                duration=datetime.timedelta(),
+                duration=0,
             )
         for user in CustomUser.objects.filter(role='student'):
             if user.email:
