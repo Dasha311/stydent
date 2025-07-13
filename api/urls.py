@@ -51,7 +51,7 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/', ActivateAccountView.as_view(), name='activate'),
     path('verify-code/', VerifyCodeView.as_view(), name='verify-code'),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset'),
-    path('password-reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 
     # Courses
     path('courses/', CourseListView.as_view(), name='course-list'),

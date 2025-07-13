@@ -1,9 +1,9 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, serializers
 from rest_framework.response import Response
 from django.contrib.auth import logout
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 import random
 from django.conf import settings
 from django.urls import reverse
@@ -27,7 +27,7 @@ class RegisterView(generics.CreateAPIView):
         user = serializer.save(is_active=False, verification_code=code)
         UserProfile.objects.create(user=user)
         from .tasks import send_verification_code_email
-        send_verification_code_email.delay(user.email, code)
+        send_verification_code_email(user.email, code)
 
 
 class LoginView(TokenObtainPairView):
@@ -108,30 +108,37 @@ class PasswordResetRequestView(generics.GenericAPIView):
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
             return Response(status=status.HTTP_200_OK)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-        reset_link = settings.DEFAULT_DOMAIN + reverse('api:password-reset-confirm', args=[uid, token])
-        from .tasks import send_email
-        send_email.delay('Reset password', f'Reset your password: {reset_link}', [user.email])
+        code = f"{random.randint(1000, 9999)}"
+        user.reset_code = code
+        user.save(update_fields=["reset_code"])
+        from .tasks import send_password_reset_code_email
+        send_password_reset_code_email(user.email, code)
         return Response(status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
 
-    def post(self, request, uidb64, token):
+    def post(self, request):
+        email = request.data.get('email')
+        code = request.data.get('code')
         password = request.data.get('password')
+        if not all([email, code, password]):
+            return Response({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = CustomUser.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            user = None
-        if user and default_token_generator.check_token(user, token):
-            user.set_password(password)
-            user.save()
-            return Response({'status': 'password reset'})
-        return Response({'error': 'Invalid link'}, status=status.HTTP_400_BAD_REQUEST)
-
+                        user = CustomUser.objects.get(email=email, reset_code=code)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = UserSerializer()
+        try:
+            password = serializer.validate_password(password)
+        except serializers.ValidationError as exc:
+            return Response({'error': exc.detail}, status=status.HTTP_400_BAD_REQUEST)
+        user.set_password(password)
+        user.reset_code = ''
+        user.save()
+        return Response({'status': 'password reset'})
+    
 class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]

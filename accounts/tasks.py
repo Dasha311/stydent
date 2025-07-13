@@ -18,6 +18,14 @@ def send_verification_code_email(email, code):
 
 
 @shared_task
+def send_password_reset_code_email(email, code):
+    """Send password reset code to the given email"""
+    subject = 'Password Reset Code'
+    message = f'Your password reset code is {code}'
+    send_email(subject, message, [email])
+
+
+@shared_task
 def send_new_message_email(email, sender_name, text):
     subject = 'Новое сообщение от наставника'
     message = f'{sender_name}: {text}'

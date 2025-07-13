@@ -1,140 +1,558 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EduPath - Главное Меню</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#f5f3ff">
+  <title>EduPath - Студенческая панель</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --brand-primary: #6C4DFF;
-      --bg-main: #F9F9FB;
-      --bg-secondary: #EDEDED;
-      --text-main: #1C1C1E;
-      --text-secondary: rgba(60, 60, 67, 0.6);
-      --border-color: #D1D1D6;
+      --primary: #6C4DFF;
+      --accent: #5b3fe6;
+      --background: #F9F9FB;
+      --surface: #fff;
+      --text-primary: #1C1C1E;
+      --text-subtle: rgba(60, 60, 67, 0.6);
+      --border: #D1D1D6;
+      --secondary: #EDEDED;
+      --transition: 0.2s ease-in-out;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
     }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      line-height: 1.5;
-      min-height: 100vh;
+      background-color: var(--background);
+      color: var(--text-primary);
       display: flex;
       flex-direction: column;
+      line-height: 1.5;
+      min-height: 100vh;
     }
-    .btn { border-radius: 12px; font-weight: 500; padding: 10px 20px; background: var(--brand-primary); color: white; border: none; cursor: pointer; transition: background 0.2s; }
-    .btn:hover { background: #5b3fe6; }
-    header { background: white; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 50; }
-    #mobile-menu { display: none; flex-direction: column; padding: 1.5rem; background: white; border-top: 1px solid var(--border-color); }
-    #mobile-menu.show { display: flex; }
-    #mobile-menu-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 40; }
-    #mobile-menu-backdrop.show { display: block; }
-    #assistant-button { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: var(--brand-primary); border-radius: 50%; display: grid; place-items: center; z-index: 100; }
-    #assistant-button:hover { background: #5b3fe6; }
-    #assistant-button img { width: 28px; height: 28px; }
-    #assistant-modal { display: none; position: fixed; bottom: 88px; right: 16px; width: min(380px, calc(100% - 32px)); max-height: 500px; background: white; border-radius: 20px; z-index: 101; box-shadow: 0 6px 20px rgba(0,0,0,0.1); flex-direction: column; }
-    #assistant-modal.show { display: flex; }
-    #assistant-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-    #chat-container { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-    #chat-input-container { padding: 12px 16px; border-top: 1px solid var(--border-color); background: white; border-radius: 0 0 20px 20px; display: flex; gap: 8px; }
-    #chat-input { flex: 1; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-main); font-size: 14px; }
-    #send-button { padding: 8px 16px; background: var(--brand-primary); color: white; border-radius: 12px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
-    #send-button:hover:not(:disabled) { background: #5b3fe6; }
-    #send-button:disabled { background: var(--bg-secondary); cursor: not-allowed; }
-    .message {
-      padding: 10px 12px;
-      border-radius: 16px;
+    body.no-scroll {
+      overflow: hidden;
+    }
+    .container {
+      margin: 0 auto;
+      max-width: 1280px;
+      padding: 0 1rem;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+    }
+    .desktop-nav {
+      display: none;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .desktop-nav a {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .desktop-nav a:hover {
+      color: var(--primary);
+    }
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      position: relative;
+    }
+    .mobile-menu-btn {
+      display: block;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .mobile-menu-btn svg {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+    .mobile-menu-btn .close-icon {
+      display: none;
+    }
+    .mobile-menu-btn[aria-expanded="true"] .open-icon {
+      display: none;
+    }
+    .mobile-menu-btn[aria-expanded="true"] .close-icon {
+      display: block;
+    }
+    #mobile-menu-backdrop {
+      display: none;
+      background: rgba(0, 0, 0, 0.5);
+      height: 100vh;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 99;
+    }
+    #mobile-menu-backdrop.show {
+      display: block;
+    }
+    #mobile-menu {
+      display: none;
+      flex-direction: column;
+      padding: 1.5rem;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      height: 100vh;
+      width: 16rem;
       max-width: 80%;
-      font-size: 14px;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      white-space: pre-wrap;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transform: translateX(-100%);
+      transition: transform var(--transition);
+      z-index: 100;
     }
-    .user-message { background: var(--brand-primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .bot-message { background: var(--bg-secondary); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: box-shadow 0.2s, transform 0.2s; }
-    .card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; }
-    .progress-bar { height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
-    .progress-bar-inner { height: 100%; background: var(--brand-primary); transition: width 0.3s; }
+    #mobile-menu.show {
+      display: flex;
+      transform: translateX(0);
+    }
+    #mobile-menu a {
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 0.75rem;
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    #mobile-menu a:hover {
+      color: var(--primary);
+    }
+    #mobile-menu .auth-buttons {
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+    }
+    section {
+      padding: 3rem 0;
+    }
+    section h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    section h1 span {
+      color: var(--primary);
+    }
+    section h2 {
+      font-size: clamp(1.5rem, 3vw, 1.75rem);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    section p {
+      color: var(--text-subtle);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    }
+    section.recommended {
+      background: var(--surface);
+    }
+    section.cta {
+      background: var(--primary);
+      color: #fff;
+      text-align: center;
+    }
+    section.cta h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    section.cta p {
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+    section.cta .btn-primary {
+      background: #fff;
+      color: var(--primary);
+    }
+    section.cta .btn-primary:hover {
+      background: #f7f7fa;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+    .card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+    .card-img {
+      height: 10rem;
+      object-fit: cover;
+      width: 100%;
+    }
+    .card-content {
+      position: relative;
+      padding: 1.25rem;
+    }
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .card-text {
+      color: var(--text-subtle);
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+    .progress-bar {
+      background: var(--secondary);
+      border-radius: 0.1875rem;
+      height: 0.375rem;
+      overflow: hidden;
+      position: absolute;
+      left: 1.25rem;
+      right: 1.25rem;
+      bottom: 3.5rem;
+      z-index: 1;
+    }
+    .progress-bar-inner {
+      background: var(--primary);
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    .btn-primary, .btn-secondary {
+      border-radius: 0.5rem;
+      font-weight: 500;
+      padding: 0.625rem 1.25rem;
+      text-align: center;
+      text-decoration: none;
+      transition: background var(--transition);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent);
+    }
+    .btn-secondary {
+      background: var(--secondary);
+      color: var(--text-primary);
+    }
+    .btn-secondary:hover {
+      background: #d5d5d9;
+    }
+    .avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    #profile-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      width: 10rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+    #profile-menu.show {
+      display: block;
+    }
+    #profile-menu a, #profile-menu button {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: background var(--transition);
+    }
+    #profile-menu a:hover, #profile-menu button:hover {
+      background: var(--secondary);
+    }
+    #profile-menu svg {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.5rem;
+    }
+    .assistant-button {
+      background: var(--primary);
+      border-radius: 50%;
+      bottom: 1.5rem;
+      display: grid;
+      height: 3.5rem;
+      place-items: center;
+      position: fixed;
+      right: 1.5rem;
+      transition: background var(--transition), transform var(--transition);
+      width: 3.5rem;
+      z-index: 100;
+    }
+    .assistant-button:hover {
+      background: var(--accent);
+      transform: scale(1.05);
+    }
+    .assistant-button img {
+      height: 1.75rem;
+      width: 1.75rem;
+    }
+    .assistant-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      bottom: 5.5rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      display: none;
+      flex-direction: column;
+      max-height: 32rem;
+      position: fixed;
+      right: 1rem;
+      width: min(24rem, calc(100% - 2rem));
+      z-index: 101;
+    }
+    .assistant-modal.show {
+      display: flex;
+    }
+    .assistant-header {
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      font-size: 1rem;
+      font-weight: 600;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+    }
+    .assistant-header button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .assistant-header svg {
+      color: var(--text-subtle);
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+    .chat-container {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .chat-input-container {
+      background: var(--surface);
+      border-radius: 0 0 1rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+    }
+    .chat-input {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      padding: 0.625rem 0.75rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .chat-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--secondary);
+      outline: none;
+    }
+    .send-button {
+      background: var(--primary);
+      border: none;
+      border-radius: 0.5rem;
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.625rem 1rem;
+      transition: background var(--transition);
+    }
+    .send-button:hover:not(:disabled) {
+      background: var(--accent);
+    }
+    .send-button:disabled {
+      background: var(--border);
+      cursor: not-allowed;
+    }
+    .message {
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      max-width: 80%;
+      padding: 0.625rem 0.75rem;
+    }
+    .user-message {
+      align-self: flex-end;
+      background: var(--primary);
+      border-bottom-right-radius: 0.25rem;
+      color: #fff;
+    }
+    .bot-message {
+      align-self: flex-start;
+      background: var(--border);
+      border-bottom-left-radius: 0.25rem;
+      color: var(--text-primary);
+    }
+    @media (min-width: 1024px) {
+      .desktop-nav {
+        display: flex;
+      }
+      .mobile-menu-btn {
+        display: none;
+      }
+      section h1 {
+        font-size: 3.5rem;
+      }
+      section h2 {
+        font-size: 2rem;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      section h1 {
+        font-size: 2.5rem;
+      }
+      section h2 {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 767px) {
+      .container {
+        padding: 0 0.75rem;
+      }
+      section {
+        padding: 2rem 0;
+      }
+      section h1 {
+        font-size: 1.75rem;
+      }
+      section h2 {
+        font-size: 1.5rem;
+      }
+      .assistant-button {
+        height: 3rem;
+        width: 3rem;
+      }
+      .assistant-button img {
+        height: 1.5rem;
+        width: 1.5rem;
+      }
+      .assistant-modal {
+        bottom: 4.5rem;
+        width: calc(100% - 1.5rem);
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Header Section -->
   <header>
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8">
-      <nav class="hidden md:flex gap-6 text-sm font-medium">
-        <a href="{% url 'student_dashboard' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
-        <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
-        <a href="{% url 'tutors' %}" class="hover:text-[var(--brand-primary)]">Репетиторы</a>
-        <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
+    <div class="container">
+      <a href="{% url 'student_dashboard' %}"><img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-8" loading="lazy"></a>
+      <nav class="desktop-nav">
+        <a href="{% url 'student_dashboard' %}">Главная</a>
+        <a href="{% url 'course_view' %}?course_id=1">Мои курсы</a>
+        <a href="{% url 'tutors' %}">Репетиторы</a>
+        <a href="{% url 'profile' %}">Профиль</a>
       </nav>
-      <div class="hidden md:flex items-center gap-3 relative">
-        <img src="{% static 'Icons/Logo.png' %}" id="profile-icon" alt="User Avatar" class="avatar cursor-pointer" title="Профиль">
-        <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
-          <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-sm hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+      <div class="auth-buttons">
+        <img src="{% static 'Icons/Logo.png' %}" id="profile-icon" alt="User Avatar" class="avatar" title="Перейти в профиль" loading="lazy">
+        <div id="profile-menu" class="hidden">
+          <a href="{% url 'profile' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
             </svg>
             Профиль
           </a>
-          <form method="post" action="{% url 'logout' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+          <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit" class="flex items-center text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+            <button type="submit">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
               </svg>
               Выйти
             </button>
           </form>
-          <a href="{% url 'delete_account' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+          <a href="{% url 'delete_account' %}" class="text-red-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
             Удалить
           </a>
         </div>
       </div>
-      <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Меню" type="button" aria-expanded="false">
+        <svg class="open-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg class="close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
-    <div id="mobile-menu-backdrop"></div>
-    <nav id="mobile-menu" class="md:hidden">
-      <a href="{% url 'student_dashboard' %}" class="p-3 hover:text-[var(--brand-primary)]">Главная</a>
-      <a href="{% url 'course_view' %}?course_id=1" class="p-3 hover:text-[var(--brand-primary)]">Мои курсы</a>
-      <a href="{% url 'tutors' %}" class="p-3 hover:text-[var(--brand-primary)]">Репетиторы</a>
-      <a href="{% url 'profile' %}" class="p-3 hover:text-[var(--brand-primary)]">Профиль</a>
-      <div class="p-3 flex flex-col gap-3">
-        <a href="{% url 'profile' %}">
-          <img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Перейти в профиль">
-        </a>
-      </div>
-    </nav>
+    <div id="mobile-menu-backdrop" class="mobile-menu-backdrop"></div>
+    <nav id="mobile-menu" class="mobile-menu"></nav>
   </header>
 
+  <!-- Main Content -->
   <main>
-    <section class="hero-section max-w-7xl mx-auto px-4 py-12">
-      <h1 class="font-extrabold mb-4 text-center">Добро пожаловать, <span class="text-[var(--brand-primary)]">Пользователь</span>!</h1>
-      <p class="text-[var(--text-secondary)] text-base mb-6 text-center">Продолжайте учиться с нашими курсами и репетиторами.</p>
-    </section>
-
-    <section class="bg-white py-12">
-      <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Ваши текущие курсы</h2>
-        <div id="current-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        </div>
+    <section class="hero">
+      <div class="container">
+        <h1>Добро пожаловать, <span>Пользователь</span>!</h1>
+        <p>Продолжайте учиться с нашими курсами и репетиторами.</p>
       </div>
     </section>
 
-    <section class="bg-[var(--bg-secondary)] py-12">
-      <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Рекомендуемые курсы</h2>
+    <section id="courses" class="courses">
+      <div class="container">
+        <h2>Ваши текущие курсы</h2>
+        <div id="current-courses" class="grid"></div>
+      </div>
+    </section>
+
+    <section id="recommended" class="recommended">
+      <div class="container">
+        <h2>Рекомендуемые курсы</h2>
         <div class="flex justify-end mb-4">
           <select id="sort-select" class="p-2 border rounded-lg text-sm">
             <option value="random">Случайно</option>
@@ -142,369 +560,506 @@
             <option value="date">По дате</option>
           </select>
         </div>
-        <div id="recommended-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div id="recommended-courses" class="grid"></div>
+      </div>
+    </section>
+
+    <section class="achievements">
+      <div class="container">
+        <h2>Ваши достижения</h2>
+        <div class="grid">
+          <div class="card">
+            <div class="card-content">
+              <h3 class="card-title">3 курса</h3>
+              <p class="card-text">Вы уже начали обучение!</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-content">
+              <h3 class="card-title">15 уроков</h3>
+              <p class="card-text">Завершено уроков.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-content">
+              <h3 class="card-title">2 сертификата</h3>
+              <p class="card-text">Получено сертификатов.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="bg-white py-12">
-      <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Ваши достижения</h2>
-        <div class="grid gap-6 md:grid-cols-3">
-          <div class="card p-5 text-center">
-            <h3 class="text-lg font-semibold mb-2">3 курса</h3>
-            <p class="text-[var(--text-secondary)] text-sm">Вы уже начали обучение!</p>
-          </div>
-          <div class="card p-5 text-center">
-            <h3 class="text-lg font-semibold mb-2">15 уроков</h3>
-            <p class="text-[var(--text-secondary)] text-sm">Завершено уроков.</p>
-          </div>
-          <div class="card p-5 text-center">
-            <h3 class="text-lg font-semibold mb-2">2 сертификата</h3>
-            <p class="text-[var(--text-secondary)] text-sm">Получено сертификатов.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="bg-[var(--brand-primary)] text-white py-16 text-center">
-      <div class="max-w-3xl mx-auto px-4">
-        <h2 class="text-3xl font-bold mb-4">Хотите больше знаний?</h2>
-        <p class="text-base mb-6 text-white/90">Запишитесь на новый курс прямо сейчас!</p>
-        <a href="#" class="btn bg-white text-[var(--brand-primary)] hover:bg-gray-100">Найти новый курс</a>
+    <section class="cta">
+      <div class="container">
+        <h2>Хотите больше знаний?</h2>
+        <p>Запишитесь на новый курс прямо сейчас!</p>
+        <a href="#recommended" class="btn-primary">Найти новый курс</a>
       </div>
     </section>
   </main>
 
+  <!-- Footer Section -->
   <footer class="mt-auto py-8 px-4 bg-white">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       <div>
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8 mb-3">
-        <p class="text-[var(--text-secondary)] text-sm">Ваш проводник в мир знаний с лучшими репетиторами.</p>
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-8 mb-3" loading="lazy">
+        <p class="text-[var(--text-subtle)] text-sm">Ваш проводник в мир знаний с лучшими репетиторами.</p>
       </div>
       <div>
         <h3 class="font-semibold mb-2">Направления</h3>
-        <ul id="category-list" class="space-y-1 text-sm text-[var(--text-secondary)]"></ul>
+        <ul id="category-list" class="space-y-1 text-sm text-[var(--text-subtle)]"></ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Партнеры</h3>
+        <ul class="space-y-1 text-sm text-[var(--text-subtle)]">
+          <li><a href="#" class="hover:text-[var(--primary)]">Apple</a></li>
+          <li><a href="#" class="hover:text-[var(--primary)]">Google</a></li>
+          <li><a href="#" class="hover:text-[var(--primary)]">Meta</a></li>
+          <li><a href="#" class="hover:text-[var(--primary)]">Amazon</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Связаться с нами</h3>
+        <ul class="space-y-1 text-sm text-[var(--text-subtle)]">
+          <li><a href="mailto:support@edumentor.ru" class="hover:text-[var(--primary)]">support@edumentor.ru</a></li>
+          <li><a href="tel:+74951234567" class="hover:text-[var(--primary)]">+7 (495) 123-45-67</a></li>
+          <li>Москва, ул. Лермонтова, 15</li>
+          <li><a href="#privacy" class="hover:text-[var(--primary)]">Политика конфиденциальности</a></li>
         </ul>
       </div>
     </div>
   </footer>
 
-  <div id="assistant-button" aria-label="Чат">
-    <img src="{% static 'Icons/Send.png' %}" alt="Assistant">
+  <!-- Chat Assistant -->
+  <div id="assistant-button" class="assistant-button" role="button" aria-label="Чат">
+    <img src="{% static 'Icons/Send.png' %}" alt="Assistant" loading="lazy">
   </div>
-  <div id="assistant-modal">
-    <div id="assistant-header">
-      <span>Ассистент по курсам</span>
-      <button id="close-assistant" aria-label="Закрыть">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-    <div id="chat-container">
-      <div class="message bot-message">Привет! Помогу найти новый курс или ответить на вопросы.</div>
-    </div>
-    <div id="chat-input-container">
-      <input id="chat-input" type="text" placeholder="Задайте вопрос..." aria-label="Сообщение">
-      <button id="send-button" aria-label="Отправить" disabled>Отправить</button>
-    </div>
-  </div>
+  <div id="assistant-modal" class="assistant-modal"></div>
 
   <script>
-    const mobileBtn = document.querySelector('#mobile-btn');
-    const mobileMenu = document.querySelector('#mobile-menu');
-    const backdrop = document.querySelector('#mobile-menu-backdrop');
-    mobileBtn.addEventListener('click', () => {
-      const isOpen = mobileMenu.classList.toggle('show');
-      backdrop.classList.toggle('show', isOpen);
-      mobileBtn.setAttribute('aria-expanded', isOpen);
-    });
-    backdrop.addEventListener('click', () => {
-      mobileMenu.classList.remove('show');
-      backdrop.classList.remove('show');
-      mobileBtn.setAttribute('aria-expanded', 'false');
-    });
+    // Mobile Menu Class
+    class MobileMenu {
+      constructor({ containerId, backdropId, buttonId, menuItems, isAuthenticated = true }) {
+        this.elements = {
+          container: document.getElementById(containerId),
+          backdrop: document.getElementById(backdropId),
+          button: document.getElementById(buttonId),
+        };
+        this.menuItems = menuItems;
+        this.isAuthenticated = isAuthenticated;
+        this.isOpen = false;
+        this.init();
+      }
 
-    
-    // Assistant functionality
-    const assistantBtn = document.getElementById('assistant-button');
-    const assistantModal = document.getElementById('assistant-modal');
-    const closeAssistant = document.getElementById('close-assistant');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-button');
-    const chatContainer = document.getElementById('chat-container');
+      init() {
+        this.render();
+        this.bindEvents();
+      }
 
-// 🔑 Стоп‑слова, которые игнорируем при разборе запроса
-const stopWords = ['и', 'в', 'на', 'по', 'ли', 'это', 'а', 'к', 'у', 'за', 'то', 'же', 'от', 'с', 'без'];
+      render() {
+        this.elements.container.innerHTML = `
+          ${this.menuItems
+            .map(item => `<a href="${item.href}">${item.label}</a>`)
+            .join('')}
+          <div class="auth-buttons">
+            ${
+              this.isAuthenticated
+                ? `<a href="{% url 'profile' %}"><img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Перейти в профиль" loading="lazy"></a>`
+                : `
+                  <a href="{% url 'login' %}" class="btn-secondary">Войти</a>
+                  <a href="{% url 'register' %}" class="btn-primary">Регистрация</a>
+                `
+            }
+          </div>
+        `;
+      }
 
-// 📚 Часто задаваемые вопросы + расширенные синонимы
-const faq = [
-  // Что такое курс
-  {
-    keywords: ['курс', 'что', 'такое', 'представляет', 'собой', 'значит'],
-    answer: 'Курс — это серия видеоуроков, практических заданий и поддержки наставника по конкретной теме.'
-  },
-  // Как записаться
-  {
-    keywords: ['как', 'записаться', 'начать', 'присоединиться', 'стартовать', 'подключиться'],
-    answer: 'На странице курса нажмите кнопку «Записаться» — и он появится у вас в профиле.'
-  },
-  // Бесплатно ли
-  {
-    keywords: ['бесплатно', 'оплата', 'цена', 'стоимость', 'платно', 'безоплатно'],
-    answer: 'Большинство наших курсов доступны бесплатно. Если курс платный, цена указана на его странице.'
-  },
-  // Что входит в курс
-  {
-    keywords: ['что', 'входит', 'содержит', 'структура', 'состав', 'контент'],
-    answer: 'Обычно в курс входят видеоуроки, тесты, практические задания и обратная связь преподавателя.'
-  },
-  // Длительность курса
-  {
-    keywords: ['сколько', 'длится', 'длительность', 'идет', 'времени', 'занимает'],
-    answer: 'Длительность зависит от темы: как правило, от 2 до 6 недель при комфортном темпе.'
-  },
-  // Сертификат
-  {
-    keywords: ['сертификат', 'выдается', 'получу', 'получить', 'документ'],
-    answer: 'После полного прохождения курса и всех заданий вы сможете скачать именной сертификат.'
-  },
-  // Сложность / подойдёт ли новичку
-  {
-    keywords: ['сложно', 'уровень', 'подойдет', 'новичку', 'тяжело', 'опыт'],
-    answer: 'В описании каждого курса указан рекомендуемый уровень. Множество курсов рассчитаны на абсолютных новичков.'
-  },
-  // Повторное прохождение
-  {
-    keywords: ['повторно', 'ещё', 'раз', 'заново', 'перепройти', 'повторить'],
-    answer: 'Вы можете вернуться и пройти курс заново в любое время — доступ остаётся навсегда.'
-  },
-  // Профиль / настройки
-  {
-    keywords: ['профиль', 'аккаунт', 'настройки', 'где', 'посмотреть', 'редактировать'],
-    answer: 'Ваш профиль находится в верхнем меню. Там же можно изменить данные, фото и увидеть прогресс.'
-  },
-  // Чат / вопрос
-  {
-    keywords: ['чат', 'написать', 'вопрос', 'наставник', 'преподаватель', 'связаться'],
-    answer: 'На странице курса откройте вкладку «Чат» — там можно задать вопрос преподавателю.'
-  },
-  // Ошибка / баг
-  {
-    keywords: ['ошибка', 'баг', 'не', 'работает', 'сбой', 'проблема'],
-    answer: 'Опишите, пожалуйста, проблему подробнее — я передам её в техподдержку.'
-  },
-  // Виртуальный помощник
-  {
-    keywords: ['ты', 'человек', 'бот', 'ассистент'],
-    answer: 'Я виртуальный помощник платформы. Если хочешь пообщаться с живым человеком, напиши «Позвать ассистента».'
-  },
-  // Позвать ассистента
-  {
-    keywords: ['позвать', 'ассистента', 'оператор', 'саппорт'],
-    answer: 'Зову ассистента, минуту…'
-  }
-];
+      toggle(isOpen) {
+        this.isOpen = isOpen;
+        this.elements.container.classList.toggle('show', isOpen);
+        this.elements.backdrop.classList.toggle('show', isOpen);
+        this.elements.button.setAttribute('aria-expanded', isOpen);
+        document.body.classList.toggle('no-scroll', isOpen);
+      }
 
-// 🍀 Ответ по умолчанию
-const defaultReply = 'Не уверена, что поняла запрос. Сейчас переключу вас на ассистента, подождите, пожалуйста.';
+      bindEvents() {
+        this.elements.button.addEventListener('click', () => {
+          this.toggle(!this.isOpen);
+        });
+        this.elements.backdrop.addEventListener('click', () => this.toggle(false));
+      }
+    }
 
-// 🚀 Функция‑поисковик ответа
-function findAnswer(message) {
-  // 1. Токенизация: слова в нижнем регистре, без пустых, без стоп‑слов
-  const words = message
-    .toLowerCase()
-    .split(/[^a-zа-яё0-9ё]+/i)
-    .filter(w => w && !stopWords.includes(w));
+    // Chat Assistant Functionality
+    const stopWords = ['и', 'в', 'на', 'по', 'ли', 'это', 'а', 'к', 'у', 'за', 'то', 'же', 'от', 'с', 'без'];
+    const faq = [
+      {
+        keywords: ['курс', 'что', 'такое', 'представляет', 'собой', 'значит'],
+        answer: 'Курс — это серия видеоуроков, практических заданий и поддержки наставника по конкретной теме.'
+      },
+      {
+        keywords: ['как', 'записаться', 'начать', 'присоединиться', 'стартовать', 'подключиться'],
+        answer: 'На странице курса нажмите кнопку «Записаться» — и он появится у вас в профиле.'
+      },
+      {
+        keywords: ['бесплатно', 'оплата', 'цена', 'стоимость', 'платно', 'безоплатно'],
+        answer: 'Большинство наших курсов доступны бесплатно. Если курс платный, цена указана на его странице.'
+      },
+      {
+        keywords: ['что', 'входит', 'содержит', 'структура', 'состав', 'контент'],
+        answer: 'Обычно в курс входят видеоуроки, тесты, практические задания и обратная связь преподавателя.'
+      },
+      {
+        keywords: ['сколько', 'длится', 'длительность', 'идет', 'времени', 'занимает'],
+        answer: 'Длительность зависит от темы: как правило, от 2 до 6 недель при комфортном темпе.'
+      },
+      {
+        keywords: ['сертификат', 'выдается', 'получу', 'получить', 'документ'],
+        answer: 'После полного прохождения курса и всех заданий вы сможете скачать именной сертификат.'
+      },
+      {
+        keywords: ['сложно', 'уровень', 'подойдет', 'новичку', 'тяжело', 'опыт'],
+        answer: 'В описании каждого курса указан рекомендуемый уровень. Множество курсов рассчитаны на абсолютных новичков.'
+      },
+      {
+        keywords: ['повторно', 'ещё', 'раз', 'заново', 'перепройти', 'повторить'],
+        answer: 'Вы можете вернуться и пройти курс заново в любое время — доступ остаётся навсегда.'
+      },
+      {
+        keywords: ['профиль', 'аккаунт', 'настройки', 'где', 'посмотреть', 'редактировать'],
+        answer: 'Ваш профиль находится в верхнем меню. Там же можно изменить данные, фото и увидеть прогресс.'
+      },
+      {
+        keywords: ['чат', 'написать', 'вопрос', 'наставник', 'преподаватель', 'связаться'],
+        answer: 'На странице курса откройте вкладку «Чат» — там можно задать вопрос преподавателю.'
+      },
+      {
+        keywords: ['ошибка', 'баг', 'не', 'работает', 'сбой', 'проблема'],
+        answer: 'Опишите, пожалуйста, проблему подробнее — я передам её в техподдержку.'
+      },
+      {
+        keywords: ['ты', 'человек', 'бот', 'ассистент'],
+        answer: 'Я виртуальный помощник платформы. Если хочешь пообщаться с живым человеком, напиши «Позвать ассистента».'
+      },
+      {
+        keywords: ['позвать', 'ассистента', 'оператор', 'саппорт'],
+        answer: 'Зову ассистента, минуту…'
+      }
+    ];
+    const defaultReply = 'Не уверена, что поняла запрос. Сейчас переключу вас на ассистента, подождите, пожалуйста.';
 
-  // 2. Ищем лучший FAQ‑ответ
-  let best = { answer: defaultReply, score: 0 };
-  faq.forEach(item => {
-    const score = item.keywords.reduce(
-      (sum, kw) => (words.includes(kw) ? sum + 1 : sum),
-      0
-    );
-    if (score > best.score) best = { answer: item.answer, score };
-  });
+    function findAnswer(message) {
+      const words = message
+        .toLowerCase()
+        .split(/[^a-zа-яё0-9ё]+/i)
+        .filter(w => w && !stopWords.includes(w));
+      let best = { answer: defaultReply, score: 0 };
+      faq.forEach(item => {
+        const score = item.keywords.reduce(
+          (sum, kw) => (words.includes(kw) ? sum + 1 : sum),
+          0
+        );
+        if (score > best.score) best = { answer: item.answer, score };
+      });
+      return best.score > 0 ? best.answer : defaultReply;
+    }
 
-  // 3. Если не найдено ни одного совпадения — отдаём дефолт
-  return best.score > 0 ? best.answer : defaultReply;
-}
+    class ChatAssistant {
+      constructor() {
+        this.elements = {
+          assistantBtn: document.getElementById('assistant-button'),
+          modal: document.getElementById('assistant-modal'),
+        };
+        this.state = {
+          isOpen: false,
+          messages: [
+            {
+              content: 'Привет! Помогу найти новый курс или ответить на вопросы.',
+              isUser: false,
+            },
+          ],
+          input: '',
+          isTyping: false,
+        };
+        this.init();
+      }
 
-/* ===== Пример использования =====
-console.log(findAnswer('Сколько длится курс по JavaScript?'));
-// → "Длительность курса зависит от темы: как правило, от 2 до 6 недель при комфортном темпе."
+      init() {
+        this.render();
+        this.bindEvents();
+      }
 
-console.log(findAnswer('А сертификат выдаётся?'));
-// → "После полного прохождения курса и всех заданий вы сможете скачать именной сертификат."
-*/
+      render() {
+        this.elements.modal.innerHTML = `
+          <div class="assistant-header">
+            <span>Ассистент по курсам</span>
+            <button id="assistant-close-btn" aria-label="Закрыть">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="chat-container">
+            ${this.state.messages
+              .map(
+                (msg, idx) =>
+                  `<div class="message ${msg.isUser ? 'user-message' : 'bot-message'}" key="${idx}">${msg.content}</div>`
+              )
+              .join('')}
+            ${this.state.isTyping ? `<div class="message bot-message">Думаю…</div>` : ''}
+          </div>
+          <div class="chat-input-container">
+            <input id="chat-input" class="chat-input" type="text" placeholder="Задайте вопрос..." aria-label="Сообщение" value="${this.state.input}">
+            <button id="send-button" class="send-button" aria-label="Отправить" ${!this.state.input.trim() ? 'disabled' : ''}>Отправить</button>
+          </div>
+        `;
+        this.elements.modal.classList.toggle('show', this.state.isOpen);
+        this.elements.input = this.elements.modal.querySelector('#chat-input');
+        this.elements.sendBtn = this.elements.modal.querySelector('#send-button');
+        this.elements.chatContainer = this.elements.modal.querySelector('.chat-container');
+        if (this.elements.chatContainer) {
+          this.elements.chatContainer.scrollTop = this.elements.chatContainer.scrollHeight;
+        }
+      }
 
+      handleSend() {
+        if (!this.state.input.trim()) return;
+        this.state.messages = [...this.state.messages, { content: this.state.input, isUser: true }];
+        this.state.input = '';
+        this.state.isTyping = true;
+        this.render();
+        const botReply = findAnswer(this.state.messages.at(-1).content);
+        setTimeout(() => {
+          this.state.isTyping = false;
+          this.state.messages = [...this.state.messages, { content: botReply, isUser: false }];
+          this.render();
+        }, 500);
+      }
 
-    assistantBtn.addEventListener('click', () => {
-      assistantModal.classList.add('show');
-      chatInput.focus();
-    });
-    closeAssistant.addEventListener('click', () => {
-      assistantModal.classList.remove('show');
-    });
-    chatInput.addEventListener('input', () => {
-      sendBtn.disabled = chatInput.value.trim() === '';
-    });
-    sendBtn.addEventListener('click', () => {
-      const msg = chatInput.value.trim();
-      if (!msg) return;
-      const userMsg = document.createElement('div');
-      userMsg.className = 'message user-message';
-      userMsg.textContent = msg;
-      chatContainer.appendChild(userMsg);
-      chatInput.value = '';
-      sendBtn.disabled = true;
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      const botReply = findAnswer(msg);
+      updateInput(value) {
+        this.state.input = value;
+        if (this.elements.sendBtn) {
+          this.elements.sendBtn.disabled = !value.trim();
+        }
+      }
 
-      setTimeout(() => {
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot-message';
-        botMsg.textContent = botReply;
-        chatContainer.appendChild(botMsg);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }, 500);
-    });
+      bindEvents() {
+        this.elements.assistantBtn.addEventListener('click', () => {
+          this.state.isOpen = !this.state.isOpen;
+          this.render();
+          if (this.state.isOpen) this.elements.input.focus();
+        });
+        this.elements.modal.addEventListener('click', e => {
+          if (e.target.id === 'assistant-close-btn') {
+            this.state.isOpen = false;
+            this.render();
+          }
+          if (e.target.id === 'send-button') {
+            this.handleSend();
+          }
+        });
+        this.elements.modal.addEventListener('input', e => {
+          if (e.target.id === 'chat-input') {
+            this.updateInput(e.target.value);
+          }
+        });
+        this.elements.modal.addEventListener('keypress', e => {
+          if (e.target.id === 'chat-input' && e.key === 'Enter') {
+            this.handleSend();
+          }
+        });
+      }
+    }
+
+    // Utility Functions
+    function getCookie(name) {
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? m.pop() : '';
+    }
 
     const userKey = '{{ request.user.id }}';
-    const STORAGE_CREATED = 'createdCourses_' + userKey;
     const STORAGE_ENROLLED = 'enrolledCourses_' + userKey;
     const STORAGE_PROGRESS_PREFIX = 'courseProgress_' + userKey + ':';
 
-    // Enrollment from recommended to current
-      function attachEnrollHandlers() {
-        document.querySelectorAll('#recommended-courses .enroll').forEach(link => {
-          link.addEventListener('click', e => {
-            e.preventDefault();
-            const card = link.closest('article');
-            link.remove();
-            const progress = document.createElement('div');
-            progress.className = 'progress-bar mb-3';
-            progress.innerHTML = '<div class="progress-bar-inner" style="width: 0%;"></div>';
-            card.querySelector('.p-5').appendChild(progress);
-            const id = card.dataset.courseId;
-            const cont = document.createElement('a');
-            cont.href = '/course/' + id + '/';
-            cont.className = 'btn w-full text-center';
-            cont.textContent = 'Продолжить';
-            card.querySelector('.p-5').appendChild(cont);
-            document.getElementById('current-courses').appendChild(card);
-            const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
-            if(!enrolled.includes(id)) enrolled.push(id);
-            localStorage.setItem(STORAGE_ENROLLED, JSON.stringify(enrolled));
-            localStorage.setItem(STORAGE_PROGRESS_PREFIX+id, 0);
+    // Course Management
+    function addEnrolledCourseCard(course) {
+      const article = document.createElement('article');
+      article.className = 'card';
+      article.dataset.courseId = course.id;
+      article.innerHTML = `
+        <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="${course.title}" class="card-img" loading="lazy">
+        <div class="card-content">
+          <h3 class="card-title">${course.title}</h3>
+          <p class="card-text">Репетитор: ${course.tutor || 'Не указан'} • ${course.progress || 0}% завершено</p>
+          <div class="progress-bar"><div class="progress-bar-inner" style="width: ${course.progress || 0}%;"></div></div>
+          <a href="/course/${course.id}/" class="btn-primary">Продолжить</a>
+        </div>`;
+      document.getElementById('current-courses').appendChild(article);
+    }
+
+    function addRecommendedCourseCard(course) {
+      const article = document.createElement('article');
+      article.className = 'card';
+      article.dataset.courseId = course.id;
+      article.innerHTML = `
+        <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="${course.title}" class="card-img" loading="lazy">
+        <div class="card-content">
+          <h3 class="card-title">${course.title}</h3>
+          <p class="card-text">${course.description || 'Нет описания'}</p>
+          <a href="#" class="btn-secondary enroll">Записаться</a>
+        </div>`;
+      document.getElementById('recommended-courses').appendChild(article);
+    }
+
+    function attachEnrollHandlers() {
+      document.querySelectorAll('#recommended-courses .enroll').forEach(link => {
+        link.addEventListener('click', async e => {
+          e.preventDefault();
+          const card = link.closest('article');
+          const courseId = card.dataset.courseId;
+          try {
+            const response = await fetch(`/api/courses/enroll/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+              },
+              body: JSON.stringify({ course_id: courseId })
+            });
+            if (response.ok) {
+              alert(`Вы записались на курс!`);
+              const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
+              if (!enrolled.includes(courseId)) enrolled.push(courseId);
+              localStorage.setItem(STORAGE_ENROLLED, JSON.stringify(enrolled));
+              localStorage.setItem(STORAGE_PROGRESS_PREFIX + courseId, 0);
+              link.remove();
+              const progress = document.createElement('div');
+              progress.className = 'progress-bar mb-3';
+              progress.innerHTML = '<div class="progress-bar-inner" style="width: 0%;"></div>';
+              card.querySelector('.card-content').appendChild(progress);
+              const cont = document.createElement('a');
+              cont.href = '/course/' + courseId + '/';
+              cont.className = 'btn-primary w-full text-center';
+              cont.textContent = 'Продолжить';
+              card.querySelector('.card-content').appendChild(cont);
+              document.getElementById('current-courses').appendChild(card);
+              updateProgressBars();
+            } else {
+              alert('Ошибка при записи на курс.');
+            }
+          } catch (error) {
+            console.error('Enrollment error:', error);
+            alert('Произошла ошибка. Попробуйте позже.');
+          }
+        });
+      });
+    }
+
+    let selectedCategory = null;
+
+    function loadCategories() {
+      fetch('/api/categories/')
+        .then(r => r.json())
+        .then(data => {
+          const list = document.getElementById('category-list');
+          list.innerHTML = '';
+          data.forEach(cat => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = '#';
+            a.textContent = cat.name;
+            a.className = 'hover:text-[var(--primary)]';
+            a.addEventListener('click', e => {
+              e.preventDefault();
+              selectedCategory = cat.id;
+              loadRecommendedCourses();
+            });
+            li.appendChild(a);
+            list.appendChild(li);
           });
         });
-      }
-    attachEnrollHandlers();
+    }
 
-    // Fetch categories and courses from the API
-      let selectedCategory = null;
+    function loadEnrolledCourses() {
+      document.getElementById('current-courses').innerHTML = '';
+      fetch('/api/courses/enrolled/')
+        .then(r => r.json())
+        .then(data => {
+          data.forEach(addEnrolledCourseCard);
+          updateProgressBars();
+        });
+    }
 
-      function loadCategories() {
-        fetch('/api/categories/')
-          .then(r => r.json())
-          .then(data => {
-            const list = document.getElementById('category-list');
-            list.innerHTML = '';
-            data.forEach(cat => {
-              const li = document.createElement('li');
-              const a = document.createElement('a');
-              a.href = '#';
-              a.textContent = cat.name;
-              a.className = 'hover:text-[var(--brand-primary)]';
-              a.addEventListener('click', e => {
-                e.preventDefault();
-                selectedCategory = cat.id;
-                loadRecommended();
-              });
-              li.appendChild(a);
-              list.appendChild(li);
-            });
-          });
-      }
-
-      function loadRecommended() {
-        const rec = document.getElementById('recommended-courses');
-        rec.innerHTML = '';
-        const params = new URLSearchParams();
-        const sort = document.getElementById('sort-select').value;
-        if (sort && sort !== 'random') params.set('sort', sort);
-        if (selectedCategory) params.set('category', selectedCategory);
-        fetch('/api/recommendations/?' + params.toString())
-          .then(r => r.json())
-          .then(data => {
-            const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
-            data.forEach(c => {
-              const article = document.createElement('article');
-              article.className = 'card';
-              article.dataset.courseId = c.id;
-              article.innerHTML = `
-                <img src="${c.thumbnail}" alt="${c.title}" class="w-full h-40 object-cover rounded-t-lg">
-                <div class="p-5">
-                  <h3 class="text-lg font-semibold mb-2">${c.title}</h3>
-                  <p class="text-[var(--text-secondary)] text-sm mb-3">${c.description}</p>
-                </div>`;
-              if(enrolled.includes(String(c.id))){
-                const progress = document.createElement('div');
-                progress.className='progress-bar mb-3';
-                progress.innerHTML='<div class="progress-bar-inner" style="width:0%"></div>';
-                article.querySelector('.p-5').appendChild(progress);
-                const cont=document.createElement('a');
-                cont.href='/course/'+c.id+'/';
-                cont.className='btn w-full text-center';
-                cont.textContent='Продолжить';
-                article.querySelector('.p-5').appendChild(cont);
-                document.getElementById('current-courses').appendChild(article);
-              } else {
-                const enroll = document.createElement('a');
-                enroll.href='#';
-                enroll.className='text-[var(--brand-primary)] hover:underline text-sm enroll';
-                enroll.textContent='Записаться';
-                article.querySelector('.p-5').appendChild(enroll);
-                rec.appendChild(article);
-              }
-            });
-            attachEnrollHandlers();
-            updateProgressBars();
-            if(!rec.children.length){
-              rec.innerHTML = '<p class="col-span-full text-center">Нет рекомендаций</p>';
+    function loadRecommendedCourses() {
+      document.getElementById('recommended-courses').innerHTML = '';
+      const params = new URLSearchParams();
+      const sort = document.getElementById('sort-select').value;
+      if (sort && sort !== 'random') params.set('sort', sort);
+      if (selectedCategory) params.set('category', selectedCategory);
+      fetch('/api/recommendations/?' + params.toString())
+        .then(r => r.json())
+        .then(data => {
+          const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
+          data.forEach(c => {
+            if (enrolled.includes(String(c.id))) {
+              addEnrolledCourseCard(c);
+            } else {
+              addRecommendedCourseCard(c);
             }
           });
-      }
-
-      function updateProgressBars() {
-        document.querySelectorAll('[data-course-id]').forEach(card => {
-          const id = card.dataset.courseId;
-          const p = localStorage.getItem(STORAGE_PROGRESS_PREFIX+id) || 0;
-          const bar = card.querySelector('.progress-bar-inner');
-          if(bar) bar.style.width = p + '%';
+          attachEnrollHandlers();
+          updateProgressBars();
+          if (!document.getElementById('recommended-courses').children.length) {
+            document.getElementById('recommended-courses').innerHTML = '<p class="col-span-full text-center">Нет рекомендаций</p>';
+          }
         });
-      }
+    }
 
-      document.getElementById('sort-select').addEventListener('change', loadRecommended);
+    function updateProgressBars() {
+      document.querySelectorAll('[data-course-id]').forEach(card => {
+        const id = card.dataset.courseId;
+        const p = localStorage.getItem(STORAGE_PROGRESS_PREFIX + id) || 0;
+        const bar = card.querySelector('.progress-bar-inner');
+        if (bar) bar.style.width = p + '%';
+      });
+    }
 
-      loadCategories();
-      loadRecommended();
-      updateProgressBars();
+    // Initialize Application
+    const initApp = () => {
+      new MobileMenu({
+        containerId: 'mobile-menu',
+        backdropId: 'mobile-menu-backdrop',
+        buttonId: 'mobile-menu-btn',
+        menuItems: [
+          { href: '{% url "student_dashboard" %}', label: 'Главная' },
+          { href: '{% url "course_view" %}?course_id=1', label: 'Мои курсы' },
+          { href: '{% url "tutors" %}', label: 'Репетиторы' },
+          { href: '{% url "profile" %}', label: 'Профиль' },
+        ],
+        isAuthenticated: true,
+      });
+      new ChatAssistant();
 
-      // profile dropdown
+      // Profile Dropdown
       const profileIcon = document.getElementById('profile-icon');
       const profileMenu = document.getElementById('profile-menu');
-      document.addEventListener('click', (e) => {
+      document.addEventListener('click', e => {
         if (profileIcon.contains(e.target)) {
-          profileMenu.classList.toggle('hidden');
+          profileMenu.classList.toggle('show');
         } else if (!profileMenu.contains(e.target)) {
           profileMenu.classList.add('hidden');
         }
       });
-          
+
+      document.getElementById('sort-select').addEventListener('change', loadRecommendedCourses);
+      loadCategories();
+      loadEnrolledCourses();
+      loadRecommendedCourses();
+    };
+
+    // Run on DOM load
+    document.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>

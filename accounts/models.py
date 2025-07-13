@@ -18,6 +18,7 @@ class CustomUser(AbstractUser):
     xp = models.PositiveIntegerField(default=0)
     badges = models.ManyToManyField('Badge', blank=True, related_name='users')
     verification_code = models.CharField(max_length=4, blank=True)
+    reset_code = models.CharField(max_length=4, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
