@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#f5f3ff">
   <title>EduPath - Панель репетитора</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,6 +17,7 @@
       --text-main: #1C1C1E;
       --text-secondary: rgba(60, 60, 67, 0.6);
       --border-color: #D1D1D6;
+      --transition: 0.2s ease-in-out;
     }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -25,6 +28,9 @@
       display: flex;
       flex-direction: column;
     }
+    body.no-scroll {
+      overflow: hidden;
+    }
     .btn {
       border-radius: 12px;
       font-weight: 500;
@@ -33,9 +39,22 @@
       color: white;
       border: none;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background var(--transition);
     }
-    .btn:hover { background: #5b3fe6; }
+    .btn:hover {
+      background: #5b3fe6;
+    }
+    .btn-danger {
+      background: #e53e3e;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .btn-danger:hover {
+      background: #c53030;
+    }
     input:focus, textarea:focus {
       border-color: var(--brand-primary);
       box-shadow: 0 0 0 2px var(--brand-primary);
@@ -48,10 +67,58 @@
       top: 0;
       z-index: 50;
     }
-    #mobile-menu { display: none; }
-    #mobile-menu.show { display: flex; }
-    #mobile-menu-backdrop { display: none; }
-    #mobile-menu-backdrop.show { display: block; }
+    #mobile-menu {
+      display: none;
+      flex-direction: column;
+      padding: 1.5rem;
+      background: white;
+      border-right: 1px solid var(--border-color);
+      height: 100vh;
+      width: 16rem;
+      max-width: 80%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transform: translateX(-100%);
+      transition: transform var(--transition);
+      z-index: 100;
+    }
+    #mobile-menu.show {
+      display: flex;
+      transform: translateX(0);
+    }
+    #mobile-menu a {
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 0.75rem;
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    #mobile-menu a:hover {
+      color: var(--brand-primary);
+    }
+    #mobile-menu .auth-buttons {
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+    }
+    #mobile-menu-backdrop {
+      display: none;
+      background: rgba(0, 0, 0, 0.5);
+      height: 100vh;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 99;
+    }
+    #mobile-menu-backdrop.show {
+      display: block;
+    }
     #assistant-button {
       position: fixed;
       bottom: 24px;
@@ -63,101 +130,339 @@
       display: grid;
       place-items: center;
       z-index: 100;
+      transition: background var(--transition), transform var(--transition);
     }
-    #assistant-button:hover { background: #5b3fe6; }
-    #assistant-button img { width: 28px; height: 28px; }
-    #assistant-modal { display: none; position: fixed; bottom: 88px; right: 16px; width: min(380px, calc(100% - 32px)); max-height: 500px; background: white; border-radius: 20px; z-index: 101; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); flex-direction: column; }
-    #assistant-modal.show { display: flex; }
-    #assistant-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-    #chat-container { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-    #chat-input-container { padding: 12px 16px; border-top: 1px solid var(--border-color); background: white; border-radius: 0 0 20px 20px; display: flex; gap: 8px; }
-    #chat-input { flex: 1; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-main); font-size: 14px; }
-    #send-button { padding: 8px 16px; background: var(--brand-primary); color: white; border-radius: 12px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
-    #send-button:hover:not(:disabled) { background: #5b3fe6; }
-    #send-button:disabled { background: var(--bg-secondary); cursor: not-allowed; }
-    .message { padding: 10px 12px; border-radius: 16px; max-width: 80%; font-size: 14px; }
-    .user-message { background: var(--brand-primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .bot-message { background: var(--bg-secondary); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: box-shadow 0.2s, transform 0.2s; }
-    .card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; }
-    .progress-bar { height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
-    .progress-bar-inner { height: 100%; background: var(--brand-primary); transition: width 0.3s; }
-    .hero-section h1 { font-size: clamp(2rem,4vw,3rem); font-weight: 800; line-height: 1.2; }
-    textarea { resize: none; width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-main); font-size: 14px; }
-    #messages-container { display: flex; flex-direction: row; gap: 1rem; height: 500px; }
-    #student-list { width: 250px; background: white; border-right: 1px solid var(--border-color); overflow-y: auto; }
-    .student-item { padding: 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 10px; }
-    .student-item:hover { background: var(--bg-secondary); }
-    .student-item.active { background: var(--brand-primary); color: white; }
-    #message-thread { flex: 1; display: flex; flex-direction: column; background: white; border-radius: 12px; }
-    #message-thread-header { padding: 12px; border-bottom: 1px solid var(--border-color); font-weight: 600; }
-    #message-thread-body { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-    #message-thread-input { padding: 12px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
+    #assistant-button:hover {
+      background: #5b3fe6;
+      transform: scale(1.05);
+    }
+    #assistant-button img {
+      width: 28px;
+      height: 28px;
+    }
+    #assistant-modal {
+      display: none;
+      position: fixed;
+      bottom: 88px;
+      right: 16px;
+      width: min(380px, calc(100% - 32px));
+      max-height: 500px;
+      background: white;
+      border-radius: 20px;
+      z-index: 101;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      flex-direction: column;
+    }
+    #assistant-modal.show {
+      display: flex;
+    }
+    #assistant-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+    #assistant-header button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    #assistant-header svg {
+      color: var(--text-secondary);
+      width: 20px;
+      height: 20px;
+    }
+    #chat-container {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #chat-input-container {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-color);
+      background: white;
+      border-radius: 0 0 20px 20px;
+      display: flex;
+      gap: 8px;
+    }
+    #chat-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background: var(--bg-main);
+      font-size: 14px;
+    }
+    #send-button {
+      padding: 8px 16px;
+      background: var(--brand-primary);
+      color: white;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    #send-button:hover:not(:disabled) {
+      background: #5b3fe6;
+    }
+    #send-button:disabled {
+      background: var(--bg-secondary);
+      cursor: not-allowed;
+    }
+    .message {
+      padding: 10px 12px;
+      border-radius: 16px;
+      max-width: 80%;
+      font-size: 14px;
+    }
+    .user-message {
+      background: var(--brand-primary);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .bot-message {
+      background: var(--bg-secondary);
+      color: var(--text-main);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+    .card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background: var(--brand-primary);
+      transition: width 0.3s;
+    }
+    .hero-section h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    textarea {
+      resize: none;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background: var(--bg-main);
+      font-size: 14px;
+    }
+    #messages-container {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      height: 500px;
+    }
+    #student-list {
+      width: 250px;
+      background: white;
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+    }
+    .student-item {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .student-item:hover {
+      background: var(--bg-secondary);
+    }
+    .student-item.active {
+      background: var(--brand-primary);
+      color: white;
+    }
+    #message-thread {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      border-radius: 12px;
+    }
+    #message-thread-header {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+    #message-thread-body {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #message-thread-input {
+      padding: 12px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 8px;
+    }
+    @media (min-width: 1024px) {
+      .hero-section h1 {
+        font-size: 3.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .hero-section h1 {
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 767px) {
+      .max-w-7xl {
+        padding: 0 0.75rem;
+      }
+      section {
+        padding: 2rem 0;
+      }
+      .hero-section h1 {
+        font-size: 1.75rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      #assistant-button {
+        height: 48px;
+        width: 48px;
+      }
+      #assistant-button img {
+        height: 24px;
+        width: 24px;
+      }
+      #assistant-modal {
+        bottom: 80px;
+        width: calc(100% - 1.5rem);
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Header Section -->
   <header>
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8">
-      <nav class="hidden md:flex gap-6 text-sm font-medium">
+      <a href="{% url 'teacher_dashboard' %}"><img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8"></a>
+      <nav class="hidden md:flex gap-6 text-sm font-medium desktop-nav">
         <a href="{% url 'teacher_dashboard' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
         <a href="#my-courses" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
         <a href="#create-course" class="hover:text-[var(--brand-primary)]">Создать курс</a>
         <a href="#messages" class="hover:text-[var(--brand-primary)]">Сообщения</a>
         <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
-      <div class="hidden md:flex items-center gap-3 relative">
-        <img src="{% static 'Icons/Logo.png' %}" id="profile-icon" alt="Avatar" class="avatar cursor-pointer" title="Профиль">
-        <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
-          <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-sm hover:bg-gray-100">
+      <div class="hidden md:flex items-center gap-3 relative auth-buttons">
+        <img src="{% static 'Icons/Logo.png' %}" id="profile-icon" alt="Avatar" class="avatar" title="Профиль">
+        <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-[var(--border-color)] rounded-lg shadow-lg hidden">
+          <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-sm hover:bg-[var(--bg-secondary)]">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
             </svg>
             Профиль
           </a>
-          <form method="post" action="{% url 'logout' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+          <form method="post" action="{% url 'logout' %}" class="flex items-center px-4 py-2 hover:bg-[var(--bg-secondary)]">
             {% csrf_token %}
             <button type="submit" class="flex items-center text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
               </svg>
               Выйти
             </button>
           </form>
-          <a href="{% url 'delete_account' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+          <a href="{% url 'delete_account' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-[var(--bg-secondary)]">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
             Удалить
           </a>
         </div>
       </div>
-      <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      <button id="mobile-menu-btn" class="md:hidden mobile-menu-btn" aria-label="Меню" type="button" aria-expanded="false">
+        <svg class="open-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-7 h-7">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg class="close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-7 h-7">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
-    <div id="mobile-menu-backdrop"></div>
-    <nav id="mobile-menu" class="md:hidden flex-col p-6 bg-white border-t border-[var(--border-color)]">
-      <a href="{% url 'teacher_dashboard' %}" class="p-3 hover:text-[var(--brand-primary)]">Главная</a>
-      <a href="#my-courses" class="p-3 hover:text-[var(--brand-primary)]">Мои курсы</a>
-      <a href="#create-course" class="p-3 hover:text-[var(--brand-primary)]">Создать курс</a>
-      <a href="#messages" class="p-3 hover:text-[var(--brand-primary)]">Сообщения</a>
-      <a href="{% url 'profile' %}">
-          <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль">
-        </a>
-      <div class="p-3 flex flex-col gap-3">
-        <img src="{% static 'Icons/Logo.png' %}" alt="Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль">
-      </div>
-    </nav>
+    <div id="mobile-menu-backdrop" class="mobile-menu-backdrop"></div>
+    <nav id="mobile-menu" class="md:hidden"></nav>
   </header>
 
+  <!-- Main Content -->
   <main>
     <section class="hero-section max-w-7xl mx-auto px-4 py-12">
       <h1 class="font-extrabold mb-4 text-center">Добро пожаловать, <span class="text-[var(--brand-primary)]">Репетитор</span>!</h1>
       <p class="text-[var(--text-secondary)] text-base mb-6 text-center">Управляйте своими курсами и общайтесь со студентами.</p>
+      <a href="#create-course" class="btn w-full md:w-auto text-center">Создать новый курс</a>
+    </section>
+
+    <section class="dashboard bg-white py-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="card">
+          <div class="p-6">
+            <div class="grid gap-6">
+              <div class="flex items-center gap-4">
+                <img src="{% static 'Icons/Logo.png' %}" alt="Tutor" class="avatar" loading="lazy">
+                <div>
+                  <h2 class="text-xl font-semibold">Добро пожаловать, Алексей!</h2>
+                  <p class="text-[var(--text-secondary)] text-sm">Ваша панель для управления курсами и общения со студентами</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid gap-6 sm:grid-cols-3 mt-6">
+              <div class="stats-card bg-[var(--bg-secondary)] p-4 rounded-lg text-center">
+                <h3 class="text-2xl font-semibold">12</h3>
+                <p class="text-[var(--text-secondary)] text-sm">Активных курсов</p>
+              </div>
+              <div class="stats-card bg-[var(--bg-secondary)] p-4 rounded-lg text-center">
+                <h3 class="text-2xl font-semibold">45</h3>
+                <p class="text-[var(--text-secondary)] text-sm">Студентов</p>
+              </div>
+              <div class="stats-card bg-[var(--bg-secondary)] p-4 rounded-lg text-center">
+                <h3 class="text-2xl font-semibold">3</h3>
+                <p class="text-[var(--text-secondary)] text-sm">Новых сообщения</p>
+              </div>
+            </div>
+            <div class="grid mt-6">
+              <a href="#my-courses" class="btn w-full md:w-auto text-center">Перейти к курсам</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="create-course" class="bg-white py-12">
@@ -180,9 +485,9 @@
             <div class="mb-4">
               <label for="course-category" class="block text-sm font-medium mb-1">Категория</label>
               <select id="course-category" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></select>
-            </div>        
+            </div>
             <div class="mb-4">
-                            <label for="course-videos" class="block text-sm font-medium mb-1">Ссылки на видео (по одному на строке)</label>
+              <label for="course-videos" class="block text-sm font-medium mb-1">Ссылки на видео (по одному на строке)</label>
               <textarea id="course-videos" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder="https://...\nhttps://..."></textarea>
             </div>
             <div class="mb-4">
@@ -206,8 +511,7 @@
     <section id="my-courses" class="bg-[var(--bg-secondary)] py-12">
       <div class="max-w-7xl mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Ваши курсы</h2>
-        <div id="teacher-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        </div>
+        <div id="teacher-courses" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></div>
       </div>
     </section>
 
@@ -242,6 +546,7 @@
     </section>
   </main>
 
+  <!-- Footer Section -->
   <footer class="mt-auto py-8 px-4 bg-white">
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       <div>
@@ -251,307 +556,488 @@
       <div>
         <h3 class="font-semibold mb-2">Направления</h3>
         <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Математика</a></li>
+          <li><a href="#math" class="hover:text-[var(--brand-primary)]">Математика</a></li>
+          <li><a href="#english" class="hover:text-[var(--brand-primary)]">Английский язык</a></li>
+          <li><a href="#programming" class="hover:text-[var(--brand-primary)]">Программирование</a></li>
+          <li><a href="#physics" class="hover:text-[var(--brand-primary)]">Физика</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Партнеры</h3>
+        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
+          <li><a href="#" class="hover:text-[var(--brand-primary)]">Apple</a></li>
+          <li><a href="#" class="hover:text-[var(--brand-primary)]">Google</a></li>
+          <li><a href="#" class="hover:text-[var(--brand-primary)]">Meta</a></li>
+          <li><a href="#" class="hover:text-[var(--brand-primary)]">Amazon</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Связаться с нами</h3>
+        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
+          <li><a href="mailto:support@edumentor.ru" class="hover:text-[var(--brand-primary)]">support@edumentor.ru</a></li>
+          <li><a href="tel:+74951234567" class="hover:text-[var(--brand-primary)]">+7 (495) 123-45-67</a></li>
+          <li>Москва, ул. Лермонтова, 15</li>
+          <li><a href="#privacy" class="hover:text-[var(--brand-primary)]">Политика конфиденциальности</a></li>
         </ul>
       </div>
     </div>
   </footer>
 
-  <div id="assistant-button" aria-label="Чат">
+  <!-- Chat Assistant -->
+  <div id="assistant-button" aria-label="Чат" class="assistant-button">
     <img src="{% static 'Icons/Send.png' %}" alt="Assistant">
   </div>
-  <div id="assistant-modal">
-    <div id="assistant-header">
-      <span>Ассистент по курсам</span>
-      <button id="close-assistant" aria-label="Закрыть">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-    <div id="chat-container">
-      <div class="message bot-message">Привет! Помогу с созданием курсов или общением со студентами.</div>
-    </div>
-    <div id="chat-input-container">
-      <input id="chat-input" type="text" placeholder="Задайте вопрос..." aria-label="Сообщение">
-      <button id="send-button" aria-label="Отправить" disabled>Отправить</button>
-    </div>
-  </div>
+  <div id="assistant-modal" class="assistant-modal"></div>
 
   <script>
-    const mobileBtn = document.querySelector('#mobile-btn');
-    const mobileMenu = document.querySelector('#mobile-menu');
-    const backdrop = document.querySelector('#mobile-menu-backdrop');
-    mobileBtn.addEventListener('click', () => {
-      const isOpen = mobileMenu.classList.toggle('show');
-      backdrop.classList.toggle('show', isOpen);
-      mobileBtn.setAttribute('aria-expanded', isOpen);
-    });
-    backdrop.addEventListener('click', () => {
-      mobileMenu.classList.remove('show');
-      backdrop.classList.remove('show');
-      mobileBtn.setAttribute('aria-expanded', 'false');
-    });
-    
-    // Assistant functionality
-    const assistantBtn = document.getElementById('assistant-button');
-    const assistantModal = document.getElementById('assistant-modal');
-    const closeAssistant = document.getElementById('close-assistant');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-button');
-    const chatContainer = document.getElementById('chat-container');
+    // Mobile Menu Class
+    class MobileMenu {
+      constructor({ containerId, backdropId, buttonId, menuItems, isAuthenticated = true }) {
+        this.elements = {
+          container: document.getElementById(containerId),
+          backdrop: document.getElementById(backdropId),
+          button: document.getElementById(buttonId),
+        };
+        this.menuItems = menuItems;
+        this.isAuthenticated = isAuthenticated;
+        this.isOpen = false;
+        this.init();
+      }
 
-// 🔑 Стоп‑слова, которые игнорируем при разборе запроса
-const stopWords = ['и', 'в', 'на', 'по', 'ли', 'это', 'а', 'к', 'у', 'за', 'то', 'же', 'от', 'с', 'без'];
+      init() {
+        this.render();
+        this.bindEvents();
+      }
 
-// 📚 Часто задаваемые вопросы + расширенные синонимы
-const faq = [
-  // Что такое курс
-  {
-    keywords: ['курс', 'что', 'такое', 'представляет', 'собой', 'значит'],
-    answer: 'Курс — это серия видеоуроков, практических заданий и поддержки наставника по конкретной теме.'
-  },
-  // Как записаться
-  {
-    keywords: ['как', 'записаться', 'начать', 'присоединиться', 'стартовать', 'подключиться'],
-    answer: 'На странице курса нажмите кнопку «Записаться» — и он появится у вас в профиле.'
-  },
-  // Бесплатно ли
-  {
-    keywords: ['бесплатно', 'оплата', 'цена', 'стоимость', 'платно', 'безоплатно'],
-    answer: 'Большинство наших курсов доступны бесплатно. Если курс платный, цена указана на его странице.'
-  },
-  // Что входит в курс
-  {
-    keywords: ['что', 'входит', 'содержит', 'структура', 'состав', 'контент'],
-    answer: 'Обычно в курс входят видеоуроки, тесты, практические задания и обратная связь преподавателя.'
-  },
-  // Длительность курса
-  {
-    keywords: ['сколько', 'длится', 'длительность', 'идет', 'времени', 'занимает'],
-    answer: 'Длительность зависит от темы: как правило, от 2 до 6 недель при комфортном темпе.'
-  },
-  // Сертификат
-  {
-    keywords: ['сертификат', 'выдается', 'получу', 'получить', 'документ'],
-    answer: 'После полного прохождения курса и всех заданий вы сможете скачать именной сертификат.'
-  },
-  // Сложность / подойдёт ли новичку
-  {
-    keywords: ['сложно', 'уровень', 'подойдет', 'новичку', 'тяжело', 'опыт'],
-    answer: 'В описании каждого курса указан рекомендуемый уровень. Множество курсов рассчитаны на абсолютных новичков.'
-  },
-  // Повторное прохождение
-  {
-    keywords: ['повторно', 'ещё', 'раз', 'заново', 'перепройти', 'повторить'],
-    answer: 'Вы можете вернуться и пройти курс заново в любое время — доступ остаётся навсегда.'
-  },
-  // Профиль / настройки
-  {
-    keywords: ['профиль', 'аккаунт', 'настройки', 'где', 'посмотреть', 'редактировать'],
-    answer: 'Ваш профиль находится в верхнем меню. Там же можно изменить данные, фото и увидеть прогресс.'
-  },
-  // Чат / вопрос
-  {
-    keywords: ['чат', 'написать', 'вопрос', 'наставник', 'преподаватель', 'связаться'],
-    answer: 'На странице курса откройте вкладку «Чат» — там можно задать вопрос преподавателю.'
-  },
-  // Ошибка / баг
-  {
-    keywords: ['ошибка', 'баг', 'не', 'работает', 'сбой', 'проблема'],
-    answer: 'Опишите, пожалуйста, проблему подробнее — я передам её в техподдержку.'
-  },
-  // Виртуальный помощник
-  {
-    keywords: ['ты', 'человек', 'бот', 'ассистент'],
-    answer: 'Я виртуальный помощник платформы. Если хочешь пообщаться с живым человеком, напиши «Позвать ассистента».'
-  },
-  // Позвать ассистента
-  {
-    keywords: ['позвать', 'ассистента', 'оператор', 'саппорт'],
-    answer: 'Зову ассистента, минуту…'
-  }
-];
+      render() {
+        this.elements.container.innerHTML = `
+          ${this.menuItems
+            .map(item => `<a href="${item.href}">${item.label}</a>`)
+            .join('')}
+          <div class="auth-buttons">
+            ${
+              this.isAuthenticated
+                ? `<a href="{% url 'profile' %}"><img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль" loading="lazy"></a>`
+                : `
+                  <a href="{% url 'login' %}" class="btn">Войти</a>
+                  <a href="{% url 'register' %}" class="btn">Регистрация</a>
+                `
+            }
+          </div>
+        `;
+      }
 
-// 🍀 Ответ по умолчанию
-const defaultReply = 'Не уверена, что поняла запрос. Сейчас переключу вас на ассистента, подождите, пожалуйста.';
+      toggle(isOpen) {
+        this.isOpen = isOpen;
+        this.elements.container.classList.toggle('show', isOpen);
+        this.elements.backdrop.classList.toggle('show', isOpen);
+        this.elements.button.setAttribute('aria-expanded', isOpen);
+        document.body.classList.toggle('no-scroll', isOpen);
+      }
 
-// 🚀 Функция‑поисковик ответа
-function findAnswer(message) {
-  // 1. Токенизация: слова в нижнем регистре, без пустых, без стоп‑слов
-  const words = message
-    .toLowerCase()
-    .split(/[^a-zа-яё0-9ё]+/i)
-    .filter(w => w && !stopWords.includes(w));
+      bindEvents() {
+        this.elements.button.addEventListener('click', () => {
+          this.toggle(!this.isOpen);
+        });
+        this.elements.backdrop.addEventListener('click', () => this.toggle(false));
+      }
+    }
 
-  // 2. Ищем лучший FAQ‑ответ
-  let best = { answer: defaultReply, score: 0 };
-  faq.forEach(item => {
-    const score = item.keywords.reduce(
-      (sum, kw) => (words.includes(kw) ? sum + 1 : sum),
-      0
-    );
-    if (score > best.score) best = { answer: item.answer, score };
-  });
+    // Chat Service Class
+    class ChatService {
+      async sendMessage(message) {
+        try {
+          const response = await fetch('/api/assistant', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ message }),
+          });
+          if (!response.ok) throw new Error('API error');
+          return await response.json();
+        } catch (error) {
+          console.warn('Using mock service:', error);
+          return await this.mockSendMessage(message);
+        }
+      }
 
-  // 3. Если не найдено ни одного совпадения — отдаём дефолт
-  return best.score > 0 ? best.answer : defaultReply;
-}
+      async mockSendMessage(message) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return { success: true, message: findAnswer(message) };
+      }
+    }
 
-/* ===== Пример использования =====
-console.log(findAnswer('Сколько длится курс по JavaScript?'));
-// → "Длительность курса зависит от темы: как правило, от 2 до 6 недель при комфортном темпе."
+    // Chat Assistant Class
+    class ChatAssistant {
+      constructor() {
+        this.elements = {
+          assistantBtn: document.getElementById('assistant-button'),
+          modal: document.getElementById('assistant-modal'),
+        };
+        this.state = {
+          isOpen: false,
+          messages: [
+            {
+              content: 'Привет! Помогу с созданием курсов или общением со студентами.',
+              isUser: false,
+            },
+          ],
+          input: '',
+          isTyping: false,
+        };
+        this.chatService = new ChatService();
+        this.init();
+      }
 
-console.log(findAnswer('А сертификат выдаётся?'));
-// → "После полного прохождения курса и всех заданий вы сможете скачать именной сертификат."
-*/
+      init() {
+        this.render();
+        this.bindEvents();
+      }
 
+      render() {
+        this.elements.modal.innerHTML = `
+          <div id="assistant-header">
+            <span>Ассистент EduPath</span>
+            <button id="assistant-close-btn" aria-label="Закрыть">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div id="chat-container">
+            ${this.state.messages
+              .map(
+                (msg, idx) =>
+                  `<div class="message ${msg.isUser ? 'user-message' : 'bot-message'}" key="${idx}">${
+                    msg.content
+                  }</div>`
+              )
+              .join('')}
+            ${this.state.isTyping ? `<div class="message bot-message">Думаю…</div>` : ''}
+          </div>
+          <div id="chat-input-container">
+            <input id="chat-input" class="chat-input" type="text" placeholder="Задайте вопрос..." aria-label="Сообщение" value="${
+              this.state.input
+            }">
+            <button id="send-button" class="send-button" aria-label="Отправить" ${
+              !this.state.input.trim() ? 'disabled' : ''
+            }>Отправить</button>
+          </div>
+        `;
+        this.elements.modal.classList.toggle('show', this.state.isOpen);
+        this.elements.input = this.elements.modal.querySelector('#chat-input');
+        this.elements.sendBtn = this.elements.modal.querySelector('#send-button');
+        this.elements.chatContainer = this.elements.modal.querySelector('#chat-container');
+        if (this.elements.chatContainer) {
+          this.elements.chatContainer.scrollTop = this.elements.chatContainer.scrollHeight;
+        }
+      }
 
+      async handleSend() {
+        if (!this.state.input.trim()) return;
+        this.state.messages = [...this.state.messages, { content: this.state.input, isUser: true }];
+        this.state.input = '';
+        this.state.isTyping = true;
+        this.render();
+        const { message } = await this.chatService.sendMessage(this.state.messages.at(-1).content);
+        this.state.isTyping = false;
+        this.state.messages = [...this.state.messages, { content: message, isUser: false }];
+        this.render();
+      }
 
-    assistantBtn.addEventListener('click', () => {
-      assistantModal.classList.add('show');
-      chatInput.focus();
-    });
-    closeAssistant.addEventListener('click', () => {
-      assistantModal.classList.remove('show');
-    });
-    chatInput.addEventListener('input', () => {
-      sendBtn.disabled = chatInput.value.trim() === '';
-    });
-    sendBtn.addEventListener('click', () => {
-      const msg = chatInput.value.trim();
-      if (!msg) return;
-      const userMsg = document.createElement('div');
-      userMsg.className = 'message user-message';
-      userMsg.textContent = msg;
-      chatContainer.appendChild(userMsg);
-      chatInput.value = '';
-      sendBtn.disabled = true;
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      const botReply = findAnswer(msg);
+      updateInput(value) {
+        this.state.input = value;
+        if (this.elements.sendBtn) {
+          this.elements.sendBtn.disabled = !value.trim();
+        }
+      }
 
-      setTimeout(() => {
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot-message';
-        botMsg.textContent = botReply;
-        chatContainer.appendChild(botMsg);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }, 500);
-    });
+      debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
 
-    // Работа с курсами через API
-    const courseForm = document.getElementById('create-course-form');
-    const coursesContainer = document.getElementById('teacher-courses');
-    let editId = null;
-    let categories = [];
+      bindEvents() {
+        this.elements.assistantBtn.addEventListener('click', () => {
+          this.state.isOpen = !this.state.isOpen;
+          this.render();
+        });
+        this.elements.modal.addEventListener('click', e => {
+          if (e.target.id === 'assistant-close-btn') {
+            this.state.isOpen = false;
+            this.render();
+          }
+          if (e.target.id === 'send-button') {
+            this.handleSend();
+          }
+        });
+        this.elements.modal.addEventListener('input', e => {
+          if (e.target.id === 'chat-input') {
+            this.updateInput(e.target.value);
+          }
+        });
+        this.elements.modal.addEventListener('keypress', e => {
+          if (e.target.id === 'chat-input' && e.key === 'Enter') {
+            this.handleSend();
+          }
+        });
+        this.elements.modal.addEventListener('input', this.debounce(e => {
+          if (e.target.id === 'chat-input') {
+            this.updateInput(e.target.value);
+          }
+        }, 100));
+      }
+    }
 
+    // Course Manager Class
+    class CourseManager {
+      constructor() {
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.querySelectorAll('#teacher-courses .card').forEach(article => {
+          const editBtn = article.querySelector('.edit');
+          const deleteBtn = article.querySelector('.delete');
+          if (editBtn) {
+            editBtn.addEventListener('click', e => {
+              e.preventDefault();
+              const courseId = article.dataset.courseId;
+              fetch(`/api/courses/${courseId}/manage/`)
+                .then(r => r.json())
+                .then(course => {
+                  document.getElementById('course-title').value = course.title;
+                  document.getElementById('course-description').value = course.description || '';
+                  document.getElementById('course-videos').value = (course.videos || []).join('\n');
+                  document.getElementById('course-text').value = course.text || '';
+                  document.getElementById('course-assignment').value = course.assignment || '';
+                  document.getElementById('with-test').checked = !!course.test;
+                  if (course.category) {
+                    document.getElementById('course-category').value = course.category;
+                  }
+                  editId = courseId;
+                  document.getElementById('create-course-form').querySelector('button[type=submit]').textContent = 'Сохранить';
+                  window.scrollTo({ top: document.getElementById('create-course').offsetTop, behavior: 'smooth' });
+                });
+            });
+          }
+          if (deleteBtn) {
+            deleteBtn.addEventListener('click', e => {
+              e.preventDefault();
+              const courseId = article.dataset.courseId;
+              fetch(`/api/courses/${courseId}/manage/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+              }).then(() => {
+                article.remove();
+              });
+            });
+          }
+        });
+      }
+    }
+
+    // FAQ and Answer Finder
+    const stopWords = ['и', 'в', 'на', 'по', 'ли', 'это', 'а', 'к', 'у', 'за', 'то', 'же', 'от', 'с', 'без'];
+    const faq = [
+      {
+        keywords: ['курс', 'что', 'такое', 'представляет', 'собой', 'значит'],
+        answer: 'Курс — это серия видеоуроков, практических заданий и поддержки наставника по конкретной теме.'
+      },
+      {
+        keywords: ['как', 'записаться', 'начать', 'присоединиться', 'стартовать', 'подключиться'],
+        answer: 'На странице курса нажмите кнопку «Записаться» — и он появится у вас в профиле.'
+      },
+      {
+        keywords: ['бесплатно', 'оплата', 'цена', 'стоимость', 'платно', 'безоплатно'],
+        answer: 'Большинство наших курсов доступны бесплатно. Если курс платный, цена указана на его странице.'
+      },
+      {
+        keywords: ['что', 'входит', 'содержит', 'структура', 'состав', 'контент'],
+        answer: 'Обычно в курс входят видеоуроки, тесты, практические задания и обратная связь преподавателя.'
+      },
+      {
+        keywords: ['сколько', 'длится', 'длительность', 'идет', 'времени', 'занимает'],
+        answer: 'Длительность зависит от темы: как правило, от 2 до 6 недель при комфортном темпе.'
+      },
+      {
+        keywords: ['сертификат', 'выдается', 'получу', 'получить', 'документ'],
+        answer: 'После полного прохождения курса и всех заданий вы сможете скачать именной сертификат.'
+      },
+      {
+        keywords: ['сложно', 'уровень', 'подойдет', 'новичку', 'тяжело', 'опыт'],
+        answer: 'В описании каждого курса указан рекомендуемый уровень. Множество курсов рассчитаны на абсолютных новичков.'
+      },
+      {
+        keywords: ['повторно', 'ещё', 'раз', 'заново', 'перепройти', 'повторить'],
+        answer: 'Вы можете вернуться и пройти курс заново в любое время — доступ остаётся навсегда.'
+      },
+      {
+        keywords: ['профиль', 'аккаунт', 'настройки', 'где', 'посмотреть', 'редактировать'],
+        answer: 'Ваш профиль находится в верхнем меню. Там же можно изменить данные, фото и увидеть прогресс.'
+      },
+      {
+        keywords: ['чат', 'написать', 'вопрос', 'наставник', 'преподаватель', 'связаться'],
+        answer: 'На странице курса откройте вкладку «Чат» — там можно задать вопрос преподавателю.'
+      },
+      {
+        keywords: ['ошибка', 'баг', 'не', 'работает', 'сбой', 'проблема'],
+        answer: 'Опишите, пожалуйста, проблему подробнее — я передам её в техподдержку.'
+      },
+      {
+        keywords: ['ты', 'человек', 'бот', 'ассистент'],
+        answer: 'Я виртуальный помощник платформы. Если хочешь пообщаться с живым человеком, напиши «Позвать ассистента».'
+      },
+      {
+        keywords: ['позвать', 'ассистента', 'оператор', 'саппорт'],
+        answer: 'Зову ассистента, минуту…'
+      }
+    ];
+
+    const defaultReply = 'Не уверена, что поняла запрос. Сейчас переключу вас на ассистента, подождите, пожалуйста.';
+
+    function findAnswer(message) {
+      const words = message
+        .toLowerCase()
+        .split(/[^a-zа-яё0-9ё]+/i)
+        .filter(w => w && !stopWords.includes(w));
+      let best = { answer: defaultReply, score: 0 };
+      faq.forEach(item => {
+        const score = item.keywords.reduce(
+          (sum, kw) => (words.includes(kw) ? sum + 1 : sum),
+          0
+        );
+        if (score > best.score) best = { answer: item.answer, score };
+      });
+      return best.score > 0 ? best.answer : defaultReply;
+    }
+
+    // Utility Functions
     function getCookie(name) {
       const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
       return m ? m.pop() : '';
     }
 
-function loadCategoryOptions() {
-  fetch('/api/categories/')
-    .then(r => r.json())
-    .then(data => {
-      categories = data;
-      const select = document.getElementById('course-category');
-      select.innerHTML = '';
-      data.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat.id;
-        opt.textContent = cat.name;
-        select.appendChild(opt);
-      });
-    });
-}
-
-      function addCourseCard(course) {
-        const article = document.createElement('article');
-        article.className = 'card';
-        article.dataset.courseId = course.id;
-        article.innerHTML = `
-          <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
-          <div class="p-5">
-            <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
-            <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
-            <div class="flex gap-2">
-              <a href="/course/${course.id}/?owner={{ request.user.id }}" target="_blank" class="btn w-full bg-gray-700 hover:bg-gray-800 view">Открыть</a>
-              <a href="#" class="btn w-full edit">Редактировать</a>
-              <a href="#" class="btn w-full bg-red-500 hover:bg-red-600 delete">Удалить</a>
-            </div>
-          </div>`;
-        article.querySelector('.delete').addEventListener('click', e => {
-          e.preventDefault();
-          fetch(`/api/courses/${course.id}/manage/`, {
-            method: 'DELETE',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') }
-          }).then(() => {
-            article.remove();
+    function loadCategoryOptions() {
+      fetch('/api/categories/')
+        .then(r => r.json())
+        .then(data => {
+          categories = data;
+          const select = document.getElementById('course-category');
+          select.innerHTML = '';
+          data.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.name;
+            select.appendChild(opt);
           });
-          article.remove();
         });
-        article.querySelector('.edit').addEventListener('click', e => {
-          e.preventDefault();
-          document.getElementById('course-title').value = course.title;
-          document.getElementById('course-description').value = course.description || '';
-          document.getElementById('course-videos').value = (course.videos || []).join('\n');
-          document.getElementById('course-text').value = course.text || '';
-          document.getElementById('course-assignment').value = course.assignment || '';
-          document.getElementById('with-test').checked = !!course.test;
-          if(course.category){
-            document.getElementById('course-category').value = course.category;
-          }
-          editId = course.id;
-          courseForm.querySelector('button[type=submit]').textContent = 'Сохранить';
-          window.scrollTo({top: courseForm.closest('section').offsetTop, behavior:'smooth'});
-        });
-        coursesContainer.appendChild(article);
-      }
+    }
+
+    function addCourseCard(course) {
+      const article = document.createElement('article');
+      article.className = 'card';
+      article.dataset.courseId = course.id;
+      article.innerHTML = `
+        <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
+        <div class="p-5">
+          <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">Уровень: ${course.level || 'Не указан'}</p>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">Длительность: ${course.duration || 'Не указана'}</p>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">Описание: ${course.description || 'Нет описания'}</p>
+          <div class="flex gap-2">
+            <a href="/course/${course.id}/?owner={{ request.user.id }}" target="_blank" class="btn w-full bg-gray-700 hover:bg-gray-800 view">Открыть</a>
+            <a href="#" class="btn w-full edit">Редактировать</a>
+            <a href="#" class="btn w-full btn-danger delete">Удалить</a>
+          </div>
+        </div>`;
+      document.getElementById('teacher-courses').appendChild(article);
+      new CourseManager(); // Rebind events for new cards
+    }
 
     function loadCourses() {
-      coursesContainer.innerHTML = '';
+      document.getElementById('teacher-courses').innerHTML = '';
       fetch('/api/courses/my/')
         .then(r => r.json())
         .then(data => { data.forEach(addCourseCard); });
     }
 
-    courseForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const title = document.getElementById('course-title').value.trim();
-      const description = document.getElementById('course-description').value.trim();
-      if (!title) return;
-      const payload = { title, description };
-      const url = editId ? `/api/courses/${editId}/manage/` : '/api/courses/create/';
-      const method = editId ? 'PUT' : 'POST';
-      fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(payload)
-      }).then(r => r.json()).then(() => {
-        editId = null;
-        courseForm.querySelector('button[type=submit]').textContent = 'Создать курс';
-        courseForm.reset();
-        loadCourses();
+    // Initialize Application
+    let editId = null;
+    let categories = [];
+
+    const initApp = () => {
+      new MobileMenu({
+        containerId: 'mobile-menu',
+        backdropId: 'mobile-menu-backdrop',
+        buttonId: 'mobile-menu-btn',
+        menuItems: [
+          { href: '{% url "teacher_dashboard" %}', label: 'Главная' },
+          { href: '#my-courses', label: 'Мои курсы' },
+          { href: '#create-course', label: 'Создать курс' },
+          { href: '#messages', label: 'Сообщения' },
+          { href: '{% url "profile" %}', label: 'Профиль' },
+        ],
+        isAuthenticated: true,
       });
-    });
+      new ChatAssistant();
+      new CourseManager();
 
-    // profile dropdown
-    const profileIcon = document.getElementById('profile-icon');
-    const profileMenu = document.getElementById('profile-menu');
-    document.addEventListener('click', (e) => {
-      if (profileIcon.contains(e.target)) {
-        profileMenu.classList.toggle('hidden');
-      } else if (!profileMenu.contains(e.target)) {
-        profileMenu.classList.add('hidden');
-      }
-    });      
+      // Course Form Submission
+      const courseForm = document.getElementById('create-course-form');
+      courseForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const title = document.getElementById('course-title').value.trim();
+        const description = document.getElementById('course-description').value.trim();
+        const image = document.getElementById('course-image').files[0];
+        const category = document.getElementById('course-category').value;
+        const videos = document.getElementById('course-videos').value.trim().split('\n').filter(v => v);
+        const text = document.getElementById('course-text').value.trim();
+        const assignment = document.getElementById('course-assignment').value.trim();
+        const withTest = document.getElementById('with-test').checked;
+        if (!title) return;
+        const payload = { title, description, category, videos, text, assignment, test: withTest };
+        const url = editId ? `/api/courses/${editId}/manage/` : '/api/courses/create/';
+        const method = editId ? 'PUT' : 'POST';
+        fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify(payload)
+        }).then(r => r.json()).then(() => {
+          editId = null;
+          courseForm.querySelector('button[type=submit]').textContent = 'Создать курс';
+          courseForm.reset();
+          loadCourses();
+        });
+      });
 
-    loadCategoryOptions();
-    loadCourses();
+      // Profile Dropdown
+      const profileIcon = document.getElementById('profile-icon');
+      const profileMenu = document.getElementById('profile-menu');
+      document.addEventListener('click', e => {
+        if (profileIcon.contains(e.target)) {
+          profileMenu.classList.toggle('hidden');
+        } else if (!profileMenu.contains(e.target)) {
+          profileMenu.classList.add('hidden');
+        }
+      });
+
+      loadCategoryOptions();
+      loadCourses();
+    };
+
+    // Run on DOM load
+    document.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>

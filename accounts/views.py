@@ -73,9 +73,17 @@ class ActivateAccountView(generics.GenericAPIView):
 class VerifyCodeView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
 
+    def get(self, request):
+        email = request.GET.get('email')
+        code = request.GET.get('code')
+        return self._verify(email, code)
+
     def post(self, request):
         email = request.data.get('email')
         code = request.data.get('code')
+        return self._verify(email, code)
+
+    def _verify(self, email, code):
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:

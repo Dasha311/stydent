@@ -1,6 +1,7 @@
 from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
+from django.urls import reverse
 
 
 @shared_task
@@ -11,7 +12,8 @@ def send_email(subject, message, recipient_list):
 @shared_task
 def send_verification_code_email(email, code):
     subject = 'Email Verification'
-    message = f'Your verification code is {code}'
+    link = f"{settings.DEFAULT_DOMAIN}{reverse('api:verify-code')}?email={email}&code={code}"
+    message = f'Your verification code is {code}.\nActivate your account: {link}'
     send_email(subject, message, [email])
 
 

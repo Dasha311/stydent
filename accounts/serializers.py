@@ -22,6 +22,22 @@ class UserSerializer(serializers.ModelSerializer):
             'bio': {'required': False}
         }
 
+    def validate_password(self, value):
+        import re
+        if len(value) < 8:
+            raise serializers.ValidationError('Password must be at least 8 characters long.')
+        if not re.search(r'[A-Z]', value):
+            raise serializers.ValidationError('Password must contain at least one uppercase letter.')
+        if not any(char.isdigit() for char in value):
+            raise serializers.ValidationError('Password must contain at least one digit.')
+        if not any(not c.isalnum() for c in value):
+            raise serializers.ValidationError('Password must contain at least one special character.')
+        try:
+            value.encode('ascii')
+        except UnicodeEncodeError:
+            raise serializers.ValidationError('Password must contain only Latin characters.')
+        return value
+
     def create(self, validated_data):
         return CustomUser.objects.create_user(
             email=validated_data['email'],

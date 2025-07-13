@@ -28,6 +28,9 @@ urlpatterns = [
     path('terms/', frontend_views.terms_view, name='terms'),
     path('course/<int:course_id>/', frontend_views.course_detail, name='course_detail'),
     path('password-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     # Видео-страницы
     path('course/video/', TemplateView.as_view(template_name='video_detail.html'), name='video_detail'),
