@@ -498,7 +498,7 @@
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
       <div>
         <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
-        <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :) </p>
+
       </div>
       <div>
         <h3 class="font-semibold mb-3">Компании</h3>
@@ -991,7 +991,7 @@
       loadCategoryOptions();
 
       const courseForm = document.getElementById('create-course-form');
-      let editId = null;
+
 
       courseForm.addEventListener('submit', e => {
         e.preventDefault();
@@ -1051,6 +1051,7 @@
           document.getElementById('with-test').checked = false;
           document.getElementById('test-modal').classList.add('hidden');
           loadCourses();
+          document.getElementById('my-courses').scrollIntoView({behavior: 'smooth'});
         });
       });
 
