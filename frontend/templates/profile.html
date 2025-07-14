@@ -55,7 +55,7 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
     <!-- Profile Header -->
     <section class="bg-gray-200 rounded-2xl p-6 mb-8 relative overflow-hidden">
-      <img src="{% static 'Icons/background-placeholder1.jpg' %}" alt="Profile Background" class="absolute inset-0 w-full h-full object-cover opacity-70" id="profile-bg">
+      <img src="{% static 'Icons/avatar-placeholder.png' %}" alt="Profile Background" class="absolute inset-0 w-full h-full object-cover opacity-70" id="profile-bg">
       <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6">
         <img src="{{ request.user.avatar_url }}" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-600" id="profile-avatar">
           <h1 class="text-2xl font-bold flex items-center justify-center md:justify-start gap-2">
@@ -97,15 +97,15 @@
         <div id="edit-profile-form" class="hidden mt-4 space-y-4">
           <div>
             <label for="edit-username" class="block text-sm font-medium">Имя пользователя</label>
-            <input type="text" id="edit-username" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" value="GrokMaster">
+            <input type="text" id="edit-username" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
           </div>
           <div>
             <label for="edit-bio" class="block text-sm font-medium">Краткое описание</label>
-            <textarea id="edit-bio" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="2">Люблю изучать программирование и играть в стратегии!</textarea>
+            <textarea id="edit-bio" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="2"></textarea>
           </div>
           <div>
             <label for="edit-about" class="block text-sm font-medium">О себе</label>
-            <textarea id="edit-about" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="6">Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.</textarea>
+            <textarea id="edit-about" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="6"></textarea>
           </div>
           <div class="flex gap-3">
             <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition" id="save-profile-btn">Сохранить</button>
@@ -487,15 +487,20 @@ console.log(findAnswer('А сертификат выдаётся?'));
     cancelProfileBtn.addEventListener('click', () => {
       editProfileForm.classList.add('hidden');
       editProfileBtn.classList.remove('hidden');
-      document.getElementById('edit-username').value = userData.username;
-      document.getElementById('edit-bio').value = userData.bio;
-      document.getElementById('edit-about').value = userData.about;
+      document.getElementById('edit-username').value = '';
+      document.getElementById('edit-bio').value = '';
+      document.getElementById('edit-about').value = '';
     });
 
     saveProfileBtn.addEventListener('click', async () => {
-      userData.username = document.getElementById('edit-username').value.trim();
-      userData.bio = document.getElementById('edit-bio').value.trim();
-      userData.about = document.getElementById('edit-about').value.trim();
+      const newUsername = document.getElementById('edit-username').value.trim();
+      const newBio = document.getElementById('edit-bio').value.trim();
+      const newAbout = document.getElementById('edit-about').value.trim();
+      if (newUsername) {
+        userData.username = newUsername;
+      }
+      userData.bio = newBio;
+      userData.about = newAbout;
       try {
         await fetch('/api/profile/', {
           method: 'PUT',
@@ -508,6 +513,9 @@ console.log(findAnswer('А сертификат выдаётся?'));
       updateProfile();
       editProfileForm.classList.add('hidden');
       editProfileBtn.classList.remove('hidden');
+      document.getElementById('edit-username').value = '';
+      document.getElementById('edit-bio').value = '';
+      document.getElementById('edit-about').value = '';
     });
 
     // Level Up

@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#f5f3ff">
   <title>EduPath - Панель репетитора</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
     :root {
       --brand-primary: #6C4DFF;
@@ -365,10 +365,10 @@
         </div>
       </div>
       <button id="mobile-menu-btn" class="md:hidden mobile-menu-btn" aria-label="Меню" type="button" aria-expanded="false">
-        <svg class="open-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-7 h-7">
+        <svg class="open-icon w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
-        <svg class="close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-7 h-7">
+        <svg class="close-icon w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
@@ -961,19 +961,20 @@
       const article = document.createElement('article');
       article.className = 'card';
       article.dataset.courseId = course.id;
-      article.innerHTML = `
-        <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
-        <div class="p-5">
-          <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
-          <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
-          <p class="text-[var(--text-secondary)] text-sm mb-3">Уровень: ${course.level || 'Не указан'}</p>
-          <p class="text-[var(--text-secondary)] text-sm mb-3">Длительность: ${course.duration || 'Не указана'}</p>
-          <p class="text-[var(--text-secondary)] text-sm mb-3">Описание: ${course.description || 'Нет описания'}</p>
-          <div class="flex flex-col gap-2 sm:flex-row">
+        article.innerHTML = `
+          <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
+          <div class="p-5">
+            <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
+            <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
+            <p class="text-[var(--text-secondary)] text-sm mb-3">Уровень: ${course.level || 'Не указан'}</p>
+            <p class="text-[var(--text-secondary)] text-sm mb-3">Длительность: ${course.duration || 'Не указана'}</p>
+            <p class="text-[var(--text-secondary)] text-sm mb-3">Описание: ${course.description || 'Нет описания'}</p>
+            <div class="flex flex-col gap-2 sm:flex-row">
             <a href="/course/${course.id}/?owner={{ request.user.id }}" target="_blank" class="btn w-full sm:flex-1 bg-gray-700 hover:bg-gray-800 view">Открыть</a>
             <a href="#" class="btn w-full sm:flex-1 edit">Редактировать</a>
             <a href="#" class="btn w-full sm:flex-1 btn-danger delete">Удалить</a>
-          </div>␊
+          </div>
+        </div>`;
       document.getElementById('teacher-courses').appendChild(article);
       new CourseManager(); // Rebind events for new cards
     }
