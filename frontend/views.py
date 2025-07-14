@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.db.utils import OperationalError
 from django.db.models import Avg, Q
 
+from courses.models import Course, Enrollment
+
 User = get_user_model()
 
 
@@ -110,7 +112,20 @@ def student_dashboard(request):
 def teacher_dashboard(request):
     if request.user.role == 'student':
         return redirect('student_dashboard')
-    return render(request, 'teacher_dashboard.html')
+    active_courses = Course.objects.filter(instructor=request.user).count()
+    student_count = (
+        User.objects.filter(
+            enrollments__course__instructor=request.user,
+            role='student',
+        )
+        .distinct()
+        .count()
+    )
+    context = {
+        'active_courses': active_courses,
+        'student_count': student_count,
+    }
+    return render(request, 'teacher_dashboard.html', context)
 
 
 def tutors_view(request):
