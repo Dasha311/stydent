@@ -15,6 +15,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('messages/', views.messages_view, name='messages'),
     path('delete-account/', views.delete_account, name='delete_account'),
+    
 
     # Футер-страницы
     path('about/', views.about_view, name='about'),

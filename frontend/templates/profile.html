@@ -95,14 +95,18 @@
         <p class="text-gray-500 mb-4" id="profile-about">Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.</p>
         <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition" id="edit-profile-btn">Редактировать профиль</button>
         <div id="edit-profile-form" class="hidden mt-4 space-y-4">
-          <div>
-            <label for="edit-username" class="block text-sm font-medium">Имя пользователя</label>
-            <input type="text" id="edit-username" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
-          </div>
-          <div>
-            <label for="edit-bio" class="block text-sm font-medium">Краткое описание</label>
-            <textarea id="edit-bio" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="2"></textarea>
-          </div>
+              <div>
+                <label for="edit-username" class="block text-sm font-medium">Имя пользователя</label>
+                <input type="text" id="edit-username" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
+              </div>
+              <div>
+                <label for="edit-avatar" class="block text-sm font-medium">Аватар</label>
+                <input type="file" id="edit-avatar" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
+              </div>
+              <div>
+                <label for="edit-bio" class="block text-sm font-medium">Краткое описание</label>
+                <textarea id="edit-bio" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="2"></textarea>
+              </div>
           <div>
             <label for="edit-about" class="block text-sm font-medium">О себе</label>
             <textarea id="edit-about" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="6"></textarea>
@@ -162,7 +166,7 @@
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
       <div>
         <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
-        <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :) </p>
+        
       </div>
       <div>
         <h3 class="font-semibold mb-3">Компании</h3>
@@ -393,6 +397,12 @@ console.log(findAnswer('А сертификат выдаётся?'));
     chatInput.addEventListener('input', () => sendButton.disabled = !chatInput.value.trim());
     chatInput.addEventListener('keypress', e => e.key === 'Enter' && handleSendMessage());
 
+  // Utility Functions
+  function getCookie(name) {
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+
     // Profile Management
     let userData, certificates, badges;
 
@@ -413,6 +423,8 @@ console.log(findAnswer('А сертификат выдаётся?'));
       document.getElementById('customize-level').textContent = userData.level;
       document.getElementById('profile-bio').textContent = userData.bio || '';
       document.getElementById('profile-about').textContent = userData.bio || '';
+      const avatar = userData.user && userData.user.profile_picture ? userData.user.profile_picture : '{% static "Icons/avatar-placeholder.png" %}';
+      document.getElementById('profile-avatar').src = avatar;
       document.getElementById('profile-points').textContent = userData.xp;
       document.getElementById('customize-points').textContent = userData.xp;
       document.getElementById('profile-badges-count').textContent = badges.length;
@@ -474,10 +486,11 @@ console.log(findAnswer('А сертификат выдаётся?'));
     });
 
     // Profile Editing
-    const editProfileBtn = document.getElementById('edit-profile-btn');
-    const editProfileForm = document.getElementById('edit-profile-form');
-    const cancelProfileBtn = document.getElementById('cancel-profile-btn');
-    const saveProfileBtn = document.getElementById('save-profile-btn');
+      const editProfileBtn = document.getElementById('edit-profile-btn');
+      const editProfileForm = document.getElementById('edit-profile-form');
+      const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+      const saveProfileBtn = document.getElementById('save-profile-btn');
+      const editAvatar = document.getElementById('edit-avatar');
 
     editProfileBtn.addEventListener('click', () => {
       editProfileForm.classList.remove('hidden');
@@ -490,23 +503,29 @@ console.log(findAnswer('А сертификат выдаётся?'));
       document.getElementById('edit-username').value = '';
       document.getElementById('edit-bio').value = '';
       document.getElementById('edit-about').value = '';
+      editAvatar.value = '';
     });
 
     saveProfileBtn.addEventListener('click', async () => {
       const newUsername = document.getElementById('edit-username').value.trim();
       const newBio = document.getElementById('edit-bio').value.trim();
-      const newAbout = document.getElementById('edit-about').value.trim();
-      if (newUsername) {
-        userData.username = newUsername;
-      }
-      userData.bio = newBio;
-      userData.about = newAbout;
+
+      const formData = new FormData();
+      if (newUsername) formData.append('username', newUsername);
+      formData.append('bio', newBio);
+      if (editAvatar.files[0]) formData.append('profile_picture', editAvatar.files[0]);
+
       try {
-        await fetch('/api/profile/', {
+        const response = await fetch('/api/profile/', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userData),
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          body: formData,
         });
+        if (response.ok) {
+          userData = await response.json();
+        } else {
+          console.warn('Failed to save profile to API:', await response.text());
+        }
       } catch (error) {
         console.warn('Failed to save profile to API, using local data:', error);
       }
@@ -516,6 +535,7 @@ console.log(findAnswer('А сертификат выдаётся?'));
       document.getElementById('edit-username').value = '';
       document.getElementById('edit-bio').value = '';
       document.getElementById('edit-about').value = '';
+      editAvatar.value = '';
     });
 
     // Level Up
