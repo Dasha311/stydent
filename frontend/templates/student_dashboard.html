@@ -538,7 +538,7 @@
   <main>
     <section class="hero">
       <div class="container">
-        <h1>Добро пожаловать, <span>Пользователь</span>!</h1>
+        <h1>Добро пожаловать, <span>{{ request.user.username }}</span>!</h1>
         <p>Продолжайте учиться с нашими курсами и репетиторами.</p>
       </div>
     </section>
@@ -600,32 +600,24 @@
   </main>
 
   <!-- Footer Section -->
-  <footer class="mt-auto py-8 px-4 bg-white">
-    <div class="container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+  <footer class="bg-white border-t border-[var(--color-bg-secondary)] mt-auto py-10 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
       <div>
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-8 mb-3" loading="lazy">
-        <p class="text-[var(--text-subtle)] text-sm">Ваш проводник в мир знаний с лучшими репетиторами.</p>
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
+        <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :) </p>
       </div>
       <div>
-        <h3 class="font-semibold mb-2">Направления</h3>
-        <ul id="category-list" class="space-y-1 text-sm text-[var(--text-subtle)]"></ul>
-      </div>
-      <div>
-        <h3 class="font-semibold mb-2">Партнеры</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-subtle)]">
-          <li><a href="#" class="hover:text-[var(--primary)]">Apple</a></li>
-          <li><a href="#" class="hover:text-[var(--primary)]">Google</a></li>
-          <li><a href="#" class="hover:text-[var(--primary)]">Meta</a></li>
-          <li><a href="#" class="hover:text-[var(--primary)]">Amazon</a></li>
+        <h3 class="font-semibold mb-3">Компании</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="https://almau.edu.kz/" class="hover:text-[var(--color-primary)]">AlmaU</a></li>
         </ul>
       </div>
       <div>
-        <h3 class="font-semibold mb-2">Связаться с нами</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-subtle)]">
-          <li><a href="mailto:support@edumentor.ru" class="hover:text-[var(--primary)]">support@edumentor.ru</a></li>
-          <li><a href="tel:+74951234567" class="hover:text-[var(--primary)]">+7 (495) 123-45-67</a></li>
-          <li>Москва, ул. Лермонтова, 15</li>
-          <li><a href="#privacy" class="hover:text-[var(--primary)]">Политика конфиденциальности</a></li>
+        <h3 class="font-semibold mb-3">Контакты</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="mailto:dbezrukova482@gmail.com">Написать на почту</a></li>
+          <li>+<a href="https://wa.me/77087449838" target="_blank">Написать в WhatsApp</a></li>
+          <li><a href="https://maps.app.goo.gl/kgowmT1Ww36YGruu8" class="hover:text-[var(--color-primary)]">г. Алматы, ул. Розыбакиева 227</a></li>
         </ul>
       </div>
     </div>

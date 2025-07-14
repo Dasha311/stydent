@@ -432,7 +432,7 @@
   <!-- Main Content -->
   <main>
     <section class="hero-section max-w-7xl mx-auto px-4 py-12">
-      <h1 class="font-extrabold mb-4 text-center">Добро пожаловать, <span class="text-[var(--brand-primary)]">Репетитор</span>!</h1>
+      <h1 class="font-extrabold mb-4 text-center">Добро пожаловать, <span class="text-[var(--brand-primary)]">{{ request.user.username }}</span>!</h1>
       <p class="text-[var(--text-secondary)] text-base mb-6 text-center">Управляйте своими курсами и общайтесь со студентами.</p>
       <a href="#create-course" class="btn w-full md:w-auto text-center">Создать новый курс</a>
     </section>
@@ -445,7 +445,7 @@
               <div class="flex items-center gap-4">
                 <img src="{% static 'Icons/Logo.png' %}" alt="Tutor" class="avatar" loading="lazy">
                 <div>
-                  <h2 class="text-xl font-semibold">Добро пожаловать, Алексей!</h2>
+                  <h2 class="text-xl font-semibold">Добро пожаловать, {{ request.user.username }}!</h2>
                   <p class="text-[var(--text-secondary)] text-sm">Ваша панель для управления курсами и общения со студентами</p>
                 </div>
               </div>
@@ -570,37 +570,24 @@
   </main>
 
   <!-- Footer Section -->
-  <footer class="mt-auto py-8 px-4 bg-white">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+  <footer class="bg-white border-t border-[var(--color-bg-secondary)] mt-auto py-10 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
       <div>
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8 mb-3">
-        <p class="text-[var(--text-secondary)] text-sm">Ваш проводник в мир знаний с лучшими репетиторами.</p>
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
+        <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :) </p>
       </div>
       <div>
-        <h3 class="font-semibold mb-2">Направления</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="#math" class="hover:text-[var(--brand-primary)]">Математика</a></li>
-          <li><a href="#english" class="hover:text-[var(--brand-primary)]">Английский язык</a></li>
-          <li><a href="#programming" class="hover:text-[var(--brand-primary)]">Программирование</a></li>
-          <li><a href="#physics" class="hover:text-[var(--brand-primary)]">Физика</a></li>
+        <h3 class="font-semibold mb-3">Компании</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="https://almau.edu.kz/" class="hover:text-[var(--color-primary)]">AlmaU</a></li>
         </ul>
       </div>
       <div>
-        <h3 class="font-semibold mb-2">Партнеры</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Apple</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Google</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Meta</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Amazon</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="font-semibold mb-2">Связаться с нами</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="mailto:support@edumentor.ru" class="hover:text-[var(--brand-primary)]">support@edumentor.ru</a></li>
-          <li><a href="tel:+74951234567" class="hover:text-[var(--brand-primary)]">+7 (495) 123-45-67</a></li>
-          <li>Москва, ул. Лермонтова, 15</li>
-          <li><a href="#privacy" class="hover:text-[var(--brand-primary)]">Политика конфиденциальности</a></li>
+        <h3 class="font-semibold mb-3">Контакты</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="mailto:dbezrukova482@gmail.com">Написать на почту</a></li>
+          <li>+<a href="https://wa.me/77087449838" target="_blank">Написать в WhatsApp</a></li>
+          <li><a href="https://maps.app.goo.gl/kgowmT1Ww36YGruu8" class="hover:text-[var(--color-primary)]">г. Алматы, ул. Розыбакиева 227</a></li>
         </ul>
       </div>
     </div>
