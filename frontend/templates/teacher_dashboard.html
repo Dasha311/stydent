@@ -969,12 +969,11 @@
           <p class="text-[var(--text-secondary)] text-sm mb-3">Уровень: ${course.level || 'Не указан'}</p>
           <p class="text-[var(--text-secondary)] text-sm mb-3">Длительность: ${course.duration || 'Не указана'}</p>
           <p class="text-[var(--text-secondary)] text-sm mb-3">Описание: ${course.description || 'Нет описания'}</p>
-          <div class="flex gap-2">
-            <a href="/course/${course.id}/?owner={{ request.user.id }}" target="_blank" class="btn w-full bg-gray-700 hover:bg-gray-800 view">Открыть</a>
-            <a href="#" class="btn w-full edit">Редактировать</a>
-            <a href="#" class="btn w-full btn-danger delete">Удалить</a>
-          </div>
-        </div>`;
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <a href="/course/${course.id}/?owner={{ request.user.id }}" target="_blank" class="btn w-full sm:flex-1 bg-gray-700 hover:bg-gray-800 view">Открыть</a>
+            <a href="#" class="btn w-full sm:flex-1 edit">Редактировать</a>
+            <a href="#" class="btn w-full sm:flex-1 btn-danger delete">Удалить</a>
+          </div>␊
       document.getElementById('teacher-courses').appendChild(article);
       new CourseManager(); // Rebind events for new cards
     }
@@ -1032,7 +1031,9 @@
         formData.append('videos', JSON.stringify(videos));
         formData.append('textFile', textFile);
         formData.append('assignment', assignment);
-        formData.append('test', withTest ? testData : '');
+        if (withTest) {
+          formData.append('test', testData);
+        }
 
         if (image) formData.append('image', image);
 
