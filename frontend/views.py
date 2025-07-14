@@ -193,7 +193,7 @@ def delete_account(request):
     """Delete the current user account after password confirmation."""
     if request.method == 'POST':
         password = request.POST.get('password')
-        password = request.POST.get('password')
+        
         if request.user.check_password(password):
             try:
                 request.user.delete()

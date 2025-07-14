@@ -67,7 +67,14 @@ class CourseCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsMentor]
 
     def perform_create(self, serializer):
-        serializer.save(instructor=self.request.user, created_by=self.request.user)
+        """Create a course and optionally assign a category by name."""
+        category_name = self.request.data.get("category")
+        course = serializer.save(
+            instructor=self.request.user, created_by=self.request.user
+        )
+        if category_name:
+            category, _ = Category.objects.get_or_create(name=category_name)
+            course.categories.set([category])
 
 
 class CourseDetailView(generics.RetrieveAPIView):
@@ -109,7 +116,11 @@ class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
         course = self.get_object()
         if course.instructor != self.request.user:
             raise permissions.PermissionDenied("Not allowed")
-        serializer.save(instructor=self.request.user)
+        category_name = self.request.data.get("category")
+        updated = serializer.save(instructor=self.request.user)
+        if category_name:
+            category, _ = Category.objects.get_or_create(name=category_name)
+            updated.categories.set([category])
 
     def destroy(self, request, *args, **kwargs):
         course = self.get_object()
