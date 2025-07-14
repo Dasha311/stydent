@@ -25,10 +25,30 @@ class CourseSerializer(serializers.ModelSerializer):
     average_rating = serializers.FloatField(read_only=True)
     duration = serializers.DurationField(required=False)
     thumbnail = serializers.ImageField(required=False, allow_null=True)
-    
+    textFile = serializers.FileField(source="text_file", required=False, allow_null=True)
+    test = serializers.JSONField(source="test_data", required=False, allow_null=True)
+
     class Meta:
         model = Course
-        fields = '__all__'
+        fields = [
+            'id',
+            'title',
+            'description',
+            'instructor',
+            'created_by',
+            'thumbnail',
+            'duration',
+            'created_at',
+            'updated_at',
+            'price',
+            'is_free',
+            'categories',
+            'videos',
+            'textFile',
+            'assignment',
+            'test',
+            'average_rating',
+        ]
         read_only_fields = ['average_rating']
 
 class CategorySerializer(serializers.ModelSerializer):

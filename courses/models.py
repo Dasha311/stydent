@@ -38,6 +38,10 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_free = models.BooleanField(default=False)
     categories = models.ManyToManyField('Category', related_name='courses', blank=True)
+    videos = models.JSONField(default=list, blank=True)
+    text_file = models.FileField(upload_to='course_files/', blank=True, null=True)
+    assignment = models.TextField(blank=True)
+    test_data = models.JSONField(blank=True, null=True)
     
 
     @property
