@@ -81,7 +81,7 @@
 <body class="min-h-screen flex flex-col">
   <header class="bg-[var(--color-bg-secondary)] sticky top-0 z-50">
     <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10">
+            <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10">
       <nav class="hidden md:flex space-x-8 text-sm font-medium">
         <a href="{% url 'main_menu' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Главная</a>
         <a href="{% url 'course_view' %}?course_id=1" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Курсы</a>
@@ -101,10 +101,6 @@
       <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">Курсы</a>
       <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
       <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
-      <div class="flex flex-col gap-4 mt-4">
-        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline w-full text-left">Войти</a>
-        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] text-white w-full rounded-full font-semibold py-3 hover:bg-[#0051CC] shadow-sm text-center">Регистрация</a>
-      </div>
     </nav>
   </header>
 
