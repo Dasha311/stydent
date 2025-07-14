@@ -172,6 +172,7 @@ def profile(request):
     return render(request, 'profile.html')
 
 
+
 @login_required
 def delete_account(request):
     """Delete the current user account after password confirmation."""
