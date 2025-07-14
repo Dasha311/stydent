@@ -69,6 +69,11 @@
     .animate-slide-in { animation: slide-in 0.3s ease; }
     .animate-fade-in { animation: fade-in 0.3s ease; }
   </style>
+  <script>
+    // Вынесем STATIC_URL, чтобы не вставлять {% static %} в JS
+    const STATIC_URL = "{% static '' %}";
+    const USER_ID = {{ request.user.id|default:"0" }};
+  </script>
 </head>
 <body class="min-h-screen flex flex-col">
   <header class="bg-[var(--color-bg-secondary)] sticky top-0 z-50">
@@ -81,8 +86,8 @@
         <a href="{% url 'contacts' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Контакты</a>
       </nav>
       <div class="hidden md:flex items-center gap-4">
-        <button class="text-[var(--color-primary)] text-sm font-medium hover:underline">Войти</button>
-        <button class="bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-[#0051CC] shadow-sm">Регистрация</button>
+        <a href="{% url 'login' %}" class="text-[var(--color-primary)] text-sm font-medium hover:underline">Войти</a>
+        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-[#0051CC] shadow-sm">Регистрация</a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
         <img src="{% static 'Icons/Burger.png' %}" alt="Меню" class="w-6 h-6">
@@ -94,8 +99,8 @@
       <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
       <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
       <div class="flex flex-col gap-4 mt-4">
-        <button class="text-[var(--color-primary)] hover:underline w-full text-left">Войти</button>
-        <button class="bg-[var(--color-primary)] text-white w-full rounded-full font-semibold py-3 hover:bg-[#0051CC] shadow-sm">Регистрация</button>
+        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline w-full text-left">Войти</a>
+        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] text-white w-full rounded-full font-semibold py-3 hover:bg-[#0051CC] shadow-sm text-center">Регистрация</a>
       </div>
     </nav>
   </header>
@@ -108,16 +113,20 @@
       <h1 id="course-title" class="text-4xl md:text-6xl font-bold tracking-tight mb-4"></h1>
       <p class="text-lg md:text-xl mb-2 opacity-90">Автор: <a id="course-author-link" class="hover:underline"></a></p>
       <p class="text-sm md:text-base opacity-70" id="course-info"></p>
+      <div class="mt-6 flex flex-wrap gap-4">
+        <button id="enroll-btn" class="bg-[var(--color-primary)] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#0051CC] shadow">Записаться на курс</button>
+        <button id="message-btn" class="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-3 rounded-full font-semibold bg-white hover:bg-[var(--color-bg)]">Написать преподавателю</button>
+      </div>
     </div>
   </section>
 
   <main id="course-content" class="max-w-5xl mx-auto px-6 py-12 flex-1 space-y-8"></main>
 
-  <button id="chat-toggle" aria-label="Открыть чат с автором" class="fixed bottom-6 right-6 bg-[var(--color-primary)] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#0051CC] transition-all z-60">
+  <button id="chat-toggle" aria-label="Открыть чат с автором" class="fixed bottom-6 right-6 bg-[var(--color-primary)] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#0051CC] transition-all" style="z-index: 60;">
     <img src="{% static 'Icons/Message circle.png' %}" alt="Чат" class="w-7 h-7">
   </button>
 
-  <div id="chat-window" class="fixed bottom-20 right-6 bg-[var(--color-bg-secondary)] rounded-2xl shadow-xl flex flex-col overflow-hidden transform scale-0 opacity-0 transition-all duration-300 origin-bottom-right z-60 card" style="width: 360px; max-height: 500px; max-width: 90vw; max-height: 80vh;">
+  <div id="chat-window" class="fixed bottom-20 right-6 bg-[var(--color-bg-secondary)] rounded-2xl shadow-xl flex flex-col overflow-hidden transform scale-0 opacity-0 transition-all duration-300 origin-bottom-right card" style="width: 360px; max-width: 90vw; max-height: 80vh; z-index: 60;">
     <header class="flex justify-between items-center p-4 border-b border-[var(--color-border)]">
       <h3 class="font-semibold text-[var(--color-text)]">Чат с автором</h3>
       <button id="chat-close" aria-label="Закрыть чат" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] text-xl font-bold">×</button>
@@ -429,6 +438,29 @@
       mobileMenu.classList.toggle('animate-slide-in');
     });
 
+    const enrollBtn = document.getElementById('enroll-btn');
+    const messageBtn = document.getElementById('message-btn');
+
+    enrollBtn.addEventListener('click', () => {
+      fetch('/api/courses/enroll/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ course_id: id })
+      }).then(r => {
+        if (r.ok) {
+          alert('Вы успешно записаны на курс!');
+          enrollBtn.disabled = true;
+          enrollBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          enrollBtn.textContent = 'Вы записаны';
+        } else {
+          alert('Ошибка при записи на курс.');
+        }
+      }).catch(() => alert('Ошибка сети'));
+    });
+
     // Chat Functionality
     const chatToggle = document.getElementById('chat-toggle');
     const chatWindow = document.getElementById('chat-window');
@@ -436,7 +468,6 @@
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatMessages = document.getElementById('chat-messages');
-    const chatFileInput = document.getElementById('chat-file');
 
     function toggleChat(open) {
       if (open) {
@@ -449,69 +480,87 @@
       }
     }
 
-    chatToggle.addEventListener('click', () => {
-      const isOpen = chatWindow.style.opacity === '1';
-      toggleChat(!isOpen);
-    });
-
     chatClose.addEventListener('click', () => {
       toggleChat(false);
     });
 
-    let attachedImage = null;
-    chatFileInput.addEventListener('change', () => {
-      const file = chatFileInput.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) {
-        alert('Пожалуйста, выберите изображение');
-        chatFileInput.value = '';
-        return;
+    let chatRoomId = null;
+    const userId = Number('{{ request.user.id }}');
+
+    async function ensureRoom() {
+      if (chatRoomId) return;
+      const resp = await fetch(`/api/chats/?course=${id}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.length) {
+          chatRoomId = data[0].id;
+        }
       }
-      attachedImage = file;
+      if (!chatRoomId) {
+        const create = await fetch('/api/chats/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({ course: id })
+        });
+        if (create.ok) {
+          const data = await create.json();
+          chatRoomId = data.id;
+        }
+      }
+    }
+
+    async function loadMessages() {
+      await ensureRoom();
+      if (!chatRoomId) return;
+      const resp = await fetch(`/api/chats/${chatRoomId}/messages/`);
+      if (!resp.ok) return;
+      const msgs = await resp.json();
+      chatMessages.innerHTML = '';
+      msgs.forEach(m => {
+        const div = document.createElement('div');
+        if (m.sender.id === userId) {
+          div.className = 'text-right mb-2';
+          div.innerHTML = `<span class="inline-block bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl">${m.text}</span>`;
+        } else {
+          div.className = 'text-left mb-2';
+          div.innerHTML = `<span class="inline-block bg-[var(--color-bg)] text-[var(--color-text)] px-4 py-2 rounded-xl border border-[var(--color-border)]">${m.text}</span>`;
+        }
+        chatMessages.appendChild(div);
+      });
+      chatMessages.scrollTo({ top: chatMessages.scrollHeight });
+    }
+
+    messageBtn.addEventListener('click', () => {
+      toggleChat(true);
+      loadMessages();
+    });
+    chatToggle.addEventListener('click', () => {
+      const isOpen = chatWindow.style.opacity === '1';
+      toggleChat(!isOpen);
+      if (!isOpen) loadMessages();
     });
 
-    chatForm.addEventListener('submit', e => {
+    chatForm.addEventListener('submit', async e => {
       e.preventDefault();
       const message = chatInput.value.trim();
-
-      const userMsg = document.createElement('div');
-      userMsg.className = 'text-right flex flex-col items-end space-y-1 animate-fade-in';
-
-      if (message) {
-        const textSpan = document.createElement('span');
-        textSpan.className = 'inline-block bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl max-w-[75%] break-words';
-        textSpan.textContent = message;
-        userMsg.appendChild(textSpan);
+      if (!message) return;
+      await ensureRoom();
+      if (!chatRoomId) return;
+      const resp = await fetch(`/api/chats/${chatRoomId}/messages/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ text: message })
+      });
+      if (resp.ok) {
+        chatInput.value = '';
+        loadMessages();
       }
-
-      if (attachedImage) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(attachedImage);
-        img.alt = 'Прикрепленное изображение';
-        img.className = 'max-w-[200px] rounded-xl shadow-md cursor-pointer';
-        img.onload = () => URL.revokeObjectURL(img.src);
-        userMsg.appendChild(img);
-        attachedImage = null;
-        chatFileInput.value = '';
-      }
-
-      if (!message && !userMsg.querySelector('img')) return;
-
-      chatMessages.appendChild(userMsg);
-      chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-
-      chatInput.value = '';
-      chatInput.focus();
-
-      const botReply = findAnswer(message);
-
-      setTimeout(() => {
-        const authorMsg = document.createElement('div');
-        authorMsg.className = 'text-left animate-fade-in';
-        authorMsg.innerHTML = `<span class="inline-block bg-[var(--color-bg)] text-[var(--color-text)] px-4 py-2 rounded-xl max-w-[75%] break-words border border-[var(--color-border)]">${botReply}</span>`;
-        chatMessages.appendChild(authorMsg);
-        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-      }, 500);
     });
   </script>
 </body>
