@@ -274,59 +274,7 @@
       background: var(--bg-main);
       font-size: 14px;
     }
-    #messages-container {
-      display: flex;
-      flex-direction: row;
-      gap: 1rem;
-      height: 500px;
-    }
-    #student-list {
-      width: 250px;
-      background: white;
-      border-right: 1px solid var(--border-color);
-      overflow-y: auto;
-    }
-    .student-item {
-      padding: 12px;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .student-item:hover {
-      background: var(--bg-secondary);
-    }
-    .student-item.active {
-      background: var(--brand-primary);
-      color: white;
-    }
-    #message-thread {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: white;
-      border-radius: 12px;
-    }
-    #message-thread-header {
-      padding: 12px;
-      border-bottom: 1px solid var(--border-color);
-      font-weight: 600;
-    }
-    #message-thread-body {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    #message-thread-input {
-      padding: 12px;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      gap: 8px;
-    }
+
     @media (min-width: 1024px) {
       .hero-section h1 {
         font-size: 3.5rem;
@@ -380,7 +328,7 @@
         <a href="{% url 'teacher_dashboard' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
         <a href="#my-courses" class="hover:text-[var(--brand-primary)]">Мои курсы</a>
         <a href="#create-course" class="hover:text-[var(--brand-primary)]">Создать курс</a>
-        <a href="#messages" class="hover:text-[var(--brand-primary)]">Сообщения</a>
+        <a href="{% url 'messages' %}" class="hover:text-[var(--brand-primary)]">Сообщения</a>
         <a href="{% url 'teacher_profile' request.user.id %}" class="hover:text-[var(--brand-primary)]">Моя страница</a>
         <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
@@ -514,8 +462,8 @@
       </div>
 
       <!-- Test Creation Modal -->
-      <div id="test-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg max-w-lg w-full">
+      <div id="test-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden overflow-y-auto">
+        <div class="bg-white p-6 rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">Создать тест</h3>
           <div id="test-questions"></div>
           <button id="add-question" class="btn mt-4">Добавить вопрос</button>
@@ -534,27 +482,7 @@
       </div>
     </section>
 
-    <section id="messages" class="bg-white py-12">
-      <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Сообщения со студентами</h2>
-        <div id="messages-container" class="card">
-          <div id="student-list">
-            <div class="student-item" data-student-id="student1" data-student-name="Анна К.">
-              <img src="{% static 'Icons/Logo.png' %}" alt="Анна К." class="avatar">
-              <span>Анна К.</span>
-            </div>
-          </div>
-          <div id="message-thread">
-            <div id="message-thread-header">Выберите студента</div>
-            <div id="message-thread-body"></div>
-            <div id="message-thread-input">
-              <textarea id="message-input" placeholder="Напишите сообщение..." rows="2" class="flex-1" disabled></textarea>
-              <button id="send-message-btn" class="btn" disabled>Отправить</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+
 
     <section class="bg-[var(--brand-primary)] text-white py-16 text-center">
       <div class="max-w-3xl mx-auto px-4">
@@ -1130,6 +1058,7 @@
       document.getElementById('with-test').addEventListener('change', function () {
         const modal = document.getElementById('test-modal');
         modal.classList.toggle('hidden', !this.checked);
+        document.body.classList.toggle('no-scroll', this.checked);
         if (this.checked) {
           addQuestionField();
         } else {
@@ -1143,6 +1072,7 @@
       document.getElementById('cancel-test').addEventListener('click', () => {
         document.getElementById('with-test').checked = false;
         document.getElementById('test-modal').classList.add('hidden');
+        document.body.classList.remove('no-scroll');
         document.getElementById('test-questions').innerHTML = '';
         document.getElementById('test-data').value = '';
       });
@@ -1163,6 +1093,7 @@
         }
         document.getElementById('test-data').value = JSON.stringify(questions);
         document.getElementById('test-modal').classList.add('hidden');
+        document.body.classList.remove('no-scroll');
       });
     }
 
@@ -1178,7 +1109,7 @@
           { href: '{% url "teacher_dashboard" %}', label: 'Главная' },
           { href: '#my-courses', label: 'Мои курсы' },
           { href: '#create-course', label: 'Создать курс' },
-          { href: '#messages', label: 'Сообщения' },
+          { href: "{% url 'messages' %}", label: 'Сообщения' },
           { href: '{% url "teacher_profile" request.user.id %}', label: 'Моя страница' },
           { href: '{% url "profile" %}', label: 'Профиль' },
         ],
