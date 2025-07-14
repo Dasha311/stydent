@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#f5f3ff">
-  <title id="page-title"></title>
+  <title id="page-title">Курс</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -103,7 +103,6 @@
     const STATIC_URL = "{% static '' %}";
     const USER_ID = {{ request.user.id|default:"0" }};
     const STORAGE_ENROLLED = 'enrolledCourses_' + USER_ID;
-    const STORAGE_CREATED = 'createdCourses_' + USER_ID;
   </script>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -134,7 +133,7 @@
     </nav>
   </header>
 
-  <section class="relative h-[400px] md:h-[600px] bg-cover bg-center" style="background-image: url('{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}');">
+  <section class="relative h-[400px] md:h-[600px] bg-cover bg-center" id="course-header">
     <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center px-6">
       <a href="{% url 'main_menu' %}" class="absolute left-4 top-6">
         <img src="{% static 'Icons/Left.png' %}" alt="Назад" class="w-8 md:w-10 opacity-80 hover:opacity-100">
@@ -154,7 +153,7 @@
     <img src="{% static 'Icons/Message circle.png' %}" alt="Чат" class="w-7 h-7">
   </button>
 
-  <div id="chat-window" class="fixed bottom-20 right-6 bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden card" style="width: 360px; max-width: 90vw; max-height: 80vh; z-index: 60;">
+  <div id="chat-window" class="fixed bottom-20 right-6 bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden card" style="width: 360px; max-width: 90vw; max-height: 80vh; z-index: 60; transform: scale(0); opacity: 0;">
     <header class="flex justify-between items-center p-4 border-b border-[var(--border-color)]">
       <h3 class="font-semibold">Чат с автором</h3>
       <button id="chat-close" aria-label="Закрыть чат" class="text-[var(--text-secondary)] hover:text-[var(--text-main)] text-xl font-bold">×</button>
@@ -222,6 +221,7 @@
     const enrollSection = document.getElementById('enroll-section');
     const errorMessage = document.getElementById('error-message');
     const container = document.getElementById('course-content');
+    const courseHeader = document.getElementById('course-header');
     const courseId = new URLSearchParams(window.location.search).get('course_id') || window.location.pathname.split('/').filter(Boolean).pop();
     const userRole = '{{ user.role|default:"student" }}';
     const userId = {{ request.user.id|default:"0" }};
@@ -245,6 +245,7 @@
         console.error('Ошибка загрузки курса:', error);
         errorMessage.textContent = 'Не удалось загрузить курс. Попробуйте позже.';
         courseTitle.textContent = 'Курс не найден';
+        pageTitle.textContent = 'Курс не найден';
         container.textContent = '';
       }
     }
@@ -258,12 +259,12 @@
       }
 
       // Header Section
-      courseTitle.textContent = course.title || 'Без названия';
+      courseTitle.textContent = course.title || 'Курс без названия';
       pageTitle.textContent = course.title || 'Курс';
-      courseAuthorLink.textContent = course.instructor?.username || 'Неизвестный';
+      courseAuthorLink.textContent = course.instructor?.username || 'Неизвестный автор';
       courseAuthorLink.href = course.instructor?.id ? `/tutors/${course.instructor.id}/` : '#';
       courseInfo.innerHTML = `
-        ${course.videos?.length ? `${course.videos.length} уроков` : '0 уроков'} • 
+        ${course.videos?.length ? `${course.videos.length} уроков` : 'Нет уроков'} • 
         ${course.duration || 'Длительность не указана'} • 
         Уровень: ${course.level || 'Не указан'}
       `;
@@ -275,11 +276,9 @@
         courseInfo.appendChild(desc);
       }
       if (course.image) {
-        const img = document.createElement('img');
-        img.src = course.image;
-        img.alt = course.title || 'Курс';
-        img.className = 'w-full h-auto rounded-2xl mt-4';
-        courseInfo.appendChild(img);
+        courseHeader.style.backgroundImage = `url(${course.image})`;
+      } else {
+        courseHeader.style.backgroundImage = `url('{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}')`;
       }
 
       // Enroll Button
@@ -289,11 +288,11 @@
           <button id="enroll-btn" class="btn ${enrolledCourses.includes(courseId) ? 'opacity-50 cursor-not-allowed' : ''}" ${enrolledCourses.includes(courseId) ? 'disabled' : ''}>
             ${enrolledCourses.includes(courseId) ? 'Вы записаны' : 'Записаться на курс'}
           </button>
-          <button id="message-btn" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]">Написать преподавателю</button>
+          <button id="message-btn" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]" onclick="window.location.href='/messages/'">Написать преподавателю</button>
         `;
       } else {
         enrollSection.innerHTML = `
-          <button id="message-btn" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]">Написать преподавателю</button>
+          <button id="message-btn" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]" onclick="window.location.href='/messages/'">Написать преподавателю</button>
         `;
       }
 
@@ -307,10 +306,10 @@
         videos.forEach((v, idx) => {
           let embedUrl = v;
           if (v.includes('youtu.be')) {
-            const videoId = v.split('youtu.be/')[1].split('?')[0];
+            const videoId = v.split('youtu.be/')[1]?.split('?')[0];
             embedUrl = `https://www.youtube.com/embed/${videoId}`;
           } else if (v.includes('youtube.com/watch')) {
-            const videoId = v.split('v=')[1].split('&')[0];
+            const videoId = v.split('v=')[1]?.split('&')[0];
             embedUrl = `https://www.youtube.com/embed/${videoId}`;
           }
           const videoDiv = document.createElement('div');
@@ -487,10 +486,10 @@
         videos.slice(1).forEach(v => {
           let embedUrl = v;
           if (v.includes('youtu.be')) {
-            const videoId = v.split('ytu.be/')[1].split('?')[0];
+            const videoId = v.split('youtu.be/')[1]?.split('?')[0];
             embedUrl = `https://www.youtube.com/embed/${videoId}`;
           } else if (v.includes('youtube.com/watch')) {
-            const videoId = v.split('v=')[1].split('&')[0];
+            const videoId = v.split('v=')[1]?.split('&')[0];
             embedUrl = `https://www.youtube.com/embed/${videoId}`;
           }
           const videoDiv = document.createElement('div');
@@ -646,8 +645,7 @@
     }
 
     messageBtn?.addEventListener('click', () => {
-      toggleChat(true);
-      loadMessages();
+      window.location.href = '/messages/';
     });
     chatToggle.addEventListener('click', () => {
       const isOpen = chatWindow.style.opacity === '1';
