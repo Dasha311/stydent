@@ -68,11 +68,14 @@
     }
     .animate-slide-in { animation: slide-in 0.3s ease; }
     .animate-fade-in { animation: fade-in 0.3s ease; }
+    .error-message { color: #DC2626; }
+    .loading { text-align: center; font-size: 18px; }
   </style>
   <script>
-
     const STATIC_URL = "{% static '' %}";
     const USER_ID = {{ request.user.id|default:"0" }};
+    const STORAGE_ENROLLED = 'enrolledCourses_' + USER_ID;
+    const STORAGE_CREATED = 'createdCourses_' + USER_ID;
   </script>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -110,13 +113,11 @@
       <a href="{% url 'main_menu' %}" class="absolute left-4 top-6">
         <img src="{% static 'Icons/Left.png' %}" alt="Назад" class="w-8 md:w-10 opacity-80 hover:opacity-100">
       </a>
-      <h1 id="course-title" class="text-4xl md:text-6xl font-bold tracking-tight mb-4"></h1>
+      <h1 id="course-title" class="text-4xl md:text-6xl font-bold tracking-tight mb-4">Загрузка...</h1>
       <p class="text-lg md:text-xl mb-2 opacity-90">Автор: <a id="course-author-link" class="hover:underline"></a></p>
       <p class="text-sm md:text-base opacity-70" id="course-info"></p>
-      <div class="mt-6 flex flex-wrap gap-4">
-        <button id="enroll-btn" class="bg-[var(--color-primary)] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#0051CC] shadow">Записаться на курс</button>
-        <button id="message-btn" class="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-3 rounded-full font-semibold bg-white hover:bg-[var(--color-bg)]">Написать преподавателю</button>
-      </div>
+      <div id="enroll-section" class="mt-6 flex flex-wrap gap-4"></div>
+      <div id="error-message" class="error-message mt-4"></div>
     </div>
   </section>
 
@@ -186,152 +187,215 @@
       return m ? m.pop() : '';
     }
 
-    const id = window.location.pathname.split('/').filter(Boolean).pop();
-    const params = new URLSearchParams(window.location.search);
-    const owner = params.get('owner') || '{{ request.user.id }}';
-    const courses = JSON.parse(localStorage.getItem('createdCourses_' + owner) || '[]');
-    let course = courses.find(c => String(c.id) === id);
+    const courseTitle = document.getElementById('course-title');
+    const pageTitle = document.getElementById('page-title');
+    const courseAuthorLink = document.getElementById('course-author-link');
+    const courseInfo = document.getElementById('course-info');
+    const enrollSection = document.getElementById('enroll-section');
+    const errorMessage = document.getElementById('error-message');
     const container = document.getElementById('course-content');
+    const courseId = window.location.pathname.split('/').filter(Boolean).pop();
+    const userRole = '{{ user.role|default:"student" }}';
+    const userId = {{ request.user.id|default:"0" }};
+    let course = null;
 
-    if (!course) {
-      fetch(`/api/courses/${id}/`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (!data) {
-            container.textContent = 'Курс не найден';
-            return;
-          }
-          course = data;
-          renderCourse();
-        });
-    } else {
-      renderCourse();
+    async function loadCourseDetails() {
+      courseTitle.textContent = 'Загрузка...';
+      courseInfo.textContent = '';
+      courseAuthorLink.textContent = '';
+      errorMessage.textContent = '';
+      container.innerHTML = '<p class="loading">Загрузка...</p>';
+
+      try {
+        const createdCourses = JSON.parse(localStorage.getItem(STORAGE_CREATED) || '[]');
+        course = createdCourses.find(c => String(c.id) === courseId);
+
+        if (!course) {
+          const response = await fetch(`/api/courses/${courseId}/`);
+          if (!response.ok) throw new Error('Ошибка загрузки курса');
+          course = await response.json();
+        }
+
+        console.log('Данные курса:', course);
+        renderCourse();
+      } catch (error) {
+        console.error('Ошибка загрузки курса:', error);
+        errorMessage.textContent = 'Не удалось загрузить курс. Попробуйте позже.';
+        courseTitle.textContent = 'Курс не найден';
+        courseInfo.textContent = '';
+        courseAuthorLink.textContent = '';
+        container.textContent = '';
+      }
     }
 
     function renderCourse() {
-      document.getElementById('course-title').textContent = course.title;
-      document.getElementById('page-title').textContent = course.title;
-      const authorLink = document.getElementById('course-author-link');
-      authorLink.textContent = course.instructor.username;
-      authorLink.href = `/tutors/${course.instructor.id}/`;
-      document.getElementById('course-info').textContent = `${course.videos?.length || 0} уроков • ${course.duration || 'Не указана'}`;
-      const videos = course.videos || [];
-      const watched = JSON.parse(localStorage.getItem('courseProgressData:' + id) || '[]');
+      if (!course) {
+        courseTitle.textContent = 'Курс не найден';
+        pageTitle.textContent = 'Курс не найден';
+        container.textContent = '';
+        return;
+      }
 
-      function saveProgress() {
-        const p = videos.length ? Math.round(watched.length / videos.length * 100) : 0;
-        localStorage.setItem('courseProgress:' + id, p);
-        localStorage.setItem('courseProgressData:' + id, JSON.stringify(watched));
-        checkCourseCompletion();
+      // Header Section
+      courseTitle.textContent = course.title || 'Без названия';
+      pageTitle.textContent = course.title || 'Курс';
+      courseAuthorLink.textContent = course.instructor?.username || 'Неизвестный';
+     领: courseAuthorLink.href = `/tutors/${course.instructor?.id || '#'}/`;
+      courseInfo.textContent = `${course.videos?.length || 0} уроков • ${course.duration || 'Не указана'}`;
+      if (course.description) {
+        const desc = document.createElement('p');
+        desc.className = 'text-sm md:text-base opacity-70 mt-2';
+        desc.textContent = course.description;
+        courseInfo.appendChild(desc);
+      }
+      if (course.image) {
+        const img = document.createElement('img');
+        img.src = course.image;
+        img.alt = course.title || 'Курс';
+        img.className = 'w-full h-auto rounded-2xl mt-4';
+        courseInfo.appendChild(img);
+      }
+
+      // Enroll Button
+      const enrolledCourses = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
+      if (userRole === 'student') {
+        enrollSection.innerHTML = `
+          <button id="enroll-btn" class="bg-[var(--color-primary)] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#0051CC] shadow ${enrolledCourses.includes(courseId) ? 'opacity-50 cursor-not-allowed' : ''}" ${enrolledCourses.includes(courseId) ? 'disabled' : ''}>
+            ${enrolledCourses.includes(courseId) ? 'Вы записаны' : 'Записаться на курс'}
+          </button>
+          <button id="message-btn" class="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-3 rounded-full font-semibold bg-white hover:bg-[var(--color-bg)]">Написать преподавателю</button>
+        `;
+      } else {
+        enrollSection.innerHTML = `
+          <button id="message-btn" class="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-3 rounded-full font-semibold bg-white hover:bg-[var(--color-bg)]">Написать преподавателю</button>
+        `;
       }
 
       // Video Section
-      videos.forEach((v, idx) => {
-        const section = document.createElement('section');
-        section.className = 'card p-6';
-        let embedUrl = v;
-        if (v.includes('youtu.be')) {
-          const videoId = v.split('youtu.be/')[1].split('?')[0];
-          embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        } else if (v.includes('youtube.com/watch')) {
-          const videoId = v.split('v=')[1].split('&')[0];
-          embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        }
-        section.innerHTML = `
-          <div class="video-container">
-            <div class="relative" style="padding-bottom: 56.25%;">
-              <iframe class="absolute top-0 left-0 w-full h-full" src="${embedUrl}" title="Учебное видео ${idx + 1}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-          </div>
-        `;
-        const btn = document.createElement('button');
-        btn.textContent = watched.includes(idx) ? 'Просмотрено' : 'Отметить просмотренным';
-        btn.className = 'mt-4 px-4 py-2 rounded bg-[var(--color-primary)] text-white hover:bg-[#0051CC]';
-        btn.onclick = () => {
-          if (!watched.includes(idx)) {
-            watched.push(idx);
-            btn.textContent = 'Просмотрено';
-            saveProgress();
+      const videos = course.videos || [];
+      const watched = JSON.parse(localStorage.getItem('courseProgressData:' + courseId) || '[]');
+      if (videos.length) {
+        const videoSection = document.createElement('section');
+        videoSection.className = 'space-y-6';
+        videoSection.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Видео</h2>';
+        videos.forEach((v, idx) => {
+          let embedUrl = v;
+          if (v.includes('youtu.be')) {
+            const videoId = v.split('youtu.be/')[1].split('?')[0];
+            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+          } else if (v.includes('youtube.com/watch')) {
+            const videoId = v.split('v=')[1].split('&')[0];
+            embedUrl = `https://www.youtube.com/embed/${videoId}`;
           }
-        };
-        section.appendChild(btn);
-        container.appendChild(section);
-      });
-
-      // Text Materials
-      if (course.textFile) {
-        const text = document.createElement('div');
-        text.className = 'card p-6';
-        text.innerHTML = `
-          <h2 class="font-semibold mb-2">Материалы</h2>
-          <a href="${course.textFile}" class="text-[var(--color-primary)] hover:underline" target="_blank">Скачать материалы (${course.textFile.endsWith('.pdf') ? 'PDF' : 'TXT'})</a>
-        `;
-        container.appendChild(text);
+          const videoDiv = document.createElement('div');
+          videoDiv.className = 'card p-6';
+          videoDiv.innerHTML = `
+            <div class="video-container">
+              <div class="relative" style="padding-bottom: 56.25%;">
+                <iframe class="absolute top-0 left-0 w-full h-full" src="${embedUrl}" title="Учебное видео ${idx + 1}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              </div>
+            </div>
+            <button class="mt-4 px-4 py-2 rounded bg-[var(--color-primary)] text-white hover:bg-[#0051CC] ${watched.includes(idx) ? 'opacity-50 cursor-not-allowed' : ''}" ${watched.includes(idx) ? 'disabled' : ''}>
+              ${watched.includes(idx) ? 'Просмотрено' : 'Отметить просмотренным'}
+            </button>
+          `;
+          videoDiv.querySelector('button').addEventListener('click', () => {
+            if (!watched.includes(idx)) {
+              watched.push(idx);
+              videoDiv.querySelector('button').textContent = 'Просмотрено';
+              videoDiv.querySelector('button').disabled = true;
+              videoDiv.querySelector('button').classList.add('opacity-50', 'cursor-not-allowed');
+              saveProgress();
+            }
+          });
+          videoSection.appendChild(videoDiv);
+        });
+        container.appendChild(videoSection);
+      } else {
+        const videoSection = document.createElement('section');
+        videoSection.className = 'card p-6';
+        videoSection.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Видео</h2><p>Видео отсутствуют.</p>';
+        container.appendChild(videoSection);
       }
 
+      // Text Materials
+      const textSection = document.createElement('section');
+      textSection.className = 'card p-6';
+      textSection.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Текстовые материалы</h2>';
+      if (course.textFile) {
+        textSection.innerHTML += `<a href="${course.textFile}" class="text-[var(--color-primary)] hover:underline" target="_blank">Скачать материалы (${course.textFile.endsWith('.pdf') ? 'PDF' : 'TXT'})</a>`;
+      } else {
+        textSection.innerHTML += '<p>Материалы отсутствуют.</p>';
+      }
+      container.appendChild(textSection);
+
       // Assignment
-      if (course.assignment) {
-        const ass = document.createElement('div');
-        ass.className = 'card p-6';
-        const isSubmitted = localStorage.getItem('assignmentSubmitted:' + id) === 'true';
-        ass.innerHTML = `
-          <h2 class="font-semibold mb-2">Задание</h2>
-          <p class="whitespace-pre-wrap break-words mb-4">${course.assignment}</p>
+      const assignmentSection = document.createElement('section');
+      assignmentSection.className = 'card p-6';
+      const isSubmitted = localStorage.getItem('assignmentSubmitted:' + courseId) === 'true';
+      assignmentSection.innerHTML = `
+        <h2 class="text-3xl font-semibold tracking-tight mb-8">Задание</h2>
+        ${course.assignment ? `<p class="whitespace-pre-wrap break-words mb-4">${course.assignment}</p>` : '<p>Задание отсутствует.</p>'}
+        ${course.assignment ? `
           <div class="mb-4">
             <label for="assignment-upload" class="block text-sm font-medium mb-1">Загрузите ваше задание</label>
             <input id="assignment-upload" type="file" accept=".pdf,.doc,.docx,.txt" class="w-full p-2 border border-[var(--color-border)] rounded-xl" ${isSubmitted ? 'disabled' : ''}>
           </div>
           <button id="submit-assignment" class="px-4 py-2 rounded bg-[var(--color-primary)] text-white hover:bg-[#0051CC] ${isSubmitted ? 'opacity-50 cursor-not-allowed' : ''}" ${isSubmitted ? 'disabled' : ''}>Отправить задание</button>
           ${isSubmitted ? '<p class="mt-2 text-green-600">Задание отправлено</p>' : ''}
-        `;
-        container.appendChild(ass);
+        ` : ''}
+      `;
+      container.appendChild(assignmentSection);
 
-        if (!isSubmitted) {
-          const submitBtn = ass.querySelector('#submit-assignment');
-          const uploadInput = ass.querySelector('#assignment-upload');
-          submitBtn.addEventListener('click', () => {
-            if (!uploadInput.files[0]) {
-              alert('Пожалуйста, загрузите файл с заданием.');
-              return;
-            }
-            const formData = new FormData();
-            formData.append('assignmentFile', uploadInput.files[0]);
-            formData.append('courseId', id);
-            fetch('/api/courses/submit-assignment/', {
+      if (course.assignment && !isSubmitted) {
+        const submitBtn = assignmentSection.querySelector('#submit-assignment');
+        const uploadInput = assignmentSection.querySelector('#assignment-upload');
+        submitBtn.addEventListener('click', async () => {
+          if (!uploadInput.files[0]) {
+            alert('Пожалуйста, загрузите файл с заданием.');
+            return;
+          }
+          const formData = new FormData();
+          formData.append('assignmentFile', uploadInput.files[0]);
+          formData.append('courseId', courseId);
+          try {
+            const response = await fetch('/api/courses/submit-assignment/', {
               method: 'POST',
               headers: { 'X-CSRFToken': getCookie('csrftoken') },
               body: formData
-            }).then(r => r.json()).then(data => {
-              localStorage.setItem('assignmentSubmitted:' + id, 'true');
-              uploadInput.disabled = true;
-              submitBtn.disabled = true;
-              submitBtn.className += ' opacity-50 cursor-not-allowed';
-              const successMsg = document.createElement('p');
-              successMsg.className = 'mt-2 text-green-600';
-              successMsg.textContent = 'Задание отправлено';
-              ass.appendChild(successMsg);
-              checkCourseCompletion();
             });
-          });
-        }
+            if (!response.ok) throw new Error('Ошибка при отправке задания');
+            localStorage.setItem('assignmentSubmitted:' + courseId, 'true');
+            uploadInput.disabled = true;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            const successMsg = document.createElement('p');
+            successMsg.className = 'mt-2 text-green-600';
+            successMsg.textContent = 'Задание отправлено';
+            assignmentSection.appendChild(successMsg);
+            checkCourseCompletion();
+          } catch (error) {
+            errorMessage.textContent = 'Не удалось отправить задание. Попробуйте позже.';
+          }
+        });
       }
 
       // Test Section
       const questions = course.test || [];
       if (questions.length) {
-        const quiz = document.createElement('div');
+        const quiz = document.createElement('section');
         quiz.className = 'card p-8';
         quiz.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Пройти тест</h2>';
         questions.forEach((q, i) => {
           const block = document.createElement('div');
           block.className = 'p-6 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-border)] mb-4';
           block.innerHTML = `
-            <p class="font-medium text-lg mb-4">${q.q}</p>
-            ${q.a.map((opt, j) => `
+            <p class="font-medium text-lg mb-4">${q.q || 'Вопрос отсутствует'}</p>
+            ${q.a?.map((opt, j) => `
               <label class="block mb-3 flex items-center cursor-pointer">
                 <input type="radio" name="q${i}" value="${j}" class="mr-3">${opt}
               </label>
-            `).join('')}
+            `).join('') || '<p>Ответы отсутствуют</p>'}
           `;
           quiz.appendChild(block);
         });
@@ -348,17 +412,20 @@
             if (val && Number(val.value) === q.c) correct++;
           });
           result.textContent = `Результат: ${correct} из ${questions.length}`;
-          if (correct === questions.length) {
-            localStorage.setItem('testPassed:' + id, 'true');
-            result.className = 'mt-4 text-lg text-green-600 animate-fade-in';
-          } else {
-            result.className = 'mt-4 text-lg text-red-600 animate-fade-in';
-          }
+          result.className = `mt-4 text-lg ${correct === questions.length ? 'text-green-600' : 'text-red-600'} animate-fade-in`;
           result.classList.remove('hidden');
+          if (correct === questions.length) {
+            localStorage.setItem('testPassed:' + courseId, 'true');
+          }
           checkCourseCompletion();
         };
         quiz.appendChild(btn);
         quiz.appendChild(result);
+        container.appendChild(quiz);
+      } else {
+        const quiz = document.createElement('section');
+        quiz.className = 'card p-6';
+        quiz.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Тест</h2><p>Тест отсутствует.</p>';
         container.appendChild(quiz);
       }
 
@@ -385,16 +452,16 @@
         container.appendChild(contentSection);
       }
 
-      // Additional Videos (if any additional materials are added in the future)
-      if (course.videos?.length > 1) {
+      // Additional Videos
+      if (videos.length > 1) {
         const additionalSection = document.createElement('section');
         additionalSection.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Дополнительные материалы</h2>';
         const grid = document.createElement('div');
         grid.className = 'grid gap-8 md:grid-cols-2';
-        course.videos.slice(1).forEach(v => {
+        videos.slice(1).forEach(v => {
           let embedUrl = v;
           if (v.includes('youtu.be')) {
-            const videoId = v.split('outu.be/')[1].split('?')[0];
+            const videoId = v.split('youtu.be/')[1].split('?')[0];
             embedUrl = `https://www.youtube.com/embed/${videoId}`;
           } else if (v.includes('youtube.com/watch')) {
             const videoId = v.split('v=')[1].split('&')[0];
@@ -414,15 +481,55 @@
       saveProgress();
     }
 
+    async function enrollCourse(courseId) {
+      errorMessage.textContent = '';
+      try {
+        const response = await fetch('/api/courses/enroll/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({ course_id: courseId })
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Ошибка при записи на курс');
+        }
+        const enrolledCourses = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
+        if (!enrolledCourses.includes(courseId)) {
+          enrolledCourses.push(courseId);
+          localStorage.setItem(STORAGE_ENROLLED, JSON.stringify(enrolledCourses));
+        }
+        alert('Вы успешно записались на курс!');
+        const enrollBtn = document.getElementById('enroll-btn');
+        enrollBtn.disabled = true;
+        enrollBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        enrollBtn.textContent = 'Вы записаны';
+      } catch (error) {
+        console.error('Ошибка записи:', error);
+        errorMessage.textContent = error.message || 'Не удалось записаться на курс. Попробуйте позже.';
+      }
+    }
+
+    function saveProgress() {
+      const videos = course.videos || [];
+      const watched = JSON.parse(localStorage.getItem('courseProgressData:' + courseId) || '[]');
+      const p = videos.length ? Math.round(watched.length / videos.length * 100) : 0;
+      localStorage.setItem('courseProgress:' + courseId, p);
+      localStorage.setItem('courseProgressData:' + courseId, JSON.stringify(watched));
+      checkCourseCompletion();
+    }
+
     function checkCourseCompletion() {
-      const videosWatched = JSON.parse(localStorage.getItem('courseProgressData:' + id) || '[]').length === (course.videos || []).length;
-      const assignmentSubmitted = localStorage.getItem('assignmentSubmitted:' + id) === 'true';
-      const testPassed = localStorage.getItem('testPassed:' + id) === 'true';
+      const videosWatched = JSON.parse(localStorage.getItem('courseProgressData:' + courseId) || '[]').length === (course.videos || []).length;
+      const assignmentSubmitted = localStorage.getItem('assignmentSubmitted:' + courseId) === 'true';
+      const testPassed = localStorage.getItem('testPassed:' + courseId) === 'true';
       if (videosWatched && assignmentSubmitted && testPassed) {
         const completionMsg = document.createElement('div');
         completionMsg.className = 'card p-6 mt-4 text-green-600 font-semibold';
         completionMsg.innerHTML = `
-          Курс успешно пройден! <a href="/api/courses/${id}/certificate/" class="text-[var(--color-primary)] hover:underline">Скачать сертификат</a>
+          Курс успешно пройден! <a href="/api/courses/${courseId}/certificate/" class="text-[var(--color-primary)] hover:underline">Скачать сертификат</a>
         `;
         container.appendChild(completionMsg);
       }
@@ -438,27 +545,13 @@
       mobileMenu.classList.toggle('animate-slide-in');
     });
 
-    const enrollBtn = document.getElementById('enroll-btn');
-    const messageBtn = document.getElementById('message-btn');
-
-    enrollBtn.addEventListener('click', () => {
-      fetch('/api/courses/enroll/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ course_id: id })
-      }).then(r => {
-        if (r.ok) {
-          alert('Вы успешно записаны на курс!');
-          enrollBtn.disabled = true;
-          enrollBtn.classList.add('opacity-50', 'cursor-not-allowed');
-          enrollBtn.textContent = 'Вы записаны';
-        } else {
-          alert('Ошибка при записи на курс.');
-        }
-      }).catch(() => alert('Ошибка сети'));
+    // Enroll Button Handler
+    enrollSection.addEventListener('click', event => {
+      const button = event.target.closest('#enroll-btn');
+      if (button && !button.disabled) {
+        console.log('Запись на курс:', courseId);
+        enrollCourse(courseId);
+      }
     });
 
     // Chat Functionality
@@ -468,6 +561,7 @@
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatMessages = document.getElementById('chat-messages');
+    const messageBtn = document.getElementById('message-btn');
 
     function toggleChat(open) {
       if (open) {
@@ -480,16 +574,13 @@
       }
     }
 
-    chatClose.addEventListener('click', () => {
-      toggleChat(false);
-    });
+    chatClose.addEventListener('click', () => toggleChat(false));
 
     let chatRoomId = null;
-    const userId = Number('{{ request.user.id }}');
 
     async function ensureRoom() {
       if (chatRoomId) return;
-      const resp = await fetch(`/api/chats/?course=${id}`);
+      const resp = await fetch(`/api/chats/?course=${courseId}`);
       if (resp.ok) {
         const data = await resp.json();
         if (data.length) {
@@ -503,7 +594,7 @@
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
           },
-          body: JSON.stringify({ course: id })
+          body: JSON.stringify({ course: courseId })
         });
         if (create.ok) {
           const data = await create.json();
@@ -561,6 +652,11 @@
         chatInput.value = '';
         loadMessages();
       }
+    });
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCourseDetails();
     });
   </script>
 </body>

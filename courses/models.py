@@ -31,8 +31,8 @@ class Course(models.Model):
         null=True,
         blank=True,
     )
-    thumbnail = models.ImageField(upload_to='course_thumbnails/')
-    duration = models.DurationField()  # in minutes
+    thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
+    duration = models.DurationField(default=datetime.timedelta())     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

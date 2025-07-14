@@ -23,6 +23,8 @@ class CourseSerializer(serializers.ModelSerializer):
     instructor = UserSerializer(read_only=True)
     created_by = UserSerializer(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
+    duration = serializers.DurationField(required=False)
+    thumbnail = serializers.ImageField(required=False, allow_null=True)
     
     class Meta:
         model = Course
