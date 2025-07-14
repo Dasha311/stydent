@@ -70,7 +70,7 @@
     .animate-fade-in { animation: fade-in 0.3s ease; }
   </style>
   <script>
-    // Вынесем STATIC_URL, чтобы не вставлять {% static %} в JS
+
     const STATIC_URL = "{% static '' %}";
     const USER_ID = {{ request.user.id|default:"0" }};
   </script>
