@@ -484,7 +484,7 @@
     async function enrollCourse(courseId) {
       errorMessage.textContent = '';
       try {
-        const response = await fetch('/api/courses/enroll/', {
+        const response = await fetch('/api/enroll/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
