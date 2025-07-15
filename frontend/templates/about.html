@@ -1,156 +1,383 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>О нас — EduPath</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
   <style>
     :root {
       --color-primary: #6C4DFF;
+      --color-primary-light: #8A6EFF;
       --color-bg: #F9F9FB;
       --color-bg-secondary: #EDEDED;
       --color-text: #1C1C1E;
       --color-text-secondary: rgba(60, 60, 67, 0.6);
       --color-border: #D1D1D6;
     }
-
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      contain: content;
-    }
-
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
       font-family: 'Inter', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
+    .text-secondary { color: var(--color-text-secondary); }
 
-    .wave-background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      background: #d0dff3;
-      overflow: hidden;
+    /* Анимации */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-
-    .air {
-      position: absolute;
-      width: 100%;
-      height: 100px;
-      background: url('https://1.bp.blogspot.com/-xQUc-TovqDk/XdxogmMqIRI/AAAAAAAACvI/AizpnE509UMGBcTiLJ58BC6iViPYGYQfQCLcBGAsYHQ/s1600/wave.png');
-      background-size: 1000px 100px;
-      background-repeat: repeat-x;
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s ease-out forwards;
     }
-
-    .air1 { bottom: 0; animation: wave 30s linear infinite; opacity: 1; }
-    .air2 { bottom: 10px; animation: wave2 15s linear infinite; opacity: 0.5; }
-    .air3 { bottom: 15px; animation: wave 30s linear infinite; opacity: 0.2; }
-    .air4 { bottom: 20px; animation: wave2 5s linear infinite; opacity: 0.7; }
-
-    @keyframes wave {
-      0% { background-position-x: 0; }
-      100% { background-position-x: 1000px; }
+    
+    .hover-grow {
+      transition: transform 0.3s ease;
     }
-
-    @keyframes wave2 {
-      0% { background-position-x: 0; }
-      100% { background-position-x: -1000px; }
+    .hover-grow:hover {
+      transform: scale(1.03);
     }
-
-    css-doodle {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
+    
+    .gradient-text {
+      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
-
-    main, footer {
+    
+    .card-hover {
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    .card-hover:hover {
+      box-shadow: 0 10px 25px rgba(108, 77, 255, 0.15);
+      transform: translateY(-5px);
+    }
+    
+    .highlight {
       position: relative;
-      z-index: 10;
+      z-index: 1;
+    }
+    .highlight:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 30%;
+      background-color: rgba(108, 77, 255, 0.2);
+      z-index: -1;
+      transition: height 0.3s ease;
+    }
+    .highlight:hover:after {
+      height: 40%;
+    }
+
+    /* Мобильное меню */
+    #mobile-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+    }
+    #mobile-menu.open { max-height: 1000px; }
+
+    #mobile-menu-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 40;
+      transition: opacity 0.3s ease-in-out;
+    }
+    #mobile-menu-backdrop.show { display: block; opacity: 1; }
+
+    #mobile-menu a,
+    #mobile-menu button {
+      font-size: 1.125rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 1rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    #mobile-menu a:hover,
+    #mobile-menu button:hover {
+      color: var(--color-primary);
+    }
+
+    #mobile-btn svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--color-text);
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-violet-100 to-white text-gray-800">
+<body class="min-h-screen flex flex-col">
 
-  <!-- 🔵 Шапка -->
-  <header class="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <!-- Логотип -->
-      <div class="flex items-center gap-2">
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath" class="h-8" />
-        <span class="text-xl font-semibold text-violet-600">EduPath</span>
-      </div>
-
-      <!-- Навигация -->
-      <nav class="hidden md:flex gap-6 items-center text-sm font-medium text-gray-700">
-        <a href="{% url 'main_menu' %}" class="hover:text-violet-600">Главная</a>
-        <a href="{% url 'course_view' %}" class="hover:text-violet-600">Курсы</a>
-        <a href="{% url 'about' %}" class="hover:text-violet-600">О нас</a>
-        <a href="{% url 'contacts' %}" class="hover:text-violet-600">Контакты</a>
+  <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="{% url 'main_menu' %}" class="hover-grow">
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10" />
+      </a>
+      <nav class="hidden md:flex space-x-8 text-sm font-medium">
+        <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Главная</a>
+        <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Курсы</a>
+        <a href="{% url 'about' %}" class="text-[var(--color-primary)] font-semibold transition-colors duration-300">О нас</a>
+        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Контакты</a>
       </nav>
-
-      <!-- Кнопки -->
-      <div class="flex gap-4">
-        <a href="{% url 'login' %}" class="text-sm font-medium text-gray-600 hover:text-violet-600">Войти</a>
-        <a href="{% url 'register' %}" class="text-sm font-semibold bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700">
-          Регистрация
-        </a>
+      <div class="hidden md:flex items-center gap-4">
+        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline transition-colors duration-300">Войти</a>
+        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white rounded-xl font-semibold transition-all duration-300 py-2.5 px-5">Регистрация</a>
       </div>
+      <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
     </div>
+    <div id="mobile-menu-backdrop" tabindex="-1"></div>
+    <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-white border-t border-[var(--color-bg-secondary)] z-50 relative" aria-label="Мобильное меню">
+      <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Главная</a>
+      <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Курсы</a>
+      <a href="{% url 'about' %}" class="text-[var(--color-primary)] font-semibold transition-colors duration-300">О нас</a>
+      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Контакты</a>
+      <div class="flex flex-col gap-4 mt-4">
+        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline w-full text-center transition-colors duration-300">Войти</a>
+        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white w-full rounded-xl font-semibold transition-all duration-300 py-3 text-center">Регистрация</a>
+      </div>
+    </nav>
   </header>
 
-  <!-- 🌊 Волны -->
-  <div class="wave-background">
-    <div class="air air1"></div>
-    <div class="air air2"></div>
-    <div class="air air3"></div>
-    <div class="air air4"></div>
-  </div>
+  <main class="flex-grow">
+    <!-- Герой секция -->
+    <section class="relative overflow-hidden">
+      <div class="max-w-7xl mx-auto px-6 py-20 md:py-28">
+        <div class="text-center animate-fade-in-up" style="animation-delay: 0.1s;">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            <span class="gradient-text">EduPath</span> — ваш путь к знаниям
+          </h1>
+          <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Инновационная платформа для эффективного обучения и профессионального роста
+          </p>
+        </div>
+      </div>
+      <div class="absolute inset-0 -z-10 opacity-10">
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-100 to-indigo-100"></div>
+      </div>
+    </section>
 
-  <!-- 💨 Пузырьки -->
-  <css-doodle>
-    <style>
-      @grid: 60x1 / 100vmin;
-      background: @m(...);
-    </style>
-  </css-doodle>
+    <!-- О компании -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="bg-white rounded-2xl shadow-xl p-10 md:p-12 text-center max-w-5xl mx-auto card-hover animate-fade-in-up" style="animation-delay: 0.3s;">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 gradient-text">О нашей компании</h2>
+        <div class="space-y-6">
+          <p class="text-gray-700 text-lg md:text-xl leading-relaxed">
+            <span class="highlight">EduPath</span> — это современная образовательная платформа, созданная в 2025 году с целью сделать качественное образование доступным для каждого, независимо от местоположения и финансовых возможностей.
+          </p>
+          <p class="text-gray-700 text-lg md:text-xl leading-relaxed">
+            Мы объединяем лучших преподавателей и экспертов в своих областях, чтобы предложить вам актуальные знания и практические навыки, востребованные на современном рынке труда.
+          </p>
+        </div>
+      </div>
+    </section>
 
-  <!-- 📄 Контент -->
-  <main class="flex-grow flex items-center justify-center w-full pt-24">
-    <div class="max-w-3xl bg-white bg-opacity-90 rounded-xl shadow-lg p-10 mt-10 mb-10 text-center">
-      <h1 class="text-4xl font-bold mb-6 text-violet-700">О нас</h1>
-      <p class="text-gray-700 text-lg leading-relaxed">
-        EduPath — это современная образовательная платформа, созданная для того, чтобы сделать знания доступными каждому.
-        Мы предлагаем онлайн-курсы по программированию, дизайну, бизнесу и другим направлениям, разработанные экспертами.
-      </p>
-      <p class="mt-4 text-gray-700">
-        Наша цель — дать каждому возможность учиться в удобном темпе и в любом месте. Мы верим, что образование — это ключ к личному и профессиональному росту.
-      </p>
-    </div>
+    <!-- Наши преимущества -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="text-center mb-16 animate-fade-in-up" style="animation-delay: 0.4s;">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-text">Почему выбирают нас</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto text-lg">Мы создаем уникальную образовательную среду для вашего развития</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover animate-fade-in-up" style="animation-delay: 0.5s;">
+          <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Практические знания</h3>
+          <p class="text-gray-600">Наши курсы ориентированы на практику. Вы получаете навыки, которые можно сразу применить в работе.</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover animate-fade-in-up" style="animation-delay: 0.6s;">
+          <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Гибкий график</h3>
+          <p class="text-gray-600">Учитесь в удобное время и в комфортном темпе. Доступ к материалам курса — 24/7.</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover animate-fade-in-up" style="animation-delay: 0.7s;">
+          <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Поддержка экспертов</h3>
+          <p class="text-gray-600">Получайте обратную связь от преподавателей и общайтесь с сокурсниками в комьюнити.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Наша миссия -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] rounded-2xl p-10 md:p-12 text-white animate-fade-in-up" style="animation-delay: 0.8s;">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center">Наша миссия</h2>
+          <div class="space-y-6 text-lg leading-relaxed">
+            <p>
+              Мы верим, что образование должно быть доступным, увлекательным и эффективным. Наша цель — разрушить барьеры на пути к знаниям и помочь каждому раскрыть свой потенциал.
+            </p>
+            <p>
+              В современном мире непрерывное обучение — это необходимость. EduPath создает среду, где вы можете развивать навыки, которые действительно важны для вашей карьеры и личностного роста.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Команда -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="text-center mb-16 animate-fade-in-up" style="animation-delay: 0.9s;">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-text">Наша команда</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto text-lg">Профессионалы, которые делают EduPath лучше каждый день</p>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover animate-fade-in-up" style="animation-delay: 1.0s;">
+          <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
+            <img src="{% static 'Icons/Darya.jpg' %}"  class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold mb-1">Дарья Безрукова</h3>
+          <p class="text-indigo-600 mb-4">Капитан команды</p>
+          <p class="text-gray-600 text-sm">Создала EduPath с целью изменить подход к онлайн-образованию</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover animate-fade-in-up" style="animation-delay: 1.1s;">
+          <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
+            <img src="{% static 'Icons/Olzas.jpg' %}"  class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold mb-1">Олжас Абдыхаев</h3>
+          <p class="text-indigo-600 mb-4">Бекенд</p>
+          <p class="text-gray-600 text-sm">Отвечает за технологическую составляющую платформы</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover animate-fade-in-up" style="animation-delay: 1.3s;">
+          <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
+            <img src="{% static 'Icons/Daniar.jpg' %}"  class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold mb-1">Данияр Чабдарбаев</h3>
+          <p class="text-indigo-600 mb-4">Дизайнер</p>
+          <p class="text-gray-600 text-sm">Разрабатывает эффективные учебные программы и оптимальный дизайн</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Призыв к действию -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="bg-white rounded-2xl shadow-xl p-10 md:p-12 text-center max-w-4xl mx-auto animate-fade-in-up" style="animation-delay: 1.4s;">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6 gradient-text">Готовы начать обучение?</h2>
+        <p class="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
+          Присоединяйтесь к тысячам студентов, которые уже выбрали EduPath для своего профессионального развития
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="{% url 'course_view' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-semibold rounded-xl px-8 py-3.5 transition-colors duration-300 shadow-lg hover:shadow-indigo-200">
+            Выбрать курс
+          </a>
+          <a href="{% url 'register' %}" class="border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-indigo-50 font-semibold rounded-xl px-8 py-3.5 transition-colors duration-300">
+            Зарегистрироваться
+          </a>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- ⚫ Футер -->
-  <footer class="bg-violet-700 text-white text-center py-4 w-full">
-    <p class="text-sm">© 2025 EduPath. Все права защищены.</p>
-    <div class="text-sm mt-1">
-      <a href="{% url 'about' %}" class="mx-2 hover:underline">О нас</a>
-      <a href="{% url 'contacts' %}" class="mx-2 hover:underline">Контакты</a>
-      <a href="{% url 'terms' %}" class="mx-2 hover:underline">Условия</a>
+  <footer class="bg-white border-t border-[var(--color-bg-secondary)] mt-auto py-12 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="animate-fade-in-up" style="animation-delay: 1.5s;">
+        <a href="{% url 'main_menu' %}" class="hover-grow inline-block">
+          <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
+        </a>
+        <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :)</p>
+        <div class="flex space-x-4 mt-4">
+        </div>
+      </div>
+      <div class="animate-fade-in-up" style="animation-delay: 1.6s;">
+        <h3 class="font-semibold text-lg mb-4">Компания</h3>
+        <ul class="space-y-3 text-sm text-secondary">
+          <li><a href="https://almau.edu.kz/" class="hover:text-[var(--color-primary)] transition-colors duration-300" target="_blank">AlmaU</a></li>
+        </ul>
+      </div>
+      <div class="animate-fade-in-up" style="animation-delay: 1.7s;">
+        <h3 class="font-semibold text-lg mb-4">Контакты</h3>
+        <ul class="space-y-3 text-sm text-secondary">
+          <li><a href="mailto:dbezrukova482@gmail.com" class="hover:text-[var(--color-primary)] transition-colors duration-300">dbezrukova482@gmail.com</a></li>
+          <li><a href="https://wa.me/77087449838" target="_blank" class="hover:text-[var(--color-primary)] transition-colors duration-300">+7 (708) 744-98-38</a></li>
+          <li><a href="https://maps.app.goo.gl/kgowmT1Ww36YGruu8" target="_blank" class="hover:text-[var(--color-primary)] transition-colors duration-300">г. Алматы, ул. Розыбакиева 227</a></li>
+        </ul>
+      </div>
+      <div class="animate-fade-in-up" style="animation-delay: 1.8s;">
+        <h3 class="font-semibold text-lg mb-4">Подписаться на новости</h3>
+        <p class="text-secondary text-sm mb-4">Будьте в курсе новых курсов</p>
+        <form class="flex">
+          <input type="email" placeholder="Ваш email" class="px-4 py-2.5 rounded-l-lg border border-r-0 border-gray-300 focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] text-sm w-full">
+          <button type="submit" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2.5 rounded-r-lg text-sm transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto pt-8 mt-8 border-t border-gray-200 text-center text-secondary text-sm animate-fade-in-up" style="animation-delay: 1.9s;">
+      <p>© 2025 EduPath. Все права защищены.</p>
     </div>
   </footer>
 
+  <script>
+    const btn = document.getElementById('mobile-btn');
+    const menu = document.getElementById('mobile-menu');
+    const backdrop = document.getElementById('mobile-menu-backdrop');
+
+    function toggleMenu() {
+      const isOpen = menu.classList.toggle('open');
+      backdrop.classList.toggle('show', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    }
+
+    btn.addEventListener('click', toggleMenu);
+    backdrop.addEventListener('click', toggleMenu);
+
+    // Анимация при скролле
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('.animate-fade-in-up');
+      
+      elements.forEach(element => {
+        const elementPosition = element.getBoundingClientRect().top;
+        const screenPosition = window.innerHeight / 1.2;
+        
+        if (elementPosition < screenPosition) {
+          element.style.opacity = '1';
+        }
+      });
+    };
+
+    // Запускаем при загрузке и при скролле
+    window.addEventListener('load', animateOnScroll);
+    window.addEventListener('scroll', animateOnScroll);
+  </script>
 </body>
 </html>

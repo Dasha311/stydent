@@ -1,39 +1,642 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <title>Контакты — EduPath</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>EduPath — Чат с ИИ</title>
   <script src="https://cdn.tailwindcss.com"></script>
-    <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
     :root {
-      --color-primary: #6C4DFF;
-      --color-bg: #F9F9FB;
-      --color-bg-secondary: #EDEDED;
-      --color-text: #1C1C1E;
-      --color-text-secondary: rgba(60, 60, 67, 0.6);
-      --color-border: #D1D1D6;
+      --color-primary: #007AFF; /* Apple blue */
+      --color-bg: #F5F5F7; /* Light gray background */
+      --color-bg-secondary: #FFFFFF; /* White for cards */
+      --color-text: #1D1D1F; /* Dark text */
+      --color-text-secondary: #6E6E73; /* Secondary text */
+      --color-border: #D2D2D7; /* Subtle border */
+      --color-shadow: rgba(0, 0, 0, 0.08); /* Soft shadow */
     }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .text-secondary { color: var(--color-text-secondary); }
+    button, a, input {
+      transition: all 0.3s ease;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+      box-shadow: 0 4px 30px var(--color-shadow);
+    }
+    button:hover, a:hover {
+      transform: translateY(-1px);
+    }
+    .message {
+      max-width: 75%;
+      padding: 0.75rem 1.25rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .animate-fade-in {
+      animation: fade-in 0.3s ease forwards;
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .user-message {
+      align-self: flex-end;
+      background: var(--color-primary);
+      color: #fff;
+      border-bottom-right-radius: 0.25rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .bot-message {
+      align-self: flex-start;
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      border-bottom-left-radius: 0.25rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .message-image {
+      max-width: 50%;
+      padding: 0.25rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+    }
+    .message-image img {
+      width: 100%;
+      border-radius: 0.5rem;
+    }
+    .media-preview-item {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .media-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .media-preview-item button {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .media-preview-item button:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+    @keyframes slide-in {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-slide-in { animation: slide-in 0.3s ease; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gradient-to-br from-violet-100 to-white text-gray-800">
-  {% include 'partials/header.html' %}
-  
-  <main class="flex-grow max-w-3xl mx-auto py-12 px-6 bg-white rounded-xl shadow-lg mt-10 mb-6">
-    <h1 class="text-4xl font-bold mb-6 text-center text-violet-700">Свяжитесь с нами</h1>
+<body class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <img src="https://via.placeholder.com/120x40?text=Logo" alt="EduPath Logo" class="h-9 md:h-10" />
+      <nav class="hidden md:flex space-x-8 text-sm font-medium">
+        <a href="/" class="hover:text-[var(--color-primary)]">Главная</a>
+        <a href="/courses" class="hover:text-[var(--color-primary)]">Курсы</a>
+        <a href="/about" class="hover:text-[var(--color-primary)]">О нас</a>
+        <a href="/contacts" class="hover:text-[var(--color-primary)]">Контакты</a>
+      </nav>
+      <div class="hidden md:flex items-center gap-4">
+        <a href="/login" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+        <a href="/register" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
+      </div>
+      <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-menu-backdrop" class="hidden fixed inset-0 bg-black bg-opacity-30 z-40"></div>
+    <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-white border-t border-[var(--color-bg-secondary)] z-50 relative hidden" aria-label="Мобильное меню">
+      <a href="/" class="hover:text-[var(--color-primary)]">Главная</a>
+      <a href="/courses" class="hover:text-[var(--color-primary)]">Курсы</a>
+      <a href="/about" class="hover:text-[var(--color-primary)]">О нас</a>
+      <a href="/contacts" class="hover:text-[var(--color-primary)]">Контакты</a>
+      <div class="flex flex-col gap-4 mt-4">
+        <a href="/login" class="text-[var(--color-primary)] hover:underline w-full text-center">Войти</a>
+        <a href="/register" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white w-full rounded-xl font-semibold transition py-3 text-center">Регистрация</a>
+      </div>
+    </nav>
+  </header>
 
-    <p class="mb-4 text-gray-700">Если у вас есть вопросы, предложения или проблемы — пожалуйста, напишите нам:</p>
-
-    <ul class="space-y-3 text-gray-700">
-      <li><strong>📧 Email:</strong> <a href="mailto:support@edupath.kz" class="text-blue-600 hover:underline">support@edupath.kz</a></li>
-      <li><strong>📞 Телефон:</strong> +7 (777) 123-45-67</li>
-      <li><strong>📍 Адрес:</strong> г. Алматы, ул. Знаний, 1</li>
-    </ul>
-
-    <p class="text-sm text-gray-500 mt-8">Мы обычно отвечаем в течение 1–2 рабочих дней.</p>
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-6 py-12 flex-1">
+    <h1 class="text-3xl font-semibold tracking-tight mb-8">Чат с ИИ-ассистентом</h1>
+    <div class="card flex flex-col" style="min-height: calc(100vh - 12rem);">
+      <div id="chat-container" class="flex-1 p-4 overflow-y-auto space-y-3 bg-[var(--color-bg)] flex flex-col">
+        <!-- Messages will be loaded here -->
+      </div>
+      <div class="p-4 border-t border-[var(--color-border)]">
+        <div id="media-preview" class="hidden flex gap-2 mb-4 flex-wrap"></div>
+        <form id="chat-form" class="flex gap-2" style="flex-wrap: wrap;">
+          <input type="text" id="chat-input" placeholder="Напишите сообщение..." class="flex-grow min-w-[150px] border border-[var(--color-border)] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]" />
+          <label for="chat-file" class="cursor-pointer text-[var(--color-primary)] hover:underline flex items-center px-3 shrink-0" title="Прикрепить изображение">
+            <i class="fas fa-paperclip"></i>
+          </label>
+          <input type="file" id="chat-file" accept="image/*" style="display:none" multiple />
+          <button id="cancel-media" type="button" class="bg-red-500 text-white rounded-xl font-semibold px-4 py-2 shrink-0 min-w-[80px] hover:bg-red-600 shadow-sm hidden">Отмена</button>
+          <button type="submit" class="bg-[var(--color-primary)] text-white rounded-xl font-semibold px-4 py-2 shrink-0 min-w-[80px] hover:bg-[#0051CC] shadow-sm">Отправить</button>
+        </form>
+      </div>
+    </div>
   </main>
 
-  {% include 'partials/footer.html' %}
+  <!-- Footer -->
+  <footer class="bg-white border-t border-[var(--color-bg-secondary)] mt-auto py-10 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div>
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
+        <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :) </p>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-3">Компании</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="https://almau.edu.kz/" class="hover:text-[var(--color-primary)]">AlmaU</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-3">Контакты</h3>
+        <ul class="space-y-2 text-sm text-secondary">
+          <li><a href="mailto:dbezrukova482@gmail.com">Написать на почту</a></li>
+          <li><a href="https://wa.me/77087449838" target="_blank">Написать в WhatsApp</a></li>
+          <li><a href="https://maps.app.goo.gl/kgowmT1Ww36YGruu8" class="hover:text-[var(--color-primary)]">г. Алматы, ул. Розыбакиева 227</a></li>
+        </ul>
+      </div>
+      <div class="animate-fade-in-up" style="animation-delay: 1.8s;">
+        <h3 class="font-semibold text-lg mb-4">Подписаться на новости</h3>
+        <p class="text-secondary text-sm mb-4">Будьте в курсе новых курсов</p>
+        <form class="flex">
+          <input type="email" placeholder="Ваш email" class="px-4 py-2.5 rounded-l-lg border border-r-0 border-gray-300 focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] text-sm w-full">
+          <button type="submit" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2.5 rounded-r-lg text-sm transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </footer>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mobile Menu
+      const mobileBtn = document.getElementById('mobile-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+
+      mobileBtn.addEventListener('click', () => {
+        const expanded = mobileBtn.getAttribute('aria-expanded') === 'true';
+        mobileBtn.setAttribute('aria-expanded', !expanded);
+        mobileMenu.classList.toggle('hidden');
+        mobileMenuBackdrop.classList.toggle('hidden');
+        mobileMenu.classList.toggle('animate-slide-in');
+      });
+
+      mobileMenuBackdrop.addEventListener('click', () => {
+        mobileBtn.setAttribute('aria-expanded', 'false');
+        mobileMenu.classList.add('hidden');
+        mobileMenuBackdrop.classList.add('hidden');
+      });
+
+      // Chat Functionality
+      const chatForm = document.getElementById('chat-form');
+      const chatInput = document.getElementById('chat-input');
+      const chatContainer = document.getElementById('chat-container');
+      const chatFileInput = document.getElementById('chat-file');
+      const mediaPreview = document.getElementById('media-preview');
+      const cancelMediaButton = document.getElementById('cancel-media');
+
+      const stopWords = ['и', 'в', 'на', 'по', 'ли', 'это', 'а', 'к', 'у', 'за', 'то', 'же', 'от', 'с', 'без'];
+      const faq = [
+        {
+          keywords: ['курс', 'курсы', 'обучение', 'обучающий', 'тренинг', 'программа', 'учебный', 'программа обучения', 'лекция'],
+          answer: 'Курс — это серия видеоуроков, практических заданий и поддержки наставника по конкретной теме.'
+        },
+        {
+          keywords: ['как', 'записаться', 'начать', 'присоединиться', 'стартовать', 'подключиться', 'регистрация', 'зарегистрироваться', 'запись'],
+          answer: 'На странице курса нажмите кнопку «Записаться» — и он появится у вас в профиле.'
+        },
+        {
+          keywords: ['бесплатно', 'оплата', 'цена', 'стоимость', 'платно', 'безоплатно', 'стоить', 'дорого', 'дешево', 'расценки'],
+          answer: 'Большинство наших курсов доступны бесплатно. Если курс платный, цена указана на его странице.'
+        },
+        {
+          keywords: ['что', 'входит', 'содержит', 'структура', 'состав', 'контент', 'наполнение', 'из чего состоит'],
+          answer: 'Обычно в курс входят видеоуроки, тесты, практические задания и обратная связь преподавателя.'
+        },
+        {
+          keywords: ['сколько', 'длится', 'длительность', 'идет', 'времени', 'занимает', 'продолжительность', 'сколько часов'],
+          answer: 'Длительность зависит от темы: как правило, от 2 до 6 недель при комфортном темпе.'
+        },
+        {
+          keywords: ['сертификат', 'выдается', 'получу', 'получить', 'документ', 'удостоверение', 'диплом', 'бумага'],
+          answer: 'После полного прохождения курса и всех заданий вы сможете скачать именной сертификат.'
+        },
+        {
+          keywords: ['сложно', 'уровень', 'подойдет', 'новичку', 'тяжело', 'опыт', 'начинающий', 'сложность', 'просто'],
+          answer: 'В описании каждого курса указан рекомендуемый уровень. Множество курсов рассчитаны на абсолютных новичков.'
+        },
+        {
+          keywords: ['повторно', 'ещё', 'раз', 'заново', 'перепройти', 'повторить', 'снова', 'ещё раз'],
+          answer: 'Вы можете вернуться и пройти курс заново в любое время — доступ остаётся навсегда.'
+        },
+        {
+          keywords: ['профиль', 'аккаунт', 'настройки', 'где', 'посмотреть', 'редактировать', 'учётная запись', 'данные', 'изменить'],
+          answer: 'Ваш профиль находится в верхнем меню. Там же можно изменить данные, фото и увидеть прогресс.'
+        },
+        {
+          keywords: ['чат', 'написать', 'вопрос', 'наставник', 'преподаватель', 'связаться', 'поддержка', 'консультант'],
+          answer: 'Вы уже в чате с ИИ-ассистентом! Задайте свой вопрос, и я помогу.'
+        },
+        {
+          keywords: ['ошибка', 'баг', 'не', 'работает', 'сбой', 'проблема', 'глючит', 'выдает', 'не могу', 'не получается', 'не грузится'],
+          answer: 'Опишите, пожалуйста, проблему подробнее — я передам её в техподдержку.'
+        },
+        {
+          keywords: ['ты', 'человек', 'бот', 'ассистент', 'искусственный интеллект', 'робот'],
+          answer: 'Я ИИ-ассистент платформы, создан xAI. Задавайте вопросы, я помогу!'
+        },
+        {
+          keywords: ['позвать', 'ассистента', 'оператор', 'саппорт', 'живой человек', 'живой оператор'],
+          answer: 'Зову живого ассистента, минуту...'
+        },
+        {
+          keywords: ['удалить', 'удаление', 'деактивировать', 'закрыть', 'убрать', 'стереть', 'аннулировать'],
+          answer: 'Чтобы удалить аккаунт, напишите «Позвать ассистента» — вам поможет оператор.'
+        },
+        {
+          keywords: ['логин', 'войти', 'вход', 'залогиниться', 'авторизация', 'пароль', 'проблема входа'],
+          answer: 'Если возникли сложности со входом, попробуйте восстановить пароль через форму «Забыли пароль?».'
+        },
+        {
+          keywords: ['приложение', 'мобильный', 'телефон', 'android', 'ios', 'айфон', 'смартфон'],
+          answer: 'Вы можете пользоваться платформой и через мобильный браузер, а приложение в разработке.'
+        },
+        {
+          keywords: ['видео', 'не проигрывается', 'тормозит', 'не грузится', 'черный экран', 'звук', 'качество', 'звук не работает'],
+          answer: 'Если видео тормозит или не работает звук, попробуйте обновить страницу или сменить браузер. Если проблема сохраняется — напишите в поддержку.'
+        },
+        {
+          keywords: ['тест', 'задание', 'вопросы', 'контроль', 'проверка знаний', 'практика'],
+          answer: 'В курсах есть тесты и задания для закрепления знаний. Они помогают проверить и углубить понимание материала.'
+        },
+        {
+          keywords: ['подписка', 'рассылка', 'уведомления', 'email', 'почта'],
+          answer: 'Вы можете управлять подписками и уведомлениями в настройках профиля.'
+        },
+        {
+          keywords: ['скидка', 'акция', 'распродажа', 'купон', 'промокод', 'дешевле', 'выгодно', 'предложение', 'спецпредложение'],
+          answer: 'Иногда мы проводим акции и делаем скидки на курсы. Следите за новостями на сайте или подпишитесь на рассылку!'
+        },
+        {
+          keywords: ['срок', 'доступ', 'до какого времени', 'навсегда', 'ограничение', 'лимит', 'сколько доступен'],
+          answer: 'Доступ к курсу остаётся за вами навсегда, если иное не указано на странице курса.'
+        },
+        {
+          keywords: ['преподаватель', 'лектор', 'автор', 'кто ведёт', 'создатель', 'тренер', 'наставник', 'учитель'],
+          answer: 'У каждого курса указан автор или преподаватель. Вы можете посмотреть информацию о нём на странице курса.'
+        },
+        {
+          keywords: ['отзыв', 'отзывы', 'мнения', 'рейтинг', 'оценки', 'впечатления', 'стоит ли'],
+          answer: 'На странице курса часто есть отзывы и рейтинг от других студентов. Почитайте их, чтобы понять, подходит ли курс вам.'
+        },
+        {
+          keywords: ['язык', 'на каком языке', 'русский', 'английский', 'переведён', 'локализация'],
+          answer: 'Большинство курсов доступны на русском языке. Если курс на другом языке — это указано на его странице.'
+        },
+        {
+          keywords: ['демо', 'пробный', 'попробовать', 'пример', 'образец', 'тестовый доступ', 'первый урок'],
+          answer: 'Некоторые курсы предоставляют бесплатный доступ к первому уроку или демо-материалам. Смотрите на странице курса.'
+        },
+        {
+          keywords: ['дети', 'подросток', 'школьник', 'возраст', 'с какого возраста', 'можно ли ребёнку'],
+          answer: 'Многие курсы подходят подросткам или школьникам. Для уточнения возраста лучше посмотреть описание конкретного курса.'
+        },
+        {
+          keywords: ['формат', 'текст', 'видео', 'аудио', 'pdf', 'материалы', 'как подаётся', 'вид урока'],
+          answer: 'В большинстве курсов используются видеоуроки, тесты, текстовые материалы и задания для практики.'
+        },
+        {
+          keywords: ['совмещать', 'работа', 'учёба', 'времени мало', 'если работаю', 'загруженность', 'график'],
+          answer: 'Большинство курсов можно проходить в удобном темпе и совмещать с работой или учёбой.'
+        },
+        {
+          keywords: ['интерактив', 'практика', 'задания', 'тесты', 'упражнения', 'участие'],
+          answer: 'Курсы часто включают практические задания, тесты и интерактивные элементы, чтобы закрепить материал.'
+        },
+        {
+          keywords: ['форум', 'сообщество', 'группа', 'чат', 'общение', 'другие студенты'],
+          answer: 'Некоторые курсы имеют чаты или сообщества, где студенты могут общаться и обмениваться опытом.'
+        },
+        {
+          keywords: ['браузер', 'компьютер', 'телефон', 'система', 'требования', 'минимальные требования', 'интернет'],
+          answer: 'Для большинства курсов достаточно современного браузера и стабильного интернета. Специальных требований обычно нет.'
+        },
+        {
+          keywords: ['вычет', 'налоговый', 'документы', 'чек', 'оплата', 'бухгалтерия'],
+          answer: 'Если вам нужны документы для налогового вычета или бухгалтерии, напишите в поддержку — мы подготовим всё необходимое.'
+        },
+        {
+          keywords: ['рассрочка', 'части', 'частями', 'оплата по месяцам'],
+          answer: 'Некоторые платные курсы можно оплачивать в рассрочку. Информация указана на странице курса или уточните в чате.'
+        },
+        {
+          keywords: ['безопасность', 'персональные данные', 'конфиденциальность', 'защита', 'приватность'],
+          answer: 'Мы бережно относимся к вашим данным. Они защищены и используются только в рамках платформы.'
+        }
+      ];
+
+      const defaultReply = 'Не уверена, что поняла запрос. Попробуйте переформулировать или напишите «Позвать ассистента» для связи с поддержкой.';
+
+      function findAnswer(message) {
+        const words = message
+          .toLowerCase()
+          .split(/[^a-zа-яё0-9ё]+/i)
+          .filter(w => w && !stopWords.includes(w));
+        let best = { answer: defaultReply, score: 0 };
+        
+        faq.forEach(item => {
+          const score = item.keywords.reduce(
+            (sum, kw) => words.includes(kw) ? sum + 1 : sum,
+            0
+          );
+          if (score > best.score) best = { answer: item.answer, score };
+        });
+        return best.answer;
+      }
+
+      let pendingMedia = [];
+
+      function clearMediaPreview() {
+        pendingMedia = [];
+        mediaPreview.innerHTML = '';
+        mediaPreview.classList.add('hidden');
+        cancelMediaButton.classList.add('hidden');
+      }
+
+      function updateMediaPreview() {
+        mediaPreview.innerHTML = '';
+        pendingMedia.forEach((media, index) => {
+          const div = document.createElement('div');
+          div.className = 'media-preview-item';
+          div.innerHTML = `
+            <img src="${media}" alt="Preview">
+            <button data-index="${index}" type="button"><i class="fas fa-times"></i></button>
+          `;
+          mediaPreview.appendChild(div);
+          div.querySelector('button').addEventListener('click', () => {
+            pendingMedia.splice(index, 1);
+            updateMediaPreview();
+          });
+        });
+        mediaPreview.classList.toggle('hidden', pendingMedia.length === 0);
+        cancelMediaButton.classList.toggle('hidden', pendingMedia.length === 0);
+      }
+
+      function handleFileInput(e) {
+        const files = e.target.files;
+        if (files.length) {
+          Array.from(files).forEach(file => {
+            if (!file.type.startsWith('image/')) {
+              alert('Пожалуйста, выберите изображение');
+              return;
+            }
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              pendingMedia.push(event.target.result);
+              updateMediaPreview();
+            };
+            reader.readAsDataURL(file);
+          });
+          e.target.value = '';
+        }
+      }
+
+      // Generate unique session ID for each user
+      function getSessionId() {
+        let sessionId = localStorage.getItem('chatSessionId');
+        if (!sessionId) {
+          sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem('chatSessionId', sessionId);
+        }
+        return sessionId;
+      }
+
+      // Save chat history to localStorage
+      function saveChatHistory(messages) {
+        const sessionId = getSessionId();
+        localStorage.setItem(`chatHistory_${sessionId}`, JSON.stringify(messages));
+      }
+
+      // Load chat history from localStorage
+      function loadChatHistory() {
+        const sessionId = getSessionId();
+        const history = localStorage.getItem(`chatHistory_${sessionId}`);
+        
+        // Clear welcome message if there's history
+        chatContainer.innerHTML = '';
+        
+        if (history) {
+          const messages = JSON.parse(history);
+          messages.forEach(msg => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${msg.type}-message animate-fade-in`;
+            if (msg.type === 'bot') {
+              messageDiv.textContent = msg.content;
+            } else if (msg.type === 'user') {
+              if (msg.isMedia) {
+                messageDiv.className = 'message message-image user-message animate-fade-in';
+                messageDiv.innerHTML = `<img src="${msg.content}" alt="Sent image">`;
+              } else {
+                messageDiv.textContent = msg.content;
+              }
+            }
+            chatContainer.appendChild(messageDiv);
+          });
+        } else {
+          // Show welcome message for new users
+          const welcomeMsg = document.createElement('div');
+          welcomeMsg.className = 'message bot-message animate-fade-in';
+          welcomeMsg.textContent = 'Привет! Я ИИ-ассистент LearnPath. Могу ответить на вопросы о курсах, обучении и платформе. Чем могу помочь?';
+          chatContainer.appendChild(welcomeMsg);
+        }
+        
+        // Scroll to bottom
+        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+      }
+
+      function handleChatSubmit(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const message = chatInput.value.trim();
+        const hasMedia = pendingMedia.length > 0;
+
+        if (!message && !hasMedia) return;
+
+        // Add user message
+        if (message) {
+          const userMsg = document.createElement('div');
+          userMsg.className = 'message user-message animate-fade-in';
+          userMsg.textContent = message;
+          chatContainer.appendChild(userMsg);
+          
+          // Save to history
+          const messages = Array.from(chatContainer.children).map(el => {
+            if (el.classList.contains('user-message')) {
+              return {
+                type: 'user',
+                content: el.textContent,
+                isMedia: false
+              };
+            } else if (el.classList.contains('bot-message')) {
+              return {
+                type: 'bot',
+                content: el.textContent
+              };
+            } else if (el.classList.contains('message-image')) {
+              return {
+                type: 'user',
+                content: el.querySelector('img').src,
+                isMedia: true
+              };
+            }
+          }).filter(Boolean);
+          
+          saveChatHistory(messages);
+        }
+
+        // Add media if any
+        if (hasMedia) {
+          pendingMedia.forEach(media => {
+            const mediaMsg = document.createElement('div');
+            mediaMsg.className = 'message message-image user-message animate-fade-in';
+            mediaMsg.innerHTML = `<img src="${media}" alt="Sent image">`;
+            chatContainer.appendChild(mediaMsg);
+            
+            // Save to history
+            const messages = Array.from(chatContainer.children).map(el => {
+              if (el.classList.contains('user-message')) {
+                return {
+                  type: 'user',
+                  content: el.textContent,
+                  isMedia: false
+                };
+              } else if (el.classList.contains('bot-message')) {
+                return {
+                  type: 'bot',
+                  content: el.textContent
+                };
+              } else if (el.classList.contains('message-image')) {
+                return {
+                  type: 'user',
+                  content: el.querySelector('img').src,
+                  isMedia: true
+                };
+              }
+            }).filter(Boolean);
+            
+            saveChatHistory(messages);
+          });
+        }
+
+        // Force DOM update and scroll to bottom
+        requestAnimationFrame(() => {
+          chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        });
+
+        // Clear input and media
+        chatInput.value = '';
+        clearMediaPreview();
+
+        // Add bot response after delay
+        setTimeout(() => {
+          const botMsg = document.createElement('div');
+          botMsg.className = 'message bot-message animate-fade-in';
+          botMsg.textContent = findAnswer(message);
+          chatContainer.appendChild(botMsg);
+          
+          // Save to history
+          const messages = Array.from(chatContainer.children).map(el => {
+            if (el.classList.contains('user-message')) {
+              return {
+                type: 'user',
+                content: el.textContent,
+                isMedia: false
+              };
+            } else if (el.classList.contains('bot-message')) {
+              return {
+                type: 'bot',
+                content: el.textContent
+              };
+            } else if (el.classList.contains('message-image')) {
+              return {
+                type: 'user',
+                content: el.querySelector('img').src,
+                isMedia: true
+              };
+            }
+          }).filter(Boolean);
+          
+          saveChatHistory(messages);
+          
+          requestAnimationFrame(() => {
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+          });
+        }, 500);
+      }
+
+      // Event listeners
+      chatFileInput.addEventListener('change', handleFileInput);
+      cancelMediaButton.addEventListener('click', clearMediaPreview);
+      chatForm.addEventListener('submit', handleChatSubmit);
+
+      chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleChatSubmit(e);
+        }
+      });
+
+      // Load chat history when page loads
+      loadChatHistory();
+    });
+  </script>
 </body>
 </html>
