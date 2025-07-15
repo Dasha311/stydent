@@ -484,7 +484,8 @@
 
         <div class="grid">
           {% for course in courses %}
-          <div class="card">
+          {% with cat=course.categories.first %}
+          <div class="card" data-category="{{ cat.name if cat }}">
             {% if course.thumbnail %}
             <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="card-img">
             {% else %}
@@ -493,13 +494,13 @@
             <div class="card-content">
               <h3 class="card-title">{{ course.title }}</h3>
               <p class="card-text">{{ course.description|default:"Описание отсутствует"|truncatewords:20 }}</p>
-              <a href="{% url 'course_detail' course.id %}" class="btn-main">Подробнее</a>
+            <a href="{% url 'course_detail' course.id %}" class="btn-main">Подробнее</a>
             </div>
           </div>
+          {% endwith %}
           {% empty %}
           <p>Курсы не найдены.</p>
           {% endfor %}
-          </div>
         </div>
       </div>
     </section>
@@ -610,32 +611,23 @@
       });
       
       // Фильтрация курсов
-      const categorySelect = document.querySelectorAll('.filter-select')[0];
-      const levelSelect = document.querySelectorAll('.filter-select')[1];
+      const categorySelect = document.querySelector('.filter-select');
       const courseCards = document.querySelectorAll('.card');
-      
+
       function filterCourses() {
         const category = categorySelect.value;
-        const level = levelSelect.value;
-        
+
         courseCards.forEach(card => {
           const cardCategory = card.dataset.category || '';
-          const cardLevel = card.dataset.level || '';
-          
-          const categoryMatch = !category || cardCategory.includes(category);
-          const levelMatch = !level || cardLevel.includes(level);
-          
-          if (categoryMatch && levelMatch) {
-            card.style.display = 'block';
-          } else {
-            card.style.display = 'none';
-          }
+          const match = !category || cardCategory.includes(category);
+          card.style.display = match ? 'block' : 'none';
         });
       }
-      
-      categorySelect.addEventListener('change', filterCourses);
-      levelSelect.addEventListener('change', filterCourses);
+
+      if (categorySelect) {
+        categorySelect.addEventListener('change', filterCourses);
+      }
     });
-  </script>
+  </script>>
 </body>
 </html>

@@ -78,7 +78,9 @@ def course_view(request):
     courses = Course.objects.all()
     if category_id:
         courses = courses.filter(categories__id=category_id)
-    categories = Category.objects.all()
+    categories = (Category.objects.filter(courses__isnull=False)
+                                  .distinct()
+                                  .order_by('name'))
     context = {
         'courses': courses,
         'categories': categories,
