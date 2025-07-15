@@ -473,58 +473,32 @@
         <h1>Найдите свой идеальный курс</h1>
         <p class="subtitle">Выберите из множества курсов по различным категориям с честными отзывами и рейтингами.</p>
         
-        <div class="filters">
-          <select class="filter-select">
+        <form method="get" class="filters mb-6">
+          <select name="category" class="filter-select" onchange="this.form.submit()">
             <option value="">Все категории</option>
-            <option value="math">Математика</option>
-            <option value="english">Английский язык</option>
-            <option value="programming">Программирование</option>
-            <option value="physics">Физика</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
           </select>
-          
-          <select class="filter-select">
-            <option value="">Все уровни</option>
-            <option value="beginner">Начальный</option>
-            <option value="intermediate">Средний</option>
-            <option value="advanced">Продвинутый</option>
-          </select>
-        </div>
-        
+        </form>
+
         <div class="grid">
+          {% for course in courses %}
           <div class="card">
-            <img src="{% static 'images/math-course.jpg' %}" alt="Математика" class="card-img">
+            {% if course.thumbnail %}
+            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="card-img">
+            {% else %}
+            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="{{ course.title }}" class="card-img">
+            {% endif %}
             <div class="card-content">
-              <h3 class="card-title">Основы математики</h3>
-              <p class="card-text">Изучите алгебру и геометрию с нуля. Подходит для начинающих.</p>
-              <a href="{% url 'course_view' %}?course_id=1" class="btn-main">Подробнее</a>
+              <h3 class="card-title">{{ course.title }}</h3>
+              <p class="card-text">{{ course.description|default:"Описание отсутствует"|truncatewords:20 }}</p>
+              <a href="{% url 'course_detail' course.id %}" class="btn-main">Подробнее</a>
             </div>
           </div>
-          
-          <div class="card">
-            <img src="{% static 'images/english-course.jpg' %}" alt="Английский язык" class="card-img">
-            <div class="card-content">
-              <h3 class="card-title">Английский для начинающих</h3>
-              <p class="card-text">Освойте базовую грамматику и лексику для повседневного общения.</p>
-              <a href="{% url 'course_view' %}?course_id=2" class="btn-main">Подробнее</a>
-            </div>
-          </div>
-          
-          <div class="card">
-            <img src="{% static 'images/programming-course.jpg' %}" alt="Программирование" class="card-img">
-            <div class="card-content">
-              <h3 class="card-title">Программирование на Python</h3>
-              <p class="card-text">Научитесь писать код с нуля. Основы языка и практические задачи.</p>
-              <a href="{% url 'course_view' %}?course_id=3" class="btn-main">Подробнее</a>
-            </div>
-          </div>
-          
-          <div class="card">
-            <img src="{% static 'images/physics-course.jpg' %}" alt="Физика" class="card-img">
-            <div class="card-content">
-              <h3 class="card-title">Основы физики</h3>
-              <p class="card-text">Погрузитесь в мир механики и энергии. Наглядные примеры и опыты.</p>
-              <a href="{% url 'course_view' %}?course_id=4" class="btn-main">Подробнее</a>
-            </div>
+          {% empty %}
+          <p>Курсы не найдены.</p>
+          {% endfor %}
           </div>
         </div>
       </div>

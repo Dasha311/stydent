@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.utils import OperationalError
 from django.db.models import Avg, Q
 
-from courses.models import Course, Enrollment
+from courses.models import Course, Enrollment, Category
 
 User = get_user_model()
 
@@ -17,7 +17,8 @@ def main_menu(request):
             return redirect('teacher_dashboard')
         elif request.user.role == 'student':
             return redirect('student_dashboard')
-    return render(request, 'MainMenu.html')
+    courses = Course.objects.order_by('created_at')[:3]
+    return render(request, 'MainMenu.html', {'courses': courses})
 
 
 # Вход в систему
@@ -73,8 +74,17 @@ def register(request):
 
 # Страница курса
 def course_view(request):
-    return render(request, 'CourseView.html')  # исправлено название шаблона
-
+    category_id = request.GET.get('category')
+    courses = Course.objects.all()
+    if category_id:
+        courses = courses.filter(categories__id=category_id)
+    categories = Category.objects.all()
+    context = {
+        'courses': courses,
+        'categories': categories,
+        'selected_category': int(category_id) if category_id else None,
+    }
+    return render(request, 'CourseView.html', context)
 
 # Статические страницы футера
 def about_view(request):

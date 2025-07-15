@@ -117,49 +117,24 @@
   <section class="bg-white py-16">
     <div class="max-w-7xl mx-auto px-6">
       <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center">Курсы, которые вам понравятся</h2>
-      <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
-          <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="UI Design" class="w-full h-48 object-cover" />
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">UI Design & 3D</h3>
-            <p class="text-secondary text-sm mb-4">Создавайте современные интерфейсы с Figma и Blender.</p>
-            <a href="{% url 'video_detail' %}" class="text-[var(--brand-primary)] hover:underline text-sm font-medium">Подробнее</a>
-
-
-
-
-
-
-          </div>
-        </article>
-        <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
-          <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Python" class="w-full h-48 object-cover" />
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Python для начинающих</h3>
-            <p class="text-secondary text-sm mb-4">Изучите синтаксис, условия, циклы и основы ООП.</p>
-            <a href="{% url 'video_detail2' %}" class="text-[var(--brand-primary)] hover:underline text-sm font-medium">Подробнее</a>
-
-
-
-
-
-          </div>
-        </article>
-        <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
-          <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="JS" class="w-full h-48 object-cover" />
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Advanced JavaScript</h3>
-            <p class="text-secondary text-sm mb-4">Глубокое понимание JS: замыкания, async/await, React.</p>
-           <a href="{% url 'video_detail3' %}" class="text-[var(--brand-primary)] hover:underline text-sm font-medium">Подробнее</a>
-
-
-
-
-
-
-          </div>
-        </article>
-      </div>
+        <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {% for course in courses %}
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
+            {% if course.thumbnail %}
+            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-48 object-cover" />
+            {% else %}
+            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="{{ course.title }}" class="w-full h-48 object-cover" />
+            {% endif %}
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">{{ course.title }}</h3>
+              <p class="text-secondary text-sm mb-4">{{ course.description|default:"Описание отсутствует"|truncatewords:20 }}</p>
+              <a href="{% url 'course_detail' course.id %}" class="text-[var(--brand-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+          {% empty %}
+          <p>Курсы отсутствуют.</p>
+          {% endfor %}
+        </div>
     </div>
   </section>
 

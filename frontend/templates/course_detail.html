@@ -642,7 +642,27 @@
     // Initialization
     document.addEventListener('DOMContentLoaded', () => {
       loadCourseDetails();
+      if (!USER_ID) {
+        const overlay = document.getElementById('auth-overlay');
+        const showOverlay = (e) => {
+          if (overlay.classList.contains('hidden')) {
+            overlay.classList.remove('hidden');
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        };
+        document.addEventListener('click', showOverlay, true);
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) overlay.classList.add('hidden');
+        });
+      }
     });
   </script>
+  <div id="auth-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-xl text-center">
+      <p class="mb-4">Пожалуйста, зарегистрируйтесь, чтобы пройти курс</p>
+      <a href="{% url 'register' %}" class="btn">Регистрация</a>
+    </div>
+  </div>
 </body>
 </html>
