@@ -1,8 +1,35 @@
-<footer class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-6 px-6 text-sm text-center mt-auto">
-  <p class="font-medium">&copy; 2025 EduPath. Все права защищены.</p>
-  <div class="mt-2 space-x-4">
-    <a href="/about/" class="hover:underline">О нас</a>
-    <a href="/contacts/" class="hover:underline">Контакты</a>
-    <a href="/terms/" class="hover:underline">Условия</a>
+{% load static %}
+<footer class="bg-white border-t border-[var(--color-bg-secondary)] mt-auto py-10 px-6">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <div>
+      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
+      <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :) </p>
+    </div>
+    <div>
+      <h3 class="font-semibold mb-3">Компании</h3>
+      <ul class="space-y-2 text-sm text-secondary">
+        <li><a href="https://almau.edu.kz/" class="hover:text-[var(--color-primary)]">AlmaU</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="font-semibold mb-3">Контакты</h3>
+      <ul class="space-y-2 text-sm text-secondary">
+        <li><a href="mailto:dbezrukova482@gmail.com">Написать на почту</a></li>
+        <li><a href="https://wa.me/77087449838" target="_blank">Написать в WhatsApp</a></li>
+        <li><a href="https://maps.app.goo.gl/kgowmT1Ww36YGruu8" class="hover:text-[var(--color-primary)]">г. Алматы, ул. Розыбакиева 227</a></li>
+      </ul>
+    </div>
+    <div class="animate-fade-in-up" style="animation-delay: 1.8s;">
+      <h3 class="font-semibold text-lg mb-4">Подписаться на новости</h3>
+      <p class="text-secondary text-sm mb-4">Будьте в курсе новых курсов</p>
+      <form class="flex">
+        <input type="email" placeholder="Ваш email" class="px-4 py-2.5 rounded-l-lg border border-r-0 border-gray-300 focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] text-sm w-full">
+        <button type="submit" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2.5 rounded-r-lg text-sm transition-colors duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+      </form>
+    </div>
   </div>
 </footer>

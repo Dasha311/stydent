@@ -202,28 +202,7 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-white border-t border-[var(--color-bg-secondary)] mt-auto py-10 px-6">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-      <div>
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-10 mb-4" />
-        <p class="text-secondary text-sm max-w-xs">Прокачай свой мозг :) </p>
-      </div>
-      <div>
-        <h3 class="font-semibold mb-3">Компании</h3>
-        <ul class="space-y-2 text-sm text-secondary">
-          <li><a href="https://almau.edu.kz/" class="hover:text-[var(--color-primary)]">AlmaU</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="font-semibold mb-3">Контакты</h3>
-        <ul class="space-y-2 text-sm text-secondary">
-          <li><a href="mailto:dbezrukova482@gmail.com">Написать на почту</a></li>
-          <li>+<a href="https://wa.me/77087449838" target="_blank">Написать в WhatsApp</a></li>
-          <li><a href="https://maps.app.goo.gl/kgowmT1Ww36YGruu8" class="hover:text-[var(--color-primary)]">г. Алматы, ул. Розыбакиева 227</a></li>
-        </ul>
-      </div>
-    </div>
-  </footer>
+  {% include 'partials/footer.html' %}
 
   <script>
     // Mobile Menu

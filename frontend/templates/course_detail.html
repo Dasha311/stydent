@@ -171,41 +171,7 @@
     </form>
   </div>
 
-  <footer class="bg-white border-t border-[var(--border-color)] mt-auto py-8 px-4">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-      <div>
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-8 mb-3">
-        <p class="text-[var(--text-secondary)] text-sm max-w-xs">Платформа для изучения различных дисциплин.</p>
-      </div>
-      <div>
-        <h3 class="font-semibold mb-2 text-lg">Курсы</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Программирование</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Математика</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Языки</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Науки</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="font-semibold mb-2 text-lg">Компании</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Apple</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Google</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Meta</a></li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Amazon</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="font-semibold mb-2 text-lg">Контакты</h3>
-        <ul class="space-y-1 text-sm text-[var(--text-secondary)]">
-          <li><a href="mailto:support@edumentor.ru" class="hover:text-[var(--brand-primary)]">support@edumentor.ru</a></li>
-          <li><a href="tel:+74951234567" class="hover:text-[var(--brand-primary)]">+7 (495) 123-45-67</a></li>
-          <li>Москва, ул. Лермонтова, 15</li>
-          <li><a href="#" class="hover:text-[var(--brand-primary)]">Политика конфиденциальности</a></li>
-        </ul>
-      </div>
-    </div>
-  </footer>
+  {% include 'partials/footer.html' %}
 
   <script>
     function getCookie(name) {
