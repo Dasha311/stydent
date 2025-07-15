@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Курсы - EduPath</title>
   <style>
+    /* Основные стили */
     :root {
       --primary: #7c3aed;
       --secondary: #e0d4ff;
@@ -24,53 +25,52 @@
       padding: 0;
     }
 
-    html {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      font-size: 1rem;
-      scroll-behavior: smooth;
-    }
-
     body {
+      font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      background: var(--background);
-      color: var(--text-primary);
     }
 
     .container {
+      width: 100%;
+      max-width: 1200px;
       margin: 0 auto;
-      max-width: 72rem;
-      padding: 0 1rem;
+      padding: 0 20px;
     }
 
+    /* Шапка */
     header {
-      background: var(--surface);
-      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 100;
     }
 
     header .container {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 1rem;
+      align-items: center;
+      padding: 15px 20px;
     }
 
-    header img {
-      height: 2.5rem;
+    .logo {
+      height: 40px;
     }
 
+    /* Навигация */
     .desktop-nav {
       display: none;
+      gap: 25px;
     }
 
     .desktop-nav a {
-      margin: 0 1rem;
-      text-decoration: none;
       color: var(--text-primary);
+      text-decoration: none;
       font-weight: 500;
       transition: color var(--transition);
     }
@@ -79,24 +79,21 @@
       color: var(--primary);
     }
 
-    .auth-buttons {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      font-size: 0.875rem;
+    /* Кнопки */
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
       font-weight: 500;
-      transition: background var(--transition), color var(--transition);
+      text-decoration: none;
+      transition: all var(--transition);
+      cursor: pointer;
     }
 
     .btn-primary {
       background: var(--primary);
-      color: #fff;
+      color: white;
+      border: none;
     }
 
     .btn-primary:hover {
@@ -105,51 +102,68 @@
 
     .btn-secondary {
       background: transparent;
-      border: 1px solid var(--primary);
       color: var(--primary);
+      border: 1px solid var(--primary);
     }
 
     .btn-secondary:hover {
       background: var(--secondary);
     }
 
+    /* Мобильное меню */
     .mobile-menu-btn {
-      display: block;
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0.5rem;
+      padding: 5px;
+      display: flex;
     }
 
     .mobile-menu-btn svg {
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
     }
 
     .mobile-menu-btn .close-icon {
       display: none;
     }
 
-    .mobile-menu-btn[aria-expanded='true'] .open-icon {
+    .mobile-menu-btn[aria-expanded="true"] .open-icon {
       display: none;
     }
 
-    .mobile-menu-btn[aria-expanded='true'] .close-icon {
+    .mobile-menu-btn[aria-expanded="true"] .close-icon {
+      display: block;
+    }
+
+    .mobile-menu-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+      display: none;
+    }
+
+    .mobile-menu-backdrop.show {
       display: block;
     }
 
     .mobile-menu {
       position: fixed;
-      top: 4.5rem;
+      top: 70px;
       left: 0;
       right: 0;
-      background: var(--surface);
-      padding: 1rem;
+      background: white;
+      padding: 20px;
       display: none;
       flex-direction: column;
-      gap: 1rem;
-      box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-      z-index: 999;
+      gap: 15px;
+      z-index: 100;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
     .mobile-menu.show {
@@ -159,214 +173,128 @@
     .mobile-menu a {
       text-decoration: none;
       color: var(--text-primary);
-      font-size: 1rem;
       font-weight: 500;
+      padding: 10px 0;
     }
 
-    .mobile-menu a:hover {
-      color: var(--primary);
+    /* Основной контент */
+    .courses {
+      padding: 40px 0;
+      flex: 1;
     }
 
-    .mobile-menu-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      z-index: 998;
-    }
-
-    .mobile-menu-backdrop.show {
-      display: block;
-    }
-
-    section.courses {
-      padding: 3rem 0;
-      background: var(--background);
-    }
-
-    section.courses h1 {
+    .courses h1 {
       font-size: 2.5rem;
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 1rem;
       text-align: center;
+      margin-bottom: 20px;
     }
 
-    section.courses p {
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
+    .subtitle {
+      text-align: center;
       color: var(--text-subtle);
-      text-align: center;
+      margin-bottom: 30px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
+    /* Фильтры */
     .filters {
       display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
       flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
       justify-content: center;
-      background: #f0f0ff;
-      padding: 1rem;
-      border-radius: 0.75rem;
+      background: var(--secondary);
+      padding: 15px;
+      border-radius: 12px;
     }
 
     .filter-select {
-      padding: 0.75rem 1.25rem;
+      padding: 12px 20px;
       border: 1px solid var(--border);
-      border-radius: 0.5rem;
-      background: #fff;
-      font-size: 0.875rem;
-      color: var(--text-primary);
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='black' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
+      border-radius: 8px;
+      background: white;
+      font-size: 16px;
+      min-width: 200px;
       cursor: pointer;
-      transition: border-color var(--transition), box-shadow var(--transition);
     }
 
-    .filter-select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 0.1875rem var(--secondary);
-      outline: none;
-    }
-
+    /* Карточки курсов */
     .grid {
       display: grid;
-      gap: 1.5rem;
-      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
     }
 
     .card {
-      display: flex;
-      flex-direction: column;
-      border: 1px solid var(--border);
-      border-radius: 0.75rem;
-      background: var(--surface);
-      box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+      background: white;
+      border-radius: 12px;
       overflow: hidden;
-      transition: box-shadow var(--transition), transform var(--transition);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: transform var(--transition), box-shadow var(--transition);
     }
 
     .card:hover {
-      box-shadow: 0 0.375rem 1rem rgba(0, 0, 0, 0.08);
-      transform: translateY(-0.125rem);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
     }
 
     .card-img {
       width: 100%;
-      height: 10rem;
+      height: 180px;
       object-fit: cover;
     }
 
     .card-content {
-      padding: 1.25rem;
+      padding: 20px;
     }
 
     .card-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
     }
 
     .card-text {
-      font-size: 0.875rem;
-      margin-bottom: 0.75rem;
       color: var(--text-subtle);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
     }
 
     .btn-main {
-      padding: 0.625rem 1.25rem;
-      border: none;
-      border-radius: 0.5rem;
-      background: var(--primary);
-      color: #fff;
-      font-size: 0.875rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: background var(--transition);
+      width: 100%;
       text-align: center;
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition);
     }
 
-    .btn-main:hover:not(:disabled) {
+    .btn-main:hover {
       background: var(--accent);
     }
 
-    .btn-main:disabled {
-      background: var(--border);
-      cursor: not-allowed;
-    }
-
-    footer {
-      background: white;
-      border-top: 1px solid var(--border);
-      padding: 2.5rem 0;
-      margin-top: auto;
-    }
-
-    footer .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-      gap: 2rem;
-      max-width: 72rem;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
-    footer img {
-      height: 2.5rem;
-      margin-bottom: 1rem;
-    }
-
-    footer p {
-      font-size: 0.875rem;
-      color: var(--text-subtle);
-      max-width: 300px;
-    }
-
-    footer h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    footer ul {
-      list-style: none;
-    }
-
-    footer ul li {
-      margin-bottom: 0.5rem;
-    }
-
-    footer ul li a {
-      text-decoration: none;
-      color: var(--text-subtle);
-      font-size: 0.875rem;
-      transition: color var(--transition);
-    }
-
-    footer ul li a:hover {
-      color: var(--primary);
-    }
-
+    /* Ассистент */
     .assistant-button {
       position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       background: var(--primary);
       border: none;
-      border-radius: 50%;
-      width: 3rem;
-      height: 3rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      transition: background var(--transition), transform var(--transition);
+      transition: all var(--transition);
+      z-index: 101;
     }
 
     .assistant-button:hover {
@@ -375,22 +303,23 @@
     }
 
     .assistant-button img {
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 28px;
+      height: 28px;
     }
 
     .assistant-modal {
       position: fixed;
-      bottom: 5rem;
-      right: 1.5rem;
-      width: 20rem;
-      max-height: 24rem;
-      background: var(--surface);
-      border-radius: 0.75rem;
-      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      bottom: 100px;
+      right: 30px;
+      width: 350px;
+      max-height: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       display: none;
       flex-direction: column;
-      z-index: 1000;
+      z-index: 102;
+      overflow: hidden;
     }
 
     .assistant-modal.show {
@@ -398,48 +327,36 @@
     }
 
     .assistant-header {
+      padding: 15px 20px;
+      background: var(--primary);
+      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--primary);
-      color: #fff;
-      border-top-left-radius: 0.75rem;
-      border-top-right-radius: 0.75rem;
-    }
-
-    .assistant-header span {
-      font-size: 0.875rem;
-      font-weight: 500;
     }
 
     .close-modal {
       background: none;
       border: none;
+      color: white;
       cursor: pointer;
-      padding: 0.25rem;
-    }
-
-    .close-modal svg {
-      width: 1rem;
-      height: 1rem;
-      stroke: #fff;
+      padding: 5px;
     }
 
     .chat-container {
       flex: 1;
-      padding: 1rem;
+      padding: 20px;
       overflow-y: auto;
       background: var(--background);
     }
 
     .message {
-      margin-bottom: 0.75rem;
-      padding: 0.5rem 0.75rem;
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
       max-width: 80%;
+      font-size: 0.95rem;
+      line-height: 1.4;
     }
 
     .bot-message {
@@ -449,54 +366,28 @@
 
     .user-message {
       background: var(--primary);
-      color: #fff;
+      color: white;
       margin-left: auto;
     }
 
     .chat-input-container {
       display: flex;
-      padding: 0.75rem;
+      padding: 15px;
       border-top: 1px solid var(--border);
-      background: var(--surface);
-      border-bottom-left-radius: 0.75rem;
-      border-bottom-right-radius: 0.75rem;
+      background: white;
     }
 
     .chat-input {
       flex: 1;
-      padding: 0.5rem;
+      padding: 12px 15px;
       border: 1px solid var(--border);
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
-      margin-right: 0.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-right: 10px;
     }
 
-    .chat-input:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
-
-    .send-button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.5rem;
-      background: var(--primary);
-      color: #fff;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .send-button:disabled {
-      background: var(--border);
-      cursor: not-allowed;
-    }
-
-    .send-button:hover:not(:disabled) {
-      background: var(--accent);
-    }
-
-    @media (min-width: 1024px) {
+    /* Адаптивность */
+    @media (min-width: 768px) {
       .desktop-nav {
         display: flex;
       }
@@ -505,8 +396,8 @@
         display: none;
       }
 
-      section.courses h1 {
-        font-size: 3.5rem;
+      .courses h1 {
+        font-size: 3rem;
       }
 
       .filters {
@@ -514,87 +405,74 @@
       }
     }
 
-    @media (min-width: 768px) and (max-width: 1023px) {
-      section.courses h1 {
-        font-size: 2.5rem;
-      }
-
-      .filters {
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 767px) {
+    @media (max-width: 480px) {
       .container {
-        padding: 0 0.75rem;
-      }
-
-      section.courses {
-        padding: 2rem 0;
-      }
-
-      section.courses h1 {
-        font-size: 1.75rem;
-      }
-
-      section.courses p {
-        font-size: 0.875rem;
+        padding: 0 15px;
       }
 
       .filter-select {
         width: 100%;
-        max-width: 100%;
-      }
-
-      .filters {
-        padding: 0.75rem;
       }
 
       .assistant-modal {
-        width: 90%;
-        right: 5%;
+        width: calc(100% - 40px);
+        right: 20px;
+        bottom: 80px;
       }
     }
   </style>
 </head>
 <body>
-  <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10" />
-      <nav class="hidden md:flex space-x-8 text-sm font-medium">
-        <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
-        <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">Курсы</a>
-        <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
-        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
+  <!-- Шапка -->
+  <header>
+    <div class="container">
+      <a href="{% url 'main_menu' %}">
+        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="logo">
+      </a>
+      
+      <nav class="desktop-nav">
+        <a href="{% url 'main_menu' %}">Главная</a>
+        <a href="{% url 'course_view' %}?course_id=1">Курсы</a>
+        <a href="{% url 'about' %}">О нас</a>
+        <a href="{% url 'contacts' %}">Контакты</a>
       </nav>
-      <div class="hidden md:flex items-center gap-4">
-        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
-        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
+      
+      <div class="auth-buttons">
+        <a href="{% url 'login' %}" class="btn btn-secondary">Войти</a>
+        <a href="{% url 'register' %}" class="btn btn-primary">Регистрация</a>
       </div>
-      <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      
+      <button class="mobile-menu-btn" aria-expanded="false" aria-label="Меню">
+        <svg class="open-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
-    <div id="mobile-menu-backdrop" tabindex="-1"></div>
-    <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-white border-t border-[var(--color-bg-secondary)] z-50 relative" aria-label="Мобильное меню">
-      <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
-      <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">Курсы</a>
-      <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
-      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
-      <div class="flex flex-col gap-4 mt-4">
-        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline w-full text-center">Войти</a>
-        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white w-full rounded-xl font-semibold transition py-3 text-center">Регистрация</a>
-      </div>
-    </nav>
   </header>
 
+  <!-- Мобильное меню -->
+  <div class="mobile-menu-backdrop"></div>
+  <nav id="mobile-menu" class="mobile-menu">
+    <a href="{% url 'main_menu' %}">Главная</a>
+    <a href="{% url 'course_view' %}?course_id=1">Курсы</a>
+    <a href="{% url 'about' %}">О нас</a>
+    <a href="{% url 'contacts' %}">Контакты</a>
+    <div class="auth-buttons">
+      <a href="{% url 'login' %}" class="btn btn-secondary">Войти</a>
+      <a href="{% url 'register' %}" class="btn btn-primary">Регистрация</a>
+    </div>
+  </nav>
+
+  <!-- Основной контент -->
   <main>
     <section class="courses">
       <div class="container">
         <h1>Найдите свой идеальный курс</h1>
-        <p>Выберите из множества курсов по различным категориям с честными отзывами и рейтингами.</p>
+        <p class="subtitle">Выберите из множества курсов по различным категориям с честными отзывами и рейтингами.</p>
+        
         <div class="filters">
           <select class="filter-select">
             <option value="">Все категории</option>
@@ -603,44 +481,49 @@
             <option value="programming">Программирование</option>
             <option value="physics">Физика</option>
           </select>
+          
           <select class="filter-select">
             <option value="">Все уровни</option>
             <option value="beginner">Начальный</option>
             <option value="intermediate">Средний</option>
-            <option value="advanced">Лродвинутый</option>
+            <option value="advanced">Продвинутый</option>
           </select>
         </div>
+        
         <div class="grid">
           <div class="card">
-            <img class="card-img" src="math-course.jpg" alt="Математика">
+            <img src="{% static 'images/math-course.jpg' %}" alt="Математика" class="card-img">
             <div class="card-content">
               <h3 class="card-title">Основы математики</h3>
-              <p class="card-text">Изучите алгебру и геометрию с нуля.</p>
-              <a href="#" class="btn-main">Подробнее</a>
+              <p class="card-text">Изучите алгебру и геометрию с нуля. Подходит для начинающих.</p>
+              <a href="{% url 'course_view' %}?course_id=1" class="btn-main">Подробнее</a>
             </div>
           </div>
+          
           <div class="card">
-            <img class="card-img" src="english-course.jpg" alt="Английский язык">
+            <img src="{% static 'images/english-course.jpg' %}" alt="Английский язык" class="card-img">
             <div class="card-content">
               <h3 class="card-title">Английский для начинающих</h3>
-              <p class="card-text">Освойте базовую грамматику и лексику.</p>
-              <a href="#" class="btn-main">Подробнее</a>
+              <p class="card-text">Освойте базовую грамматику и лексику для повседневного общения.</p>
+              <a href="{% url 'course_view' %}?course_id=2" class="btn-main">Подробнее</a>
             </div>
           </div>
+          
           <div class="card">
-            <img class="card-img" src="programming-course.jpg" alt="Программирование">
+            <img src="{% static 'images/programming-course.jpg' %}" alt="Программирование" class="card-img">
             <div class="card-content">
               <h3 class="card-title">Программирование на Python</h3>
-              <p class="card-text">Научитесь писать код с нуля.</p>
-              <a href="#" class="btn-main">Подробнее</a>
+              <p class="card-text">Научитесь писать код с нуля. Основы языка и практические задачи.</p>
+              <a href="{% url 'course_view' %}?course_id=3" class="btn-main">Подробнее</a>
             </div>
           </div>
+          
           <div class="card">
-            <img class="card-img" src="physics-course.jpg" alt="Физика">
+            <img src="{% static 'images/physics-course.jpg' %}" alt="Физика" class="card-img">
             <div class="card-content">
               <h3 class="card-title">Основы физики</h3>
-              <p class="card-text">Погрузитесь в мир механики и энергии.</p>
-              <a href="#" class="btn-main">Подробнее</a>
+              <p class="card-text">Погрузитесь в мир механики и энергии. Наглядные примеры и опыты.</p>
+              <a href="{% url 'course_view' %}?course_id=4" class="btn-main">Подробнее</a>
             </div>
           </div>
         </div>
@@ -650,261 +533,135 @@
 
   {% include 'partials/footer.html' %}
 
-  <button class="assistant-button">
-    <img src="assistant-icon.png" alt="Assistant">
+  <!-- Чат-ассистент -->
+  <button class="assistant-button" aria-label="Чат-помощник">
+    <img src="{% static 'icons/assistant.png' %}" alt="Помощник">
   </button>
+  
   <div class="assistant-modal">
     <div class="assistant-header">
       <span>Ваш помощник</span>
-      <button class="close-modal">
+      <button class="close-modal" aria-label="Закрыть чат">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
     <div class="chat-container">
-      <div class="message bot-message">Здравствуйте! Какой курс хотите оценить?</div>
+      <div class="message bot-message">Здравствуйте! Чем могу помочь?</div>
     </div>
     <div class="chat-input-container">
-      <input type="text" class="chat-input" placeholder="Введите ваш запрос...">
-      <button class="send-button">Отправить</button>
+      <input type="text" class="chat-input" placeholder="Введите ваш вопрос...">
+      <button class="btn-primary send-button">Отправить</button>
     </div>
   </div>
 
   <script>
-    class ChatService {
-      async sendMessage(message) {
-        try {
-          const response = await fetch('/api/assistant', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message }),
-          });
-          if (!response.ok) throw new Error('API error');
-          return await response.json();
-        } catch (error) {
-          console.warn('Using mock service:', error);
-          return await this.mockSendMessage(message);
-        }
-      }
-
-      async mockSendMessage(message) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const responses = {
-          'математика|алгебра|геометрия': 'Ищу отзывы о курсах по математике! Хотите продолжить курс или найти новый?',
-          'английский|english': 'Английский: от разговорных курсов до IELTS.',
-          'программирование|python|javascript': 'Курсы по программированию: Python, JS и др.',
-          'курс|новый курс|создать курс': 'Перейдите в раздел "Создать курс"...',
-          'сообщения|студенты': 'Выберите студента в разделе "Сообщения".',
-          'профиль|аккаунт': 'Нажмите на аватар в правом верхнем углу...',
-          'контакты|связаться': 'Контакты: support@edumentor.ru, +7 (495) 123-45-67.',
-          'оценить|отзыв': 'Назови курс, чтобы оставить отзыв!',
-          'цена|стоимость': 'Стоимость курса зависит от его настроек.',
-          'привет|здравствуйте': 'Здравствуйте! Чем могу помочь?',
-          '': 'Пожалуйста, уточните ваш запрос.',
-        };
-        const key = Object.keys(responses).find(k => new RegExp(k, 'i').test(message.trim()));
-        return { success: true, message: responses[key] || responses[''] };
-      }
-    }
-
-    class ChatAssistant {
-      constructor() {
-        this.elements = {
-          assistantBtn: document.querySelector('.assistant-button'),
-          modal: document.querySelector('.assistant-modal'),
-          closeBtn: document.querySelector('.close-modal'),
-          chatContainer: document.querySelector('.chat-container'),
-          chatInput: document.querySelector('.chat-input'),
-          sendBtn: document.querySelector('.send-button'),
-        };
-
-        if (!this.elements.assistantBtn || !this.elements.modal) {
-          console.error('Assistant button or modal not found');
-          return;
-        }
-
-        this.state = {
-          isOpen: false,
-          messages: [
-            { content: 'Здравствуйте! Какой курс хотите оценить?', isUser: false }
-          ],
-          isTyping: false,
-        };
-
-        this.chatService = new ChatService();
-        this.bindEvents();
-        this.render();
-      }
-
-      render() {
-        if (!this.elements.chatContainer) {
-          console.error('Chat container not found');
-          return;
-        }
-
-        this.elements.chatContainer.innerHTML = this.state.messages
-          .map(msg => `<div class="message ${msg.isUser ? 'user-message' : 'bot-message'}">${msg.content}</div>`)
-          .join('');
-
-        if (this.state.isTyping) {
-          this.elements.chatContainer.innerHTML += `<div class="message bot-message">Думаю…</div>`;
-        }
-
-        this.elements.chatContainer.scrollTop = this.elements.chatContainer.scrollHeight;
-      }
-
-      async handleSend() {
-        const messageText = this.elements.chatInput.value.trim();
-        if (!messageText) return;
-
-        this.state.messages.push({ content: messageText, isUser: true });
-        this.state.isTyping = true;
-        this.render();
-
-        this.elements.chatInput.value = '';
-        this.elements.sendBtn.disabled = true;
-
-        const { message } = await this.chatService.sendMessage(messageText);
-
-        this.state.isTyping = false;
-        this.state.messages.push({ content: message, isUser: false });
-        this.render();
-      }
-
-      bindEvents() {
-        this.elements.assistantBtn.addEventListener('click', () => {
-          this.elements.modal.classList.toggle('show');
-          this.state.isOpen = !this.state.isOpen;
-        });
-
-        this.elements.closeBtn.addEventListener('click', () => {
-          this.elements.modal.classList.remove('show');
-          this.state.isOpen = false;
-        });
-
-        this.elements.sendBtn.addEventListener('click', () => this.handleSend());
-
-        this.elements.chatInput.addEventListener('input', () => {
-          this.elements.sendBtn.disabled = !this.elements.chatInput.value.trim();
-        });
-
-        this.elements.chatInput.addEventListener('keypress', e => {
-          if (e.key === 'Enter') this.handleSend();
-        });
-      }
-    }
-
-    class MobileMenu {
-      constructor({ containerId, backdropId, buttonId, menuItems, isAuthenticated = false }) {
-        this.elements = {
-          container: document.getElementById(containerId),
-          backdrop: document.getElementById(backdropId),
-          button: document.getElementById(buttonId),
-        };
-        this.menuItems = menuItems;
-        this.isAuthenticated = isAuthenticated;
-        this.isOpen = false;
-
-        if (!this.elements.container || !this.elements.backdrop || !this.elements.button) {
-          console.error('Mobile menu elements not found');
-          return;
-        }
-
-        this.init();
-      }
-
-      init() {
-        this.render();
-        this.bindEvents();
-      }
-
-      render() {
-        this.elements.container.innerHTML = `
-          ${this.menuItems.map(item => `<a href="${item.href}">${item.label}</a>`).join('')}
-          <div class="auth-buttons">
-            ${
-              this.isAuthenticated
-                ? `<a href="#profile"><img src="img/Ava.png" alt="User Avatar" class="avatar" title="Профиль"></a>`
-                : `
-                  <a href="login.html" class="btn-secondary">Войти</a>
-                  <a href="role-selection.html" class="btn-primary">Регистрация</a>
-                `
-            }
-          </div>
-        `;
-      }
-
-      toggle(isOpen) {
-        this.isOpen = isOpen;
-        this.elements.container.classList.toggle('show', isOpen);
-        this.elements.backdrop.classList.toggle('show', isOpen);
-        this.elements.button.setAttribute('aria-expanded', isOpen);
-        document.body.classList.toggle('no-scroll', isOpen);
-      }
-
-      bindEvents() {
-        this.elements.button.addEventListener('click', () => {
-          this.toggle(!this.isOpen);
-        });
-        this.elements.backdrop.addEventListener('click', () => {
-          this.toggle(false);
-        });
-      }
-    }
-
-    class CourseManager {
-      constructor() {
-        this.bindEvents();
-      }
-
-      handleCourseAction(action, course) {
-        alert(`${action === 'edit' ? 'Редактировать' : 'Удалить'} курс: ${course}`);
-      }
-
-      bindEvents() {
-        document.querySelectorAll('.courses .card button').forEach(button => {
-          button.addEventListener('click', () => {
-            const action = button.dataset.action;
-            const course = button.dataset.course;
-            this.handleCourseAction(action, course);
-          });
-        });
-      }
-    }
-
-    const initApp = () => {
-      console.log('Initializing application');
-
-      const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-
-      const desktopAuth = document.getElementById('desktop-auth-buttons');
-      if (desktopAuth) {
-        desktopAuth.innerHTML = isAuthenticated
-          ? `<a href="#profile"><img src="img/Ava.png" alt="User Avatar" class="avatar" title="Профиль"></a>`
-          : `
-            <a href="login.html" class="btn-secondary">Войти</a>
-            <a href="role-selection.html" class="btn-primary">Регистрация</a>
-          `;
-      }
-
-      new MobileMenu({
-        containerId: 'mobile-menu',
-        backdropId: 'mobile-menu-backdrop',
-        buttonId: 'mobile-menu-btn',
-        menuItems: [
-          { href: '#dashboard', label: 'Главная' },
-          { href: '#my-courses', label: 'Мои курсы' },
-          { href: '#profile', label: 'Профиль' },
-        ],
-        isAuthenticated,
+    document.addEventListener('DOMContentLoaded', function() {
+      // Мобильное меню
+      const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const mobileBackdrop = document.querySelector('.mobile-menu-backdrop');
+      
+      mobileMenuBtn.addEventListener('click', function() {
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !isExpanded);
+        mobileMenu.classList.toggle('show', !isExpanded);
+        mobileBackdrop.classList.toggle('show', !isExpanded);
+        document.body.classList.toggle('no-scroll', !isExpanded);
       });
-
-      new ChatAssistant();
-      new CourseManager();
-    };
-
-    document.addEventListener('DOMContentLoaded', initApp);
+      
+      mobileBackdrop.addEventListener('click', function() {
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        mobileMenu.classList.remove('show');
+        this.classList.remove('show');
+        document.body.classList.remove('no-scroll');
+      });
+      
+      // Чат-ассистент
+      const assistantBtn = document.querySelector('.assistant-button');
+      const assistantModal = document.querySelector('.assistant-modal');
+      const closeModalBtn = document.querySelector('.close-modal');
+      const chatInput = document.querySelector('.chat-input');
+      const sendBtn = document.querySelector('.send-button');
+      const chatContainer = document.querySelector('.chat-container');
+      
+      assistantBtn.addEventListener('click', function() {
+        assistantModal.classList.toggle('show');
+      });
+      
+      closeModalBtn.addEventListener('click', function() {
+        assistantModal.classList.remove('show');
+      });
+      
+      function addMessage(text, isUser = false) {
+        const message = document.createElement('div');
+        message.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+        message.textContent = text;
+        chatContainer.appendChild(message);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+      
+      function handleUserMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        addMessage(message, true);
+        chatInput.value = '';
+        sendBtn.disabled = true;
+        
+        // Имитация ответа бота
+        setTimeout(() => {
+          const responses = [
+            "Отличный вопрос! Давайте я помогу вам с этим.",
+            "Я могу рассказать вам больше об этом курсе.",
+            "Для уточнения информации вы можете посмотреть раздел 'О нас'.",
+            "Хотите, чтобы я помог вам выбрать подходящий курс?"
+          ];
+          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+          addMessage(randomResponse);
+        }, 1000);
+      }
+      
+      sendBtn.addEventListener('click', handleUserMessage);
+      
+      chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          handleUserMessage();
+        }
+      });
+      
+      chatInput.addEventListener('input', function() {
+        sendBtn.disabled = !this.value.trim();
+      });
+      
+      // Фильтрация курсов
+      const categorySelect = document.querySelectorAll('.filter-select')[0];
+      const levelSelect = document.querySelectorAll('.filter-select')[1];
+      const courseCards = document.querySelectorAll('.card');
+      
+      function filterCourses() {
+        const category = categorySelect.value;
+        const level = levelSelect.value;
+        
+        courseCards.forEach(card => {
+          const cardCategory = card.dataset.category || '';
+          const cardLevel = card.dataset.level || '';
+          
+          const categoryMatch = !category || cardCategory.includes(category);
+          const levelMatch = !level || cardLevel.includes(level);
+          
+          if (categoryMatch && levelMatch) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+      
+      categorySelect.addEventListener('change', filterCourses);
+      levelSelect.addEventListener('change', filterCourses);
+    });
   </script>
 </body>
 </html>
