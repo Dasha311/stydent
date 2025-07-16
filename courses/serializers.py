@@ -35,7 +35,13 @@ class CourseSerializer(serializers.ModelSerializer):
             url = thumb.url
             req = self.context.get("request")
             if req:
-                url = req.build_absolute_uri(url)
+                try:
+                    url = req.build_absolute_uri(url)
+                except Exception:
+                    pass
+            else:
+                from django.conf import settings
+                url = settings.DEFAULT_DOMAIN.rstrip("/") + url
             rep["thumbnail"] = url
         return rep
 
