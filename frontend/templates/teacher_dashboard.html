@@ -342,12 +342,7 @@
       <div class="hidden md:flex items-center gap-3 relative auth-buttons">
          <img src="{{ request.user.avatar_url }}" id="profile-icon" alt="Avatar" class="avatar" title="Профиль">
         <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-[var(--border-color)] rounded-lg shadow-lg hidden">
-          <a href="{% url 'teacher_profile' request.user.id %}" class="flex items-center px-4 py-2 text-sm hover:bg-[var(--bg-secondary)]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-            </svg>
-            Моя страница
-          </a>
+
           <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-sm hover:bg-[var(--bg-secondary)]">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
@@ -363,12 +358,6 @@
               Выйти
             </button>
           </form>
-          <a href="{% url 'delete_account' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-[var(--bg-secondary)]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
-            Удалить
-          </a>
         </div>
       </div>
       <button id="mobile-menu-btn" class="md:hidden mobile-menu-btn" aria-label="Меню" type="button" aria-expanded="false">

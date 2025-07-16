@@ -108,63 +108,28 @@
 <body class="min-h-screen flex flex-col">
   <header>
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <a href="{% if user.is_authenticated and user.role == 'teacher' %}{% url 'teacher_dashboard' %}{% elif user.is_authenticated and user.role == 'student' %}{% url 'student_dashboard' %}{% else %}{% url 'main_menu' %}{% endif %}">
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-8">
-      </a>
+      <a href="{% url 'main_menu' %}"><img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-8"></a>
       <nav class="hidden md:flex gap-6 text-sm font-medium">
-        {% if user.is_authenticated and user.role == 'teacher' %}
-          <a href="{% url 'teacher_dashboard' %}">Главная</a>
-          <a href="{% url 'teacher_dashboard' %}#my-courses">Мои курсы</a>
-          <a href="{% url 'teacher_dashboard' %}#create-course">Создать курс</a>
-          <a href="{% url 'messages' %}">Сообщения</a>
-          <a href="{% url 'teacher_profile' request.user.id %}">Моя страница</a>
-          <a href="{% url 'profile' %}">Профиль</a>
-        {% elif user.is_authenticated and user.role == 'student' %}
-          <a href="{% url 'student_dashboard' %}">Главная</a>
-          <a href="{% url 'course_view' %}?course_id=1">Мои курсы</a>
-          <a href="{% url 'tutors' %}">Репетиторы</a>
-          <a href="{% url 'profile' %}">Профиль</a>
-        {% else %}
-          <a href="{% url 'main_menu' %}">Главная</a>
-          <a href="{% url 'course_view' %}?course_id=1">Курсы</a>
-          <a href="{% url 'about' %}">О нас</a>
-          <a href="{% url 'contacts' %}">Контакты</a>
-        {% endif %}
+        <a href="{% url 'main_menu' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
+        <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Курсы</a>
+        <a href="{% url 'about' %}" class="hover:text-[var(--brand-primary)]">О нас</a>
+        <a href="{% url 'contacts' %}" class="hover:text-[var(--brand-primary)]">Контакты</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
-        {% if user.is_authenticated %}
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="text-[var(--brand-primary)] text-sm font-medium hover:underline">Выйти</button>
-          </form>
-        {% else %}
-          <a href="{% url 'login' %}" class="text-[var(--brand-primary)] text-sm font-medium hover:underline">Войти</a>
-        {% endif %}
+        <a href="{% url 'login' %}" class="text-[var(--brand-primary)] text-sm font-medium hover:underline">Войти</a>
+        <a href="{% url 'register' %}" class="btn">Регистрация</a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false">
         <img src="{% static 'Icons/Burger.png' %}" alt="Меню" class="w-6 h-6">
       </button>
     </div>
     <nav id="mobile-menu" class="md:hidden flex flex-col px-4 pb-6 space-y-4 text-base font-medium bg-white border-t border-[var(--border-color)] hidden">
-      {% if user.is_authenticated and user.role == 'teacher' %}
-        <a href="{% url 'teacher_dashboard' %}">Главная</a>
-        <a href="{% url 'teacher_dashboard' %}#my-courses">Мои курсы</a>
-        <a href="{% url 'teacher_dashboard' %}#create-course">Создать курс</a>
-        <a href="{% url 'messages' %}">Сообщения</a>
-        <a href="{% url 'teacher_profile' request.user.id %}">Моя страница</a>
-        <a href="{% url 'profile' %}">Профиль</a>
-      {% elif user.is_authenticated and user.role == 'student' %}
-        <a href="{% url 'student_dashboard' %}">Главная</a>
-        <a href="{% url 'course_view' %}?course_id=1">Мои курсы</a>
-        <a href="{% url 'tutors' %}">Репетиторы</a>
-        <a href="{% url 'profile' %}">Профиль</a>
-      {% else %}
-        <a href="{% url 'main_menu' %}">Главная</a>
-        <a href="{% url 'course_view' %}?course_id=1">Курсы</a>
-        <a href="{% url 'about' %}">О нас</a>
-        <a href="{% url 'contacts' %}">Контакты</a>
-        <a href="{% url 'login' %}" class="text-[var(--brand-primary)] hover:underline">Войти</a>
-      {% endif %}
+      <a href="{% url 'main_menu' %}" class="hover:text-[var(--brand-primary)]">Главная</a>
+      <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Курсы</a>
+      <a href="{% url 'about' %}" class="hover:text-[var(--brand-primary)]">О нас</a>
+      <a href="{% url 'contacts' %}" class="hover:text-[var(--brand-primary)]">Контакты</a>
+      <a href="{% url 'login' %}" class="text-[var(--brand-primary)] hover:underline">Войти</a>
+      <a href="{% url 'register' %}" class="btn">Регистрация</a>
     </nav>
   </header>
 
@@ -183,37 +148,6 @@
   </section>
 
   <main id="course-content" class="max-w-7xl mx-auto px-4 py-12 flex-1 space-y-8"></main>
-
-  <section id="edit-form-section" class="max-w-7xl mx-auto px-4 py-12 space-y-4 hidden">
-    <h2 class="text-2xl font-semibold mb-4">Редактировать курс</h2>
-    <form id="edit-course-form" class="space-y-4" enctype="multipart/form-data">
-      <div>
-        <label for="edit-title" class="block text-sm font-medium mb-1">Название курса</label>
-        <input id="edit-title" type="text" class="w-full p-2 border border-[var(--border-color)] rounded-lg">
-      </div>
-      <div>
-        <label for="edit-description" class="block text-sm font-medium mb-1">Описание курса</label>
-        <textarea id="edit-description" rows="4" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></textarea>
-      </div>
-      <div>
-        <label for="edit-category" class="block text-sm font-medium mb-1">Категория</label>
-        <input id="edit-category" type="text" class="w-full p-2 border border-[var(--border-color)] rounded-lg">
-      </div>
-      <div>
-        <label for="edit-videos" class="block text-sm font-medium mb-1">Ссылки на видео (по одному на строке)</label>
-        <textarea id="edit-videos" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></textarea>
-      </div>
-      <div>
-        <label for="edit-textfile" class="block text-sm font-medium mb-1">Текстовые материалы (PDF или TXT)</label>
-        <input id="edit-textfile" type="file" accept=".pdf,.txt" class="w-full p-2 border border-[var(--border-color)] rounded-lg">
-      </div>
-      <div>
-        <label for="edit-assignment" class="block text-sm font-medium mb-1">Задание</label>
-        <textarea id="edit-assignment" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg"></textarea>
-      </div>
-      <button type="submit" class="btn">Сохранить</button>
-    </form>
-  </section>
 
   <button id="chat-toggle" aria-label="Открыть чат с автором" class="fixed bottom-6 right-6 bg-[var(--brand-primary)] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#5b3fe6] transition-all" style="z-index: 60;">
     <img src="{% static 'Icons/Message circle.png' %}" alt="Чат" class="w-7 h-7">
@@ -255,11 +189,8 @@
     const container = document.getElementById('course-content');
     const courseHeader = document.getElementById('course-header');
     const courseId = new URLSearchParams(window.location.search).get('course_id') || window.location.pathname.split('/').filter(Boolean).pop();
-    const editMode = new URLSearchParams(window.location.search).get('edit') === '1';
     const userRole = '{{ user.role|default:"student" }}';
     const userId = {{ request.user.id|default:"0" }};
-    const editSection = document.getElementById('edit-form-section');
-    const editForm = document.getElementById('edit-course-form');
     let course = null;
 
     async function loadCourseDetails() {
@@ -317,16 +248,13 @@
       }
 
       // Enroll Button
+      const enrolledCourses = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
       if (userRole === 'student') {
         enrollSection.innerHTML = `
           <button id="enroll-btn" class="btn ${enrolledCourses.includes(courseId) ? 'opacity-50 cursor-not-allowed' : ''}" ${enrolledCourses.includes(courseId) ? 'disabled' : ''}>
             ${enrolledCourses.includes(courseId) ? 'Вы записаны' : 'Записаться на курс'}
           </button>
           <button id="message-btn" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]" onclick="window.location.href='/messages/'">Написать преподавателю</button>
-        `;
-      } else if (userRole === 'teacher' && course.instructor?.id === userId) {
-        enrollSection.innerHTML = `
-          <a href="?edit=1" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]">Редактировать</a>
         `;
       } else {
         enrollSection.innerHTML = `
@@ -542,9 +470,6 @@
       }
 
       saveProgress();
-      if (editMode && userRole === 'teacher' && course.instructor?.id === userId) {
-        showEditForm();
-      }
     }
 
     async function enrollCourse(courseId) {
@@ -599,16 +524,6 @@
         `;
         container.appendChild(completionMsg);
       }
-    }
-
-    function showEditForm() {
-      if (!editSection) return;
-      document.getElementById('edit-title').value = course.title || '';
-      document.getElementById('edit-description').value = course.description || '';
-      document.getElementById('edit-category').value = course.category || '';
-      document.getElementById('edit-videos').value = (course.videos || []).join('\n');
-      document.getElementById('edit-assignment').value = course.assignment || '';
-      editSection.classList.remove('hidden');
     }
 
     // Mobile Menu
@@ -704,11 +619,11 @@
       if (!isOpen) loadMessages();
     });
 
-    chatForm.addEventListener('submit', async e => {␊
-      e.preventDefault();␊
-      const message = chatInput.value.trim();␊
-      if (!message) return;␊
-      await ensureRoom();␊
+    chatForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const message = chatInput.value.trim();
+      if (!message) return;
+      await ensureRoom();
       if (!chatRoomId) return;
       const resp = await fetch(`/api/chats/${chatRoomId}/messages/`, {
         method: 'POST',
@@ -724,39 +639,30 @@
       }
     });
 
-    editForm?.addEventListener('submit', async e => {
-      e.preventDefault();
-      const formData = new FormData();
-      formData.append('title', document.getElementById('edit-title').value);
-      formData.append('description', document.getElementById('edit-description').value);
-      formData.append('category', document.getElementById('edit-category').value);
-      formData.append('videos', JSON.stringify(document.getElementById('edit-videos').value.split('\n').filter(v => v)));
-      const file = document.getElementById('edit-textfile').files[0];
-      if (file) formData.append('textFile', file);
-      formData.append('assignment', document.getElementById('edit-assignment').value);
-      const resp = await fetch(`/api/courses/${courseId}/manage/`, {
-        method: 'PUT',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-        body: formData
-      });
-      if (resp.ok) {
-        alert('Курс обновлен');
-        editSection.classList.add('hidden');
-        if (window.location.search.includes('edit=1')) {
-          const params = new URLSearchParams(window.location.search);
-          params.delete('edit');
-          window.history.replaceState({}, '', window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
-        }
-        loadCourseDetails();
-      } else {
-        alert('Ошибка обновления');
-      }
-    });
-
     // Initialization
     document.addEventListener('DOMContentLoaded', () => {
       loadCourseDetails();
+      if (!USER_ID) {
+        const overlay = document.getElementById('auth-overlay');
+        const showOverlay = (e) => {
+          if (overlay.classList.contains('hidden')) {
+            overlay.classList.remove('hidden');
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        };
+        document.addEventListener('click', showOverlay, true);
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) overlay.classList.add('hidden');
+        });
+      }
     });
   </script>
+  <div id="auth-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-xl text-center">
+      <p class="mb-4">Пожалуйста, зарегистрируйтесь, чтобы пройти курс</p>
+      <a href="{% url 'register' %}" class="btn">Регистрация</a>
+    </div>
+  </div>
 </body>
 </html>
