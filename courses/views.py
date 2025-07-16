@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, filters
+from rest_framework import generics, permissions, filters, parsers
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Avg
@@ -65,6 +65,11 @@ class CourseCreateView(generics.CreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [permissions.IsAuthenticated, IsMentor]
+    parser_classes = [
+        parsers.MultiPartParser,
+        parsers.FormParser,
+        parsers.JSONParser,
+    ]
 
     def perform_create(self, serializer):
         """Create a course and optionally assign a category by name."""
@@ -111,6 +116,11 @@ class CourseManageView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [permissions.IsAuthenticated, IsMentor]
+    parser_classes = [
+        parsers.MultiPartParser,
+        parsers.FormParser,
+        parsers.JSONParser,
+    ]
 
     def perform_update(self, serializer):
         course = self.get_object()

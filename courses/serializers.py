@@ -28,6 +28,17 @@ class CourseSerializer(serializers.ModelSerializer):
     textFile = serializers.FileField(source="text_file", required=False, allow_null=True)
     test = serializers.JSONField(source="test_data", required=False, allow_null=True)
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        thumb = instance.thumbnail
+        if thumb:
+            url = thumb.url
+            req = self.context.get("request")
+            if req:
+                url = req.build_absolute_uri(url)
+            rep["thumbnail"] = url
+        return rep
+
     class Meta:
         model = Course
         fields = [
