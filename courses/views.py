@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, filters, parsers
+from rest_framework import generics, permissions, filters, parsers, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Avg
@@ -176,6 +176,20 @@ class EnrollmentView(generics.CreateAPIView):
         instructor = enrollment.course.instructor
         instructor.level = instructor.level + 10
         instructor.save(update_fields=["level"])
+        # Create a chat room between the student and instructor if one doesn't exist
+        room = (
+            ChatRoom.objects.filter(course=enrollment.course, participants=self.request.user)
+            .filter(participants=instructor)
+            .first()
+        )
+        if not room:
+            room = ChatRoom.objects.create(course=enrollment.course)
+            room.participants.add(self.request.user, instructor)
+            ChatMessage.objects.create(
+                room=room,
+                sender=self.request.user,
+                text="Привет, я изучаю твой курс.",
+            )
 
 
 class EnrollmentCompleteView(generics.UpdateAPIView):
@@ -358,6 +372,15 @@ class ChatMessageView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         room = get_object_or_404(ChatRoom, pk=self.kwargs["room_id"], participants=self.request.user)
         serializer.save(room=room, sender=self.request.user)
+
+
+class ChatClearView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        room = get_object_or_404(ChatRoom, pk=self.kwargs["room_id"], participants=request.user)
+        room.messages.all().delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CourseSearchView(generics.ListAPIView):

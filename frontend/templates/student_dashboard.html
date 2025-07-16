@@ -912,6 +912,7 @@ function attachEnrollHandlers() {
               body: JSON.stringify({ course_id: courseId })
             });
             if (response.ok) {
+              const data = await response.json();
               alert(`Вы записались на курс!`);
               const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
               if (!enrolled.includes(courseId)) enrolled.push(courseId);
@@ -927,8 +928,16 @@ function attachEnrollHandlers() {
               cont.className = 'btn-primary w-full text-center';
               cont.textContent = 'Продолжить';
               card.querySelector('.card-content').appendChild(cont);
+              const un = document.createElement('a');
+              un.href = '#';
+              un.className = 'btn-secondary unenroll ml-2';
+              un.textContent = 'Отписаться';
+              card.querySelector('.card-content').appendChild(un);
+              if (data && data.id) card.dataset.enrollmentId = data.id;
               document.getElementById('current-courses').appendChild(card);
+              attachUnenrollHandlers();
               updateProgressBars();
+              loadRecommendedCourses();
             } else {
               alert('Ошибка при записи на курс.');
 }
@@ -953,6 +962,7 @@ function attachEnrollHandlers() {
               if (idx !== -1) enrolled.splice(idx, 1);
               localStorage.setItem(STORAGE_ENROLLED, JSON.stringify(enrolled));
               localStorage.removeItem(STORAGE_PROGRESS_PREFIX + courseId);
+              loadRecommendedCourses();
             } else {
               alert('Ошибка при отписке.');
             }

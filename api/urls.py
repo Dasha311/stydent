@@ -34,6 +34,7 @@ from courses.views import (
     RatingView,
     ChatRoomView,
     ChatMessageView,
+    ChatClearView,
     CourseSearchView,
     RecommendedCoursesView,
     CategoryListView,
@@ -90,6 +91,7 @@ urlpatterns = [
     # Chat
     path('chats/', ChatRoomView.as_view(), name='chatrooms'),
     path('chats/<int:room_id>/messages/', ChatMessageView.as_view(), name='chat-messages'),
+    path('chats/<int:room_id>/clear/', ChatClearView.as_view(), name='chat-clear'),
     
     # Search and recommendations
     path('search/', CourseSearchView.as_view(), name='course-search'),
