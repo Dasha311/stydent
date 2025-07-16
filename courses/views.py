@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, filters, parsers, status, exceptions
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models import Q, Avg
 from accounts.permissions import IsMentor, IsStudent
 from accounts.models import CustomUser, UserProfile
@@ -173,7 +173,7 @@ class EnrollmentView(generics.CreateAPIView):
     def perform_create(self, serializer):
         try:
             enrollment = serializer.save(student=self.request.user)
-        except models.IntegrityError:
+        except IntegrityError:
             raise exceptions.ValidationError("Already enrolled")
         profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
         profile.courses_enrolled.add(enrollment.course)

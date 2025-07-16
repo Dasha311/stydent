@@ -103,6 +103,8 @@
     const STATIC_URL = "{% static '' %}";
     const USER_ID = {{ request.user.id|default:"0" }};
     const STORAGE_ENROLLED = 'enrolledCourses_' + USER_ID;
+    const STORAGE_PROGRESS_PREFIX = 'courseProgress_' + USER_ID + ':';
+    const STORAGE_PROGRESS_DATA_PREFIX = 'courseProgressData_' + USER_ID + ':';
   </script>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -264,7 +266,7 @@
 
       // Video Section
       const videos = course.videos || [];
-      const watched = JSON.parse(localStorage.getItem('courseProgressData:' + courseId) || '[]');
+      const watched = JSON.parse(localStorage.getItem(STORAGE_PROGRESS_DATA_PREFIX + courseId) || '[]');
       if (videos.length) {
         const videoSection = document.createElement('section');
         videoSection.className = 'space-y-6';
@@ -505,15 +507,15 @@
 
     function saveProgress() {
       const videos = course.videos || [];
-      const watched = JSON.parse(localStorage.getItem('courseProgressData:' + courseId) || '[]');
+      const watched = JSON.parse(localStorage.getItem(STORAGE_PROGRESS_DATA_PREFIX + courseId) || '[]');
       const p = videos.length ? Math.round(watched.length / videos.length * 100) : 0;
-      localStorage.setItem('courseProgress:' + courseId, p);
-      localStorage.setItem('courseProgressData:' + courseId, JSON.stringify(watched));
+      localStorage.setItem(STORAGE_PROGRESS_PREFIX + courseId, p);
+      localStorage.setItem(STORAGE_PROGRESS_DATA_PREFIX + courseId, JSON.stringify(watched));
       checkCourseCompletion();
     }
 
     function checkCourseCompletion() {
-      const videosWatched = JSON.parse(localStorage.getItem('courseProgressData:' + courseId) || '[]').length === (course.videos || []).length;
+      const videosWatched = JSON.parse(localStorage.getItem(STORAGE_PROGRESS_DATA_PREFIX + courseId) || '[]').length === (course.videos || []).length;
       const assignmentSubmitted = localStorage.getItem('assignmentSubmitted:' + courseId) === 'true';
       const testPassed = localStorage.getItem('testPassed:' + courseId) === 'true';
       if (videosWatched && assignmentSubmitted && testPassed) {
