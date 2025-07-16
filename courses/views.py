@@ -252,6 +252,18 @@ class AssignmentCreateView(generics.CreateAPIView):
         serializer.save(student=self.request.user)
 
 
+class AssignmentGradeView(generics.UpdateAPIView):
+    queryset = Assignment.objects.all()
+    serializer_class = AssignmentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsMentor]
+
+    def perform_update(self, serializer):
+        assignment = self.get_object()
+        if assignment.lesson.course.instructor != self.request.user:
+            raise permissions.PermissionDenied("Not allowed")
+        serializer.save()
+
+
 class LessonAssignmentsView(generics.ListAPIView):
     serializer_class = AssignmentSerializer
     permission_classes = [permissions.IsAuthenticated]

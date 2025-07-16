@@ -26,6 +26,7 @@ from courses.views import (
     AssignmentCreateView,
     LessonAssignmentsView,
     LessonCompleteView,
+    AssignmentGradeView,
     MentorCoursesView,
     TestDetailView,
     TestSubmitView,
@@ -76,6 +77,7 @@ urlpatterns = [
     # Assignments
     path('lessons/<int:lesson_id>/assignments/', LessonAssignmentsView.as_view(), name='lesson-assignments'),
     path('assignments/submit/', AssignmentCreateView.as_view(), name='assignment-submit'),
+    path('assignments/<int:pk>/grade/', AssignmentGradeView.as_view(), name='assignment-grade'),
 
     # Tests
     path('tests/<int:pk>/', TestDetailView.as_view(), name='test-detail'),

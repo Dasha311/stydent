@@ -108,12 +108,32 @@ class Enrollment(models.Model):
         return f"{self.student.username if self.student else 'Unknown student'} enrolled in {self.course.title}"
 
     def update_progress(self):
-        total = self.course.lessons.count()
-        completed = LessonCompletion.objects.filter(
+        lessons_total = self.course.lessons.count()
+        lessons_completed = LessonCompletion.objects.filter(
             student=self.student,
             lesson__course=self.course,
         ).count()
-        self.progress = int(100 * completed / total) if total else 0
+
+        assignments_passed = Assignment.objects.filter(
+            lesson__course=self.course,
+            student=self.student,
+            grade__gte=50,
+        ).count()
+
+        test_required = 1 if Test.objects.filter(course=self.course).exists() else 0
+        test_completed = 0
+        if test_required:
+            attempt = (
+                TestAttempt.objects.filter(test__course=self.course, student=self.student)
+                .order_by("-score")
+                .first()
+            )
+            if attempt and attempt.score >= 50:
+                test_completed = 1
+
+        total_items = lessons_total + lessons_total + test_required
+        completed_items = lessons_completed + assignments_passed + test_completed
+        self.progress = int(100 * completed_items / total_items) if total_items else 0
         fields = ["progress"]
         if self.progress == 100 and not self.certificate_issued:
             self.certificate_issued = True
@@ -169,6 +189,7 @@ class Assignment(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     checked = models.BooleanField(default=False)
     passed = models.BooleanField(null=True, blank=True)
+    grade = models.PositiveIntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # If a file was uploaded and text is empty, try to extract text from the file
@@ -187,6 +208,10 @@ class Assignment(models.Model):
             finally:
                 if hasattr(self.file, "seek"):
                     self.file.seek(0)
+
+        if self.grade is not None:
+            self.checked = True
+            self.passed = self.grade >= 50
 
         super().save(*args, **kwargs)
 
@@ -317,3 +342,40 @@ def create_course_content(sender, instance, created, **kwargs):
                 send_new_course_invitation.delay(user.email, instance.title)
             except Exception:
                 send_new_course_invitation(user.email, instance.title)
+
+
+@receiver(post_save, sender=Assignment)
+def handle_assignment_save(sender, instance, created, **kwargs):
+    """Notify instructor on new submission and update progress after grading."""
+    try:
+        enrollment = Enrollment.objects.get(student=instance.student, course=instance.lesson.course)
+    except Enrollment.DoesNotExist:
+        enrollment = None
+
+    if created:
+        room = (
+            ChatRoom.objects.filter(course=instance.lesson.course, participants=instance.student)
+            .filter(participants=instance.lesson.course.instructor)
+            .first()
+        )
+        if not room:
+            room = ChatRoom.objects.create(course=instance.lesson.course)
+            room.participants.add(instance.student, instance.lesson.course.instructor)
+        ChatMessage.objects.create(
+            room=room,
+            sender=instance.student,
+            text="Прикреплено новое задание.",
+        )
+    elif instance.grade is not None and enrollment:
+        enrollment.update_progress()
+
+
+@receiver(post_save, sender=TestAttempt)
+def update_progress_from_test(sender, instance, created, **kwargs):
+    if not created:
+        return
+    try:
+        enrollment = Enrollment.objects.get(student=instance.student, course=instance.test.course)
+    except Enrollment.DoesNotExist:
+        return
+    enrollment.update_progress()
