@@ -940,7 +940,7 @@
       article.className = 'card';
       article.dataset.courseId = course.id;
         article.innerHTML = `
-          <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
+          <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
           <div class="p-5">
             <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
             <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
@@ -986,7 +986,7 @@
         e.preventDefault();
         const title = document.getElementById('course-title').value.trim();
         const description = document.getElementById('course-description').value.trim();
-        const image = document.getElementById('course-image').files[0];
+        const thumbnail = document.getElementById('course-image').files[0];
         const category = document.getElementById('course-category').value;
         const videos = document.getElementById('course-videos').value.trim().split('\n').filter(v => v);
         const textFile = document.getElementById('course-text').files[0];
@@ -1025,7 +1025,7 @@
           formData.append('test', testData);
         }
 
-        if (image) formData.append('image', image);
+        if (thumbnail) formData.append('thumbnail', thumbnail);
 
         const url = editId ? `/api/courses/${editId}/manage/` : '/api/courses/create/';
         const method = editId ? 'PUT' : 'POST';

@@ -241,8 +241,8 @@
         desc.textContent = course.description;
         courseInfo.appendChild(desc);
       }
-      if (course.image) {
-        courseHeader.style.backgroundImage = `url(${course.image})`;
+      if (course.thumbnail) {
+        courseHeader.style.backgroundImage = `url(${course.thumbnail})`;
       } else {
         courseHeader.style.backgroundImage = `url('{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}')`;
       }
