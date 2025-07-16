@@ -55,58 +55,46 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
     <!-- Profile Header -->
     <section class="bg-gray-200 rounded-2xl p-6 mb-8 relative overflow-hidden">
-      <img src="{% static 'Icons/avatar-placeholder.png' %}" alt="Profile Background" class="absolute inset-0 w-full h-full object-cover opacity-70" id="profile-bg">
+      <img src="{{ request.user.background_url|default:'{% static "Icons/avatar-placeholder.png" %}' }}" alt="Profile Background" class="absolute inset-0 w-full h-full object-cover opacity-70" id="profile-bg">
       <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6">
         <img src="{{ request.user.avatar_url }}" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-600" id="profile-avatar">
+        <div class="flex-1">
           <h1 class="text-2xl font-bold flex items-center justify-center md:justify-start gap-2">
             <span class="status-online before:inline-block before:w-2.5 before:h-2.5 before:bg-teal-500 before:rounded-full" id="profile-username">GrokMaster</span>
           </h1>
-          <p class="text-sm text-gray-500">Уровень: <span class="font-semibold" id="profile-level">42</span></p>
-          <div class="w-40 h-2 bg-gray-300 rounded-full mt-2">
-            <div class="h-full bg-purple-600 rounded-full" id="level-progress" style="width: 80%"></div>
-          </div>
-          <p class="text-sm text-gray-500 mt-2" id="profile-bio">Люблю изучать программирование и играть в стратегии!</p>
+          <p class="text-sm text-gray-500" id="profile-bio">Люблю изучать программирование и играть в стратегии!</p>
           <div class="mt-4 flex flex-wrap gap-3 justify-center md:justify-start">
             <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Добавить в друзья</button>
             <a href="{% url 'messages' %}" class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition">Отправить сообщение</a>
           </div>
         </div>
-        <div class="text-sm text-gray-500">
-          <p>Очки: <span class="font-semibold" id="profile-points">5000</span></p>
-          <p>Значков: <span class="font-semibold" id="profile-badges-count">4</span></p>
-          <p>Друзей: <span class="font-semibold">127</span></p>
-        </div>
       </div>
     </section>
 
-    <!-- Tab Navigation -->
-    <nav class="bg-white border-b border-gray-200 flex flex-wrap gap-4 mb-6">
-      <button class="tab-button active px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="overview">Обзор</button>
-      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="certificates">Сертификаты</button>
-      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="badges">Значки</button>
-      <button class="tab-button px-4 py-3 font-medium text-gray-500 border-b-2 border-transparent hover:text-purple-600 hover:border-purple-600 transition" data-tab="customize">Настройка профиля</button>
-    </nav>
-
-    <!-- Tab Content -->
-    <div id="overview" class="tab-content active">
+    <!-- Profile Content -->
+    <div>
       <h2 class="text-2xl font-bold mb-6">Обзор профиля</h2>
       <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
         <h3 class="text-lg font-semibold mb-4">О себе</h3>
         <p class="text-gray-500 mb-4" id="profile-about">Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.</p>
         <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition" id="edit-profile-btn">Редактировать профиль</button>
         <div id="edit-profile-form" class="hidden mt-4 space-y-4">
-              <div>
-                <label for="edit-username" class="block text-sm font-medium">Имя пользователя</label>
-                <input type="text" id="edit-username" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
-              </div>
-              <div>
-                <label for="edit-avatar" class="block text-sm font-medium">Аватар</label>
-                <input type="file" id="edit-avatar" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
-              </div>
-              <div>
-                <label for="edit-bio" class="block text-sm font-medium">Краткое описание</label>
-                <textarea id="edit-bio" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="2"></textarea>
-              </div>
+          <div>
+            <label for="edit-username" class="block text-sm font-medium">Имя пользователя</label>
+            <input type="text" id="edit-username" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
+          </div>
+          <div>
+            <label for="edit-avatar" class="block text-sm font-medium">Аватар</label>
+            <input type="file" id="edit-avatar" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
+          </div>
+          <div>
+            <label for="edit-bg" class="block text-sm font-medium">Фоновое изображение</label>
+            <input type="file" id="edit-bg" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600">
+          </div>
+          <div>
+            <label for="edit-bio" class="block text-sm font-medium">Краткое описание</label>
+            <textarea id="edit-bio" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="2"></textarea>
+          </div>
           <div>
             <label for="edit-about" class="block text-sm font-medium">О себе</label>
             <textarea id="edit-about" class="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 focus:ring-2 focus:ring-purple-600" rows="6"></textarea>
@@ -117,46 +105,22 @@
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-2xl shadow-sm p-6">
+
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
         <h3 class="text-lg font-semibold mb-4">Витрина достижений</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="showcase-grid">
           <!-- Populated via JavaScript -->
         </div>
       </div>
-    </div>
-      <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
         <h3 class="text-lg font-semibold mb-4">В обучении</h3>
         <ul id="courses-enrolled" class="list-disc list-inside text-gray-500"></ul>
       </div>
-      <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+
+      <div class="bg-white rounded-2xl shadow-sm p-6">
         <h3 class="text-lg font-semibold mb-4">Завершенные курсы</h3>
         <ul id="courses-completed" class="list-disc list-inside text-gray-500"></ul>
-      </div>
-
-    <div id="certificates" class="tab-content hidden">
-      <h2 class="text-2xl font-bold mb-6">Сертификаты</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="certificates-grid">
-        <!-- Populated via JavaScript -->
-      </div>
-    </div>
-
-    <div id="badges" class="tab-content hidden">
-      <h2 class="text-2xl font-bold mb-6">Значки</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6" id="badges-grid">
-        <!-- Populated via JavaScript -->
-      </div>
-    </div>
-
-    <div id="customize" class="tab-content hidden">
-      <h2 class="text-2xl font-bold mb-6">Настройка профиля</h2>
-      <div class="bg-white rounded-2xl shadow-sm p-6">
-        <h3 class="text-lg font-semibold mb-4">Прокачка уровня</h3>
-        <p class="text-gray-500 mb-4">Текущий уровень: <span id="customize-level">42</span> | Очки: <span id="customize-points">5000</span></p>
-        <div class="w-full h-2 bg-gray-300 rounded-full mb-4">
-          <div class="h-full bg-purple-600 rounded-full" id="customize-progress" style="width: 80%"></div>
-        </div>
-        <p class="text-sm text-gray-500 mb-4">Прокачайте уровень за 1000 очков, чтобы разблокировать новые возможности!</p>
-        <button class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed" id="level-up-btn" disabled>Прокачать уровень (1000 очков)</button>
       </div>
     </div>
   </main>
@@ -164,39 +128,7 @@
   <!-- Footer -->
   {% include 'partials/footer.html' %}
 
-  <!-- Assistant Button and Modal -->
-  <button id="assistant-button" class="fixed bottom-6 right-6 w-14 h-14 bg-purple-600 rounded-full grid place-items-center z-50 hover:bg-purple-700 transition" aria-label="Чат">
-    <img src="{% static 'Icons/assistant-icon.png' %}" alt="Assistant" class="w-7 h-7">
-  </button>
-  <div id="assistant-modal" class="hidden fixed bottom-24 right-4 w-[min(380px,calc(100%-32px))] max-h-[500px] bg-white rounded-2xl shadow-lg z-50 flex flex-col">
-    <div class="p-4 border-b border-gray-200 flex justify-between items-center font-semibold">
-      <span>Ваш помощник по обучению</span>
-      <button id="close-assistant" aria-label="Закрыть">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-    <div id="chat-container" class="flex-1 p-4 overflow-y-auto flex flex-col gap-2">
-      <div class="bg-gray-200 text-gray-900 rounded-xl px-3 py-2 max-w-[80%] self-start">Здравствуйте! Какой предмет хотите изучать? Я помогу найти лучшего репетитора!</div>
-    </div>
-    <div class="p-4 border-t border-gray-200 bg-white rounded-b-2xl flex gap-2">
-      <input id="chat-input" type="text" placeholder="Напишите ваш вопрос..." class="flex-1 p-2 border border-gray-300 rounded-xl bg-gray-50 text-sm focus:border-purple-600 focus:ring-2 focus:ring-purple-600" aria-label="Сообщение">
-      <button id="send-button" class="bg-purple-600 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed" aria-label="Отправить" disabled>Отправить</button>
-    </div>
-  </div>
-
   <script>
-    // Mock API data
-    // Fetch profile data from API
-    async function fetchProfile() {
-      const response = await fetch('/api/profile/');
-      if (!response.ok) {
-        throw new Error('API error');
-      }
-      return await response.json();      
-    }
-
     // Mobile Menu
     function toggleMobileMenu(isOpen) {
       const mobileMenu = document.getElementById('mobile-menu');
@@ -221,223 +153,43 @@
 
     document.getElementById('mobile-menu-backdrop').addEventListener('click', () => toggleMobileMenu(false));
 
-    // Assistant Chat
-    const assistantButton = document.getElementById('assistant-button');
-    const assistantModal = document.getElementById('assistant-modal');
-    const closeAssistant = document.getElementById('close-assistant');
-    const chatInput = document.getElementById('chat-input');
-    const chatContainer = document.getElementById('chat-container');
-    const sendButton = document.getElementById('send-button');
-
-    assistantButton.addEventListener('click', () => assistantModal.classList.toggle('hidden'));
-    closeAssistant.addEventListener('click', () => assistantModal.classList.add('hidden'));
-
-// 🔑 Стоп‑слова, которые игнорируем при разборе запроса
-const stopWords = ['и', 'в', 'на', 'по', 'ли', 'это', 'а', 'к', 'у', 'за', 'то', 'же', 'от', 'с', 'без'];
-
-// 📚 Часто задаваемые вопросы + расширенные синонимы
-const faq = [
-  // Что такое курс
-  {
-    keywords: ['курс', 'что', 'такое', 'представляет', 'собой', 'значит'],
-    answer: 'Курс — это серия видеоуроков, практических заданий и поддержки наставника по конкретной теме.'
-  },
-  // Как записаться
-  {
-    keywords: ['как', 'записаться', 'начать', 'присоединиться', 'стартовать', 'подключиться'],
-    answer: 'На странице курса нажмите кнопку «Записаться» — и он появится у вас в профиле.'
-  },
-  // Бесплатно ли
-  {
-    keywords: ['бесплатно', 'оплата', 'цена', 'стоимость', 'платно', 'безоплатно'],
-    answer: 'Большинство наших курсов доступны бесплатно. Если курс платный, цена указана на его странице.'
-  },
-  // Что входит в курс
-  {
-    keywords: ['что', 'входит', 'содержит', 'структура', 'состав', 'контент'],
-    answer: 'Обычно в курс входят видеоуроки, тесты, практические задания и обратная связь преподавателя.'
-  },
-  // Длительность курса
-  {
-    keywords: ['сколько', 'длится', 'длительность', 'идет', 'времени', 'занимает'],
-    answer: 'Длительность зависит от темы: как правило, от 2 до 6 недель при комфортном темпе.'
-  },
-  // Сертификат
-  {
-    keywords: ['сертификат', 'выдается', 'получу', 'получить', 'документ'],
-    answer: 'После полного прохождения курса и всех заданий вы сможете скачать именной сертификат.'
-  },
-  // Сложность / подойдёт ли новичку
-  {
-    keywords: ['сложно', 'уровень', 'подойдет', 'новичку', 'тяжело', 'опыт'],
-    answer: 'В описании каждого курса указан рекомендуемый уровень. Множество курсов рассчитаны на абсолютных новичков.'
-  },
-  // Повторное прохождение
-  {
-    keywords: ['повторно', 'ещё', 'раз', 'заново', 'перепройти', 'повторить'],
-    answer: 'Вы можете вернуться и пройти курс заново в любое время — доступ остаётся навсегда.'
-  },
-  // Профиль / настройки
-  {
-    keywords: ['профиль', 'аккаунт', 'настройки', 'где', 'посмотреть', 'редактировать'],
-    answer: 'Ваш профиль находится в верхнем меню. Там же можно изменить данные, фото и увидеть прогресс.'
-  },
-  // Чат / вопрос
-  {
-    keywords: ['чат', 'написать', 'вопрос', 'наставник', 'преподаватель', 'связаться'],
-    answer: 'На странице курса откройте вкладку «Чат» — там можно задать вопрос преподавателю.'
-  },
-  // Ошибка / баг
-  {
-    keywords: ['ошибка', 'баг', 'не', 'работает', 'сбой', 'проблема'],
-    answer: 'Опишите, пожалуйста, проблему подробнее — я передам её в техподдержку.'
-  },
-  // Виртуальный помощник
-  {
-    keywords: ['ты', 'человек', 'бот', 'ассистент'],
-    answer: 'Я виртуальный помощник платформы. Если хочешь пообщаться с живым человеком, напиши «Позвать ассистента».'
-  },
-  // Позвать ассистента
-  {
-    keywords: ['позвать', 'ассистента', 'оператор', 'саппорт'],
-    answer: 'Зову ассистента, минуту…'
-  }
-];
-
-// 🍀 Ответ по умолчанию
-const defaultReply = 'Не уверена, что поняла запрос. Сейчас переключу вас на ассистента, подождите, пожалуйста.';
-
-// 🚀 Функция‑поисковик ответа
-function findAnswer(message) {
-  // 1. Токенизация: слова в нижнем регистре, без пустых, без стоп‑слов
-  const words = message
-    .toLowerCase()
-    .split(/[^a-zа-яё0-9ё]+/i)
-    .filter(w => w && !stopWords.includes(w));
-
-  // 2. Ищем лучший FAQ‑ответ
-  let best = { answer: defaultReply, score: 0 };
-  faq.forEach(item => {
-    const score = item.keywords.reduce(
-      (sum, kw) => (words.includes(kw) ? sum + 1 : sum),
-      0
-    );
-    if (score > best.score) best = { answer: item.answer, score };
-  });
-
-  // 3. Если не найдено ни одного совпадения — отдаём дефолт
-  return best.score > 0 ? best.answer : defaultReply;
-}
-
-/* ===== Пример использования =====
-console.log(findAnswer('Сколько длится курс по JavaScript?'));
-// → "Длительность курса зависит от темы: как правило, от 2 до 6 недель при комфортном темпе."
-
-console.log(findAnswer('А сертификат выдаётся?'));
-// → "После полного прохождения курса и всех заданий вы сможете скачать именной сертификат."
-*/
-
-
-    function showTyping() {
-      const div = document.createElement('div');
-      div.className = 'bg-gray-200 text-gray-900 rounded-xl px-3 py-2 max-w-[80%] self-start text-sm';
-      div.textContent = 'Думаю…';
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return div;
+    // Utility Functions
+    function getCookie(name) {
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? m.pop() : '';
     }
-
-    function getBotResponse(message) {
-      const words = message.toLowerCase().split(/[^a-zа-яё0-9]+/).filter(Boolean);
-      let best = {answer: defaultAnswer, score: 0};
-      faq.forEach(item => {
-        const score = item.keywords.reduce((c, k) => words.includes(k) ? c + 1 : c, 0);
-        if (score > best.score) {
-          best = {answer: item.answer, score};
-        }
-      });
-      return best.answer;
-    }
-
-    async function handleSendMessage() {
-      const message = chatInput.value.trim();
-      if (!message) return;
-      addMessage(message, true);
-      const typing = showTyping();
-      sendButton.disabled = true;
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      typing.remove();
-      addMessage(getBotResponse(message), false);
-      sendButton.disabled = false;
-      chatInput.value = '';
-    }
-
-    sendButton.addEventListener('click', handleSendMessage);
-    chatInput.addEventListener('input', () => sendButton.disabled = !chatInput.value.trim());
-    chatInput.addEventListener('keypress', e => e.key === 'Enter' && handleSendMessage());
-
-  // Utility Functions
-  function getCookie(name) {
-    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return m ? m.pop() : '';
-  }
 
     // Profile Management
-    let userData, certificates, badges;
+    let userData = {
+      username: "GrokMaster",
+      bio: "Люблю изучать программирование и играть в стратегии!",
+      about: "Привет! Я GrokMaster, энтузиаст технологий и геймер. Работаю над освоением Python и JavaScript, а в свободное время исследую галактики в Stellaris или решаю головоломки в Portal 2.",
+      courses_enrolled: [
+        {title: "Основы Python"},
+        {title: "Веб-разработка на Django"}
+      ],
+      courses_completed: [
+        {title: "HTML и CSS для начинающих"},
+        {title: "JavaScript основы"}
+      ],
+      badges: ["Пионер", "Быстрый старт", "Усердный ученик"]
+    };
 
-    async function initData() {
-      userData = await fetchProfile();
-      certificates = userData.certificates || [];
-      badges = userData.badges || [];
-      updateProfile();
-      renderCertificates();
-      renderBadges();
+    function updateProfile() {
+      document.getElementById('profile-username').textContent = userData.username;
+      document.getElementById('profile-bio').textContent = userData.bio || '';
+      document.getElementById('profile-about').textContent = userData.about || '';
       renderShowcase();
       renderCourses();
     }
 
-    function updateProfile() {
-      document.getElementById('profile-username').textContent = userData.username;
-      document.getElementById('profile-level').textContent = userData.level;
-      document.getElementById('customize-level').textContent = userData.level;
-      document.getElementById('profile-bio').textContent = userData.bio || '';
-      document.getElementById('profile-about').textContent = userData.bio || '';
-      const avatar = userData.user && userData.user.profile_picture ? userData.user.profile_picture : '{% static "Icons/avatar-placeholder.png" %}';
-      document.getElementById('profile-avatar').src = avatar;
-      document.getElementById('profile-points').textContent = userData.xp;
-      document.getElementById('customize-points').textContent = userData.xp;
-      document.getElementById('profile-badges-count').textContent = badges.length;
-      const levelUpBtn = document.getElementById('level-up-btn');
-      levelUpBtn.disabled = userData.xp < 1000;
-      levelUpBtn.classList.toggle('disabled:bg-gray-300', userData.xp < 1000);
-      const progress = userData.xp % 100;
-      document.getElementById('level-progress').style.width = `${progress}%`;
-      document.getElementById('customize-progress').style.width = `${progress}%`;
-    }
-
-    function renderCertificates() {
-      const grid = document.getElementById('certificates-grid');
-      grid.innerHTML = certificates.map(cert => `
-        <div class="bg-white rounded-2xl shadow-sm p-4">
-          <p class="font-semibold text-sm">${cert.course_title}</p>
-        </div>
-      `).join('');
-    }
-
-    function renderBadges() {
-      const grid = document.getElementById('badges-grid');
-      grid.innerHTML = badges.map(name => `
-        <div class="bg-white rounded-2xl shadow-sm p-4">
-          <p class="font-semibold text-sm">${name}</p>
-        </div>
-      `).join('');
-    }
-
-
     function renderShowcase() {
       const grid = document.getElementById('showcase-grid');
-      grid.innerHTML = badges.map(name => `
-        <div class="bg-white rounded-2xl shadow-sm p-4">
+      grid.innerHTML = userData.badges.map(name => `
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+          <div class="w-16 h-16 bg-purple-100 rounded-full mx-auto mb-2 flex items-center justify-center">
+            <span class="text-purple-600 text-2xl">🏆</span>
+          </div>
           <p class="font-semibold text-sm">${name}</p>
         </div>
       `).join('');
@@ -445,33 +197,23 @@ console.log(findAnswer('А сертификат выдаётся?'));
 
     function renderCourses() {
       const enrolled = document.getElementById('courses-enrolled');
-      enrolled.innerHTML = (userData.courses_enrolled || []).map(c => `<li>${c.title}</li>`).join('');
+      enrolled.innerHTML = userData.courses_enrolled.map(c => `<li>${c.title}</li>`).join('');
       const completed = document.getElementById('courses-completed');
-      completed.innerHTML = (userData.courses_completed || []).map(c => `<li>${c.title}</li>`).join('');
+      completed.innerHTML = userData.courses_completed.map(c => `<li>${c.title}</li>`).join('');
     }
 
-    // Tab Navigation
-    document.querySelectorAll('.tab-button').forEach(button => {
-      button.addEventListener('click', () => {
-        document.querySelectorAll('.tab-button').forEach(btn => {
-          btn.classList.remove('active', 'text-purple-600', 'border-purple-600');
-          btn.classList.add('text-gray-500', 'border-transparent');
-        });
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-        button.classList.add('active', 'text-purple-600', 'border-purple-600');
-        button.classList.remove('text-gray-500', 'border-transparent');
-        document.getElementById(button.getAttribute('data-tab')).classList.remove('hidden');
-      });
-    });
-
     // Profile Editing
-      const editProfileBtn = document.getElementById('edit-profile-btn');
-      const editProfileForm = document.getElementById('edit-profile-form');
-      const cancelProfileBtn = document.getElementById('cancel-profile-btn');
-      const saveProfileBtn = document.getElementById('save-profile-btn');
-      const editAvatar = document.getElementById('edit-avatar');
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    const editProfileForm = document.getElementById('edit-profile-form');
+    const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    const editAvatar = document.getElementById('edit-avatar');
+    const editBg = document.getElementById('edit-bg');
 
     editProfileBtn.addEventListener('click', () => {
+      document.getElementById('edit-username').value = userData.username;
+      document.getElementById('edit-bio').value = userData.bio || '';
+      document.getElementById('edit-about').value = userData.about || '';
       editProfileForm.classList.remove('hidden');
       editProfileBtn.classList.add('hidden');
     });
@@ -479,20 +221,26 @@ console.log(findAnswer('А сертификат выдаётся?'));
     cancelProfileBtn.addEventListener('click', () => {
       editProfileForm.classList.add('hidden');
       editProfileBtn.classList.remove('hidden');
-      document.getElementById('edit-username').value = '';
-      document.getElementById('edit-bio').value = '';
-      document.getElementById('edit-about').value = '';
       editAvatar.value = '';
+      editBg.value = '';
     });
 
     saveProfileBtn.addEventListener('click', async () => {
       const newUsername = document.getElementById('edit-username').value.trim();
       const newBio = document.getElementById('edit-bio').value.trim();
+      const newAbout = document.getElementById('edit-about').value.trim();
+
+      // Update user data
+      userData.username = newUsername || userData.username;
+      userData.bio = newBio || userData.bio;
+      userData.about = newAbout || userData.about;
 
       const formData = new FormData();
       if (newUsername) formData.append('username', newUsername);
       formData.append('bio', newBio);
-      if (editAvatar.files[0]) formData.append('profile_picture', editAvatar.files[0]);
+      formData.append('about', newAbout);
+      if (editAvatar.files[0]) formData.append('avatar', editAvatar.files[0]);
+      if (editBg.files[0]) formData.append('background', editBg.files[0]);
 
       try {
         const response = await fetch('/api/profile/', {
@@ -500,43 +248,31 @@ console.log(findAnswer('А сертификат выдаётся?'));
           headers: { 'X-CSRFToken': getCookie('csrftoken') },
           body: formData,
         });
+        
         if (response.ok) {
-          userData = await response.json();
-        } else {
-          console.warn('Failed to save profile to API:', await response.text());
+          const data = await response.json();
+          // Update background image if changed
+          if (data.background_url) {
+            document.getElementById('profile-bg').src = data.background_url;
+          }
+          // Update avatar if changed
+          if (data.avatar_url) {
+            document.getElementById('profile-avatar').src = data.avatar_url;
+          }
         }
       } catch (error) {
-        console.warn('Failed to save profile to API, using local data:', error);
+        console.error('Error saving profile:', error);
       }
+
       updateProfile();
       editProfileForm.classList.add('hidden');
       editProfileBtn.classList.remove('hidden');
-      document.getElementById('edit-username').value = '';
-      document.getElementById('edit-bio').value = '';
-      document.getElementById('edit-about').value = '';
       editAvatar.value = '';
-    });
-
-    // Level Up
-    document.getElementById('level-up-btn').addEventListener('click', async () => {
-      if (userData.xp >= 1000) {
-        userData.xp -= 1000;
-        userData.level += 1;
-        try {
-          await fetch('/api/profile/', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-          });
-        } catch (error) {
-          console.warn('Failed to save level up to API, using local data:', error);
-        }
-        updateProfile();
-      }
+      editBg.value = '';
     });
 
     // Initialize
-    initData();
+    updateProfile();
   </script>
 </body>
 </html>
