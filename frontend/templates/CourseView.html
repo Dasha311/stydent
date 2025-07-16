@@ -17,6 +17,7 @@
       --text-subtle: #4c3d64;
       --border: #d9d6e5;
       --transition: 0.2s ease;
+      --border-color: #d9d6e5;
     }
 
     * {
@@ -220,6 +221,29 @@
       cursor: pointer;
     }
 
+    /* Стили для нового селектора категорий */
+    .category-select-container {
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    .category-select-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .category-select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: white;
+      cursor: pointer;
+    }
+
     /* Карточки курсов */
     .grid {
       display: grid;
@@ -257,7 +281,7 @@
 
     .card-text {
       color: var(--text-subtle);
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       font-size: 0.95rem;
     }
 
@@ -403,6 +427,10 @@
       .filters {
         justify-content: flex-start;
       }
+      
+      .category-select {
+        max-width: 300px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -432,7 +460,7 @@
       
       <nav class="desktop-nav">
         <a href="{% url 'main_menu' %}">Главная</a>
-        <a href="{% url 'course_view' %}?course_id=1">Курсы</a>
+        <a href="{% url 'course_view' %}">Курсы</a>
         <a href="{% url 'about' %}">О нас</a>
         <a href="{% url 'contacts' %}">Контакты</a>
       </nav>
@@ -457,7 +485,7 @@
   <div class="mobile-menu-backdrop"></div>
   <nav id="mobile-menu" class="mobile-menu">
     <a href="{% url 'main_menu' %}">Главная</a>
-    <a href="{% url 'course_view' %}?course_id=1">Курсы</a>
+    <a href="{% url 'course_view' %}">Курсы</a>
     <a href="{% url 'about' %}">О нас</a>
     <a href="{% url 'contacts' %}">Контакты</a>
     <div class="auth-buttons">
@@ -473,19 +501,17 @@
         <h1>Найдите свой идеальный курс</h1>
         <p class="subtitle">Выберите из множества курсов по различным категориям с честными отзывами и рейтингами.</p>
         
-        <form method="get" class="filters mb-6">
-          <select name="category" class="filter-select" onchange="this.form.submit()">
-            <option value="">Все категории</option>
-            {% for cat in categories %}
-            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-            {% endfor %}
+        <div class="category-select-container">
+          <label for="course-category" class="category-select-label">Категория</label>
+          <select id="course-category" class="category-select" onchange="filterCoursesByCategory()">
+            <option value="" selected>Все категории</option>
+            <!-- Опции будут добавлены через JavaScript -->
           </select>
-        </form>
+        </div>
 
-        <div class="grid">
+        <div class="grid" id="courses-grid">
           {% for course in courses %}
-          {% with cat=course.categories.first %}
-          <div class="card" data-category="{{ cat.name if cat }}">
+          <div class="card" data-category="{{ course.category|escape }}">
             {% if course.thumbnail %}
             <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="card-img">
             {% else %}
@@ -493,11 +519,11 @@
             {% endif %}
             <div class="card-content">
               <h3 class="card-title">{{ course.title }}</h3>
+              <p class="card-text">Категория: {{ course.category|default:"Не указана" }}</p>
               <p class="card-text">{{ course.description|default:"Описание отсутствует"|truncatewords:20 }}</p>
-            <a href="{% url 'course_detail' course.id %}" class="btn-main">Подробнее</a>
+              <a href="{% url 'course_detail' course.id %}" class="btn-main">Подробнее</a>
             </div>
           </div>
-          {% endwith %}
           {% empty %}
           <p>Курсы не найдены.</p>
           {% endfor %}
@@ -609,25 +635,86 @@
       chatInput.addEventListener('input', function() {
         sendBtn.disabled = !this.value.trim();
       });
-      
-      // Фильтрация курсов
-      const categorySelect = document.querySelector('.filter-select');
-      const courseCards = document.querySelectorAll('.card');
 
-      function filterCourses() {
-        const category = categorySelect.value;
-
-        courseCards.forEach(card => {
-          const cardCategory = card.dataset.category || '';
-          const match = !category || cardCategory.includes(category);
-          card.style.display = match ? 'block' : 'none';
+      // Загрузка категорий в выпадающий список
+      function loadCategoryOptions() {
+        const categories = [
+          "Frontend-разработка",
+          "Backend-разработка",
+          "Мобильная разработка",
+          "Data Science и машинное обучение",
+          "DevOps и системное администрирование",
+          "QA и тестирование",
+          "UI/UX дизайн",
+          "Базы данных",
+          "Веб-дизайн",
+          "Кибербезопасность",
+          "Бизнес-аналитика",
+          "Общее программирование",
+          "Soft Skills",
+          "Иностранные языки",
+          "Подготовка к сертификациям",
+          "Математика",
+          "Русский язык",
+          "Литература",
+          "Информатика",
+          "Физика",
+          "Химия",
+          "Биология",
+          "История",
+          "География",
+          "Обществознание",
+          "Английский язык",
+          "Немецкий язык",
+          "Французский язык",
+          "Музыка",
+          "Изобразительное искусство",
+          "Физическая культура",
+          "Технология (трудовое обучение)",
+          "Основы безопасности жизнедеятельности (ОБЖ)",
+          "Экология",
+          "Астрономия"
+        ];
+        
+        const select = document.getElementById('course-category');
+        
+        // Добавляем только уникальные категории из имеющихся курсов
+        const existingCategories = new Set();
+        document.querySelectorAll('.card[data-category]').forEach(card => {
+          const category = card.getAttribute('data-category');
+          if (category) existingCategories.add(category);
+        });
+        
+        // Добавляем категории из списка, которые есть в существующих курсах
+        categories.forEach(cat => {
+          if (existingCategories.has(cat)) {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            select.appendChild(opt);
+          }
         });
       }
-
-      if (categorySelect) {
-        categorySelect.addEventListener('change', filterCourses);
+      
+      // Фильтрация курсов по категории
+      function filterCoursesByCategory() {
+        const selectedCategory = document.getElementById('course-category').value;
+        const cards = document.querySelectorAll('.card');
+        
+        cards.forEach(card => {
+          const cardCategory = card.getAttribute('data-category');
+          
+          if (!selectedCategory || selectedCategory === cardCategory) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
       }
+      
+      // Инициализация
+      loadCategoryOptions();
     });
-  </script>>
+  </script>
 </body>
 </html>

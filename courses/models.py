@@ -310,5 +310,9 @@ def create_course_content(sender, instance, created, **kwargs):
                 duration=0,
             )
         for user in CustomUser.objects.filter(role='student'):
-            if user.email:
+            if not user.email:
+                continue
+            try:
                 send_new_course_invitation.delay(user.email, instance.title)
+            except Exception:
+                send_new_course_invitation(user.email, instance.title)

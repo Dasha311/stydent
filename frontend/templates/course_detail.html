@@ -644,7 +644,6 @@
       loadCourseDetails();
       if (!USER_ID) {
         const overlay = document.getElementById('auth-overlay');
-        const restrictedSelectors = ['#course-content', '#enroll-section', '#chat-toggle'];
         const showOverlay = (e) => {
           if (overlay.classList.contains('hidden')) {
             overlay.classList.remove('hidden');
@@ -652,9 +651,7 @@
             e.stopPropagation();
           }
         };
-        restrictedSelectors.forEach(sel => {
-          document.querySelector(sel)?.addEventListener('click', showOverlay, true);
-        });
+        document.addEventListener('click', showOverlay, true);
         overlay.addEventListener('click', (e) => {
           if (e.target === overlay) overlay.classList.add('hidden');
         });
