@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#f5f3ff">
   <title>EduPath - Панель репетитора</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --brand-primary: #6C4DFF;
@@ -274,6 +274,13 @@
       background: var(--bg-main);
       font-size: 14px;
     }
+    #image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
 
     @media (min-width: 1024px) {
       .hero-section h1 {
@@ -432,6 +439,7 @@
             <div class="mb-4">
               <label for="course-image" class="block text-sm font-medium mb-1">Изображение курса</label>
               <input id="course-image" type="file" accept="image/*" class="w-full p-2 border border-[var(--border-color)] rounded-lg">
+              <div id="image-preview-container"></div>
             </div>
             <div class="mb-4">
               <label for="course-category" class="block text-sm font-medium mb-1">Категория</label>
@@ -449,7 +457,7 @@
             </div>
             <div class="mb-4">
               <label for="course-assignment" class="block text-sm font-medium mb-1">Задание</label>
-              <textarea id="course-assignment" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder="Опишите задание для студентов..."></textarea>
+              <textarea id="course-assignment" rows="3" class="w-full p-2 border border-[var(--border-color)] rounded-lg" placeholder Gogetter" placeholder="Опишите задание для студентов..."></textarea>
             </div>
             <div class="mb-4 flex items-center gap-2">
               <input id="with-test" type="checkbox" class="h-4 w-4">
@@ -482,8 +490,6 @@
       </div>
     </section>
 
-
-
     <section class="bg-[var(--brand-primary)] text-white py-16 text-center">
       <div class="max-w-3xl mx-auto px-4">
         <h2 class="text-3xl font-bold mb-4">Создавайте новые курсы!</h2>
@@ -493,7 +499,7 @@
     </section>
   </main>
 
-{% include 'partials/footer.html' %}
+  {% include 'partials/footer.html' %}
 
   <!-- Chat Assistant -->
   <div id="assistant-button" aria-label="Чат" class="assistant-button">
@@ -939,31 +945,27 @@
       const article = document.createElement('article');
       article.className = 'card';
       article.dataset.courseId = course.id;
-        article.innerHTML = `
-          <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
-          <div class="p-5">
-            <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
-            <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
-            <p class="text-[var(--text-secondary)] text-sm mb-3">Уровень: ${course.level || 'Не указан'}</p>
-            <p class="text-[var(--text-secondary)] text-sm mb-3">Длительность: ${course.duration || 'Не указана'}</p>
-            <p class="text-[var(--text-secondary)] text-sm mb-3">Описание: ${course.description || 'Нет описания'}</p>
-            <div class="flex flex-col sm:flex-row gap-2">
-  <a href="/course/${course.id}/?owner={{ request.user.id }}"
-     target="_blank"
-     class="flex-1 text-center py-2 rounded bg-gray-700 hover:bg-gray-800 text-white">
-    Открыть
-  </a>
-  <a href="#"
-     class="flex-1 text-center py-2 rounded bg-purple-600 hover:bg-purple-700 text-white edit">
-    Редактировать
-  </a>
-  <a href="#"␊
-     class="flex-1 text-center py-2 rounded bg-red-600 hover:bg-red-700 text-white delete">
-    Удалить␊
-  </a>␊
-</div>␊
-
-        </div>`;
+      article.innerHTML = `
+        <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="Course" class="w-full h-40 object-cover rounded-t-lg">
+        <div class="p-5">
+          <h3 class="text-lg font-semibold mb-2">${course.title}</h3>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">0 студентов</p>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">Уровень: ${course.level || 'Не указан'}</p>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">Длительность: ${course.duration || 'Не указана'}</p>
+          <p class="text-[var(--text-secondary)] text-sm mb-3">Описание: ${course.description || 'Нет описания'}</p>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <a href="/course/${course.id}/?owner={{ request.user.id }}" target="_blank" class="flex-1 text-center py-2 rounded bg-gray-700 hover:bg-gray-800 text-white">
+              Открыть
+            </a>
+            <a href="#" class="flex-1 text-center py-2 rounded bg-purple-600 hover:bg-purple-700 text-white edit">
+              Редактировать
+            </a>
+            <a href="#" class="flex-1 text-center py-2 rounded bg-red-600 hover:bg-red-700 text-white delete">
+              Удалить
+            </a>
+          </div>
+        </div>
+      `;
       document.getElementById('teacher-courses').appendChild(article);
       new CourseManager(); // Rebind events for new cards
     }
@@ -981,6 +983,28 @@
 
       const courseForm = document.getElementById('create-course-form');
 
+      // Image Preview Handler
+      document.getElementById('course-image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const previewContainer = document.getElementById('image-preview-container');
+        previewContainer.innerHTML = ''; // Clear previous preview
+        if (file) {
+          if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+            alert('Пожалуйста, загрузите изображение в формате JPEG, PNG или GIF.');
+            e.target.value = ''; // Reset input
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            const preview = document.createElement('img');
+            preview.src = event.target.result;
+            preview.id = 'image-preview';
+            preview.className = 'w-full h-40 object-cover rounded-lg mt-2';
+            previewContainer.appendChild(preview);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
 
       courseForm.addEventListener('submit', e => {
         e.preventDefault();
@@ -1009,6 +1033,10 @@
           alert('Пожалуйста, загрузите файл в формате PDF или TXT.');
           return;
         }
+        if (thumbnail && !['image/jpeg', 'image/png', 'image/gif'].includes(thumbnail.type)) {
+          alert('Пожалуйста, загрузите изображение в формате JPEG, PNG или GIF.');
+          return;
+        }
         if (withTest && !testData) {
           alert('Пожалуйста, сохраните тест перед отправкой формы.');
           return;
@@ -1024,8 +1052,9 @@
         if (withTest) {
           formData.append('test', testData);
         }
-
-        if (thumbnail) formData.append('thumbnail', thumbnail);
+        if (thumbnail) {
+          formData.append('thumbnail', thumbnail);
+        }
 
         const url = editId ? `/api/courses/${editId}/manage/` : '/api/courses/create/';
         const method = editId ? 'PUT' : 'POST';
@@ -1044,6 +1073,7 @@
           document.getElementById('test-questions').innerHTML = '';
           document.getElementById('with-test').checked = false;
           document.getElementById('test-modal').classList.add('hidden');
+          document.getElementById('image-preview-container').innerHTML = '';
           loadCourses();
           document.getElementById('my-courses').scrollIntoView({behavior: 'smooth'});
         }).catch(err => {
