@@ -398,7 +398,7 @@
           <div class="p-6">
             <div class="grid gap-6">
               <div class="flex items-center gap-4">
-                <img src="{% static 'Icons/Logo.png' %}" alt="Tutor" class="avatar" loading="lazy">
+                <img src="{{ request.user.avatar_url }}" alt="{{ request.user.username }}" class="avatar" loading="lazy">
                 <div>
                   <h2 class="text-xl font-semibold">Добро пожаловать, {{ request.user.username }}!</h2>
                   <p class="text-[var(--text-secondary)] text-sm">Ваша панель для управления курсами и общения со студентами</p>
@@ -535,7 +535,7 @@
           <div class="auth-buttons">
             ${
               this.isAuthenticated
-                ? `<a href="{% url 'profile' %}"><img src="{% static 'Icons/Logo.png' %}" alt="User Avatar" class="avatar w-12 h-12 mx-auto" title="Профиль" loading="lazy"></a>`
+                ? `<a href="{% url 'profile' %}"><img src="{{ request.user.avatar_url }}" alt="{{ request.user.username }}" class="avatar w-12 h-12 mx-auto" title="Профиль" loading="lazy"></a>`
                 : `
                   <a href="{% url 'login' %}" class="btn">Войти</a>
                   <a href="{% url 'register' %}" class="btn">Регистрация</a>
