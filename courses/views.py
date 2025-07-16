@@ -191,6 +191,25 @@ class EnrollmentCompleteView(generics.UpdateAPIView):
         return Enrollment.objects.filter(student=self.request.user)
 
 
+class EnrollmentDeleteView(generics.DestroyAPIView):
+    """Allow a student to unenroll from a course."""
+
+    queryset = Enrollment.objects.all()
+    serializer_class = EnrollmentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsStudent]
+
+    def get_queryset(self):
+        return Enrollment.objects.filter(student=self.request.user)
+
+    def perform_destroy(self, instance):
+        profile, _ = UserProfile.objects.get_or_create(user=instance.student)
+        profile.courses_enrolled.remove(instance.course)
+        instructor = instance.course.instructor
+        instructor.level = max(0, instructor.level - 10)
+        instructor.save(update_fields=["level"])
+        super().perform_destroy(instance)
+
+
 class UserEnrollmentsView(generics.ListAPIView):
     serializer_class = EnrollmentSerializer
     permission_classes = [permissions.IsAuthenticated, IsStudent]

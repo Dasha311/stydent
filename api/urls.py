@@ -20,6 +20,7 @@ from courses.views import (
     EnrollmentView,
     UserEnrollmentsView,
     EnrollmentCompleteView,
+    EnrollmentDeleteView,
     CourseManageView,
     LessonDetailView,
     AssignmentCreateView,
@@ -63,12 +64,13 @@ urlpatterns = [
     path('modules/<int:pk>/', ModuleDetailView.as_view(), name='module-detail'),
     path('courses/<int:course_id>/lessons/', LessonListView.as_view(), name='lesson-list'),
     path('lessons/<int:pk>/', LessonDetailView.as_view(), name='lesson-detail'),
-        path('lessons/<int:lesson_id>/complete/', LessonCompleteView.as_view(), name='lesson-complete'),
+    path('lessons/<int:lesson_id>/complete/', LessonCompleteView.as_view(), name='lesson-complete'),
 
     # Enrollments
     path('enroll/', EnrollmentView.as_view(), name='enroll'),
     path('my-courses/', UserEnrollmentsView.as_view(), name='user-enrollments'),
     path('enrollments/<int:pk>/complete/', EnrollmentCompleteView.as_view(), name='enrollment-complete'),
+    path('enrollments/<int:pk>/delete/', EnrollmentDeleteView.as_view(), name='enrollment-delete'),
 
     # Assignments
     path('lessons/<int:lesson_id>/assignments/', LessonAssignmentsView.as_view(), name='lesson-assignments'),

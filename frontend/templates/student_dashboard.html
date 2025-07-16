@@ -856,18 +856,22 @@
     function addEnrolledCourseCard(course) {
       const article = document.createElement('article');
       article.className = 'card';
-      article.dataset.courseId = course.id;
-      const instructor = course.instructor || course.tutor || (course.course ? course.course.instructor : null) || {};
+      const data = course.course ? course.course : course;
+      article.dataset.courseId = data.id;
+      if (course.course) article.dataset.enrollmentId = course.id;
+      const instructor = data.instructor || data.tutor || {};
       const instructorName = instructor.username || instructor.name || 'Не указан';
       const instructorId = instructor.id;
+      const progress = course.progress || 0;
 
       article.innerHTML = `
-        <img src="${course.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="${course.title}" class="card-img" loading="lazy">
+        <img src="${data.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="${data.title}" class="card-img" loading="lazy">
         <div class="card-content">
-          <h3 class="card-title">${course.title}</h3>
-          <p class="card-text">Репетитор: ${instructorId ? `<a href="/tutors/${instructorId}/" class="text-purple-600 hover:underline">${instructorName}</a>` : instructorName} • ${course.progress || 0}% завершено</p>
-          <div class="progress-bar"><div class="progress-bar-inner" style="width: ${course.progress || 0}%;"></div></div>
-          <a href="/course/${course.id}/" class="btn-primary">Продолжить</a>
+          <h3 class="card-title">${data.title}</h3>
+          <p class="card-text">Репетитор: ${instructorId ? `<a href="/tutors/${instructorId}/" class="text-purple-600 hover:underline">${instructorName}</a>` : instructorName} • ${progress}% завершено</p>
+          <div class="progress-bar"><div class="progress-bar-inner" style="width: ${progress}%;"></div></div>
+          <a href="/course/${data.id}/" class="btn-primary">Продолжить</a>
+          <a href="#" class="btn-secondary unenroll ml-2">Отписаться</a>
         </div>`;
       document.getElementById('current-courses').appendChild(article);
     }
@@ -892,7 +896,7 @@
       document.getElementById('recommended-courses').appendChild(article);
     }
 
-    function attachEnrollHandlers() {
+function attachEnrollHandlers() {
       document.querySelectorAll('#recommended-courses .enroll').forEach(link => {
         link.addEventListener('click', async e => {
           e.preventDefault();
@@ -927,7 +931,38 @@
               updateProgressBars();
             } else {
               alert('Ошибка при записи на курс.');
+}
+
+    function attachUnenrollHandlers() {
+      document.querySelectorAll('#current-courses .unenroll').forEach(link => {
+        link.addEventListener('click', async e => {
+          e.preventDefault();
+          const card = link.closest('article');
+          const enrollmentId = card.dataset.enrollmentId || card.dataset.courseId;
+          const courseId = card.dataset.courseId;
+          try {
+            const resp = await fetch(`/api/enrollments/${enrollmentId}/delete/`, {
+              method: 'DELETE',
+              headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            });
+            if (resp.ok) {
+              alert('Вы отписались от курса.');
+              card.remove();
+              const enrolled = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
+              const idx = enrolled.indexOf(String(courseId));
+              if (idx !== -1) enrolled.splice(idx, 1);
+              localStorage.setItem(STORAGE_ENROLLED, JSON.stringify(enrolled));
+              localStorage.removeItem(STORAGE_PROGRESS_PREFIX + courseId);
+            } else {
+              alert('Ошибка при отписке.');
             }
+          } catch (error) {
+            console.error('Unenroll error:', error);
+            alert('Произошла ошибка. Попробуйте позже.');
+          }
+        });
+      });
+    }
           } catch (error) {
             console.error('Enrollment error:', error);
             alert('Произошла ошибка. Попробуйте позже.');
@@ -967,6 +1002,7 @@
         .then(r => r.json())
         .then(data => {
           data.forEach(addEnrolledCourseCard);
+          attachUnenrollHandlers();
           updateProgressBars();
         });
     }

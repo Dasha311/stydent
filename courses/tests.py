@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.signals import post_save
 from accounts.models import CustomUser
-from courses.models import Course, create_course_content
+from courses.models import Course, Enrollment, create_course_content
 
 
 class CourseAPITestCase(APITestCase):
@@ -55,3 +55,39 @@ class CourseAPITestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Course.objects.filter(id=course.id).exists())
+
+
+class EnrollmentAPITestCase(APITestCase):
+    def setUp(self):
+        post_save.disconnect(create_course_content, sender=Course)
+        self.mentor = CustomUser.objects.create_user(
+            username="mentor2",
+            email="mentor2@example.com",
+            password="pass",
+            role="mentor",
+        )
+        self.student = CustomUser.objects.create_user(
+            username="student",
+            email="student@example.com",
+            password="pass",
+            role="student",
+        )
+        self.course = Course.objects.create(title="C", instructor=self.mentor, created_by=self.mentor)
+        self.client.force_authenticate(user=self.student)
+
+    def tearDown(self):
+        post_save.connect(create_course_content, sender=Course)
+
+    def test_unenroll(self):
+        enroll_url = reverse("api:enroll")
+        response = self.client.post(enroll_url, {"course_id": self.course.id}, format="json")
+        self.assertEqual(response.status_code, 201)
+        enrollment_id = response.data["id"]
+        profile = self.student.userprofile
+        self.assertTrue(profile.courses_enrolled.filter(id=self.course.id).exists())
+
+        delete_url = reverse("api:enrollment-delete", args=[enrollment_id])
+        resp = self.client.delete(delete_url)
+        self.assertEqual(resp.status_code, 204)
+        self.assertFalse(profile.courses_enrolled.filter(id=self.course.id).exists())
+        self.assertFalse(Enrollment.objects.filter(id=enrollment_id).exists())
