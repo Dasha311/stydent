@@ -365,7 +365,7 @@
             const successMsg = document.createElement('p');
             successMsg.className = 'mt-2 text-green-600';
             successMsg.textContent = 'Задание отправлено';
-            assignmentSection.appendChild(successMsg);␊
+            assignmentSection.appendChild(successMsg);
             saveProgress();
           } catch (error) {
             errorMessage.textContent = 'Не удалось отправить задание. Попробуйте позже.';
@@ -658,30 +658,31 @@
       }
     });
 
-    // Initialization
-    function initCoursePage() {
-      loadCourseDetails();
-      if (!USER_ID) {
-        const overlay = document.getElementById('auth-overlay');
-        const showOverlay = (e) => {
-          if (overlay.classList.contains('hidden')) {
-            overlay.classList.remove('hidden');
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        };
-        document.addEventListener('click', showOverlay, true);
-        overlay.addEventListener('click', (e) => {
-          if (e.target === overlay) overlay.classList.add('hidden');
-        });
+          // Initialization
+      function initCoursePage() {
+        loadCourseDetails();
+        if (!USER_ID) {
+          const overlay = document.getElementById('auth-overlay');
+          const showOverlay = (e) => {
+            if (overlay.classList.contains('hidden')) {
+              overlay.classList.remove('hidden');
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          };
+          document.addEventListener('click', showOverlay, true);
+          overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) overlay.classList.add('hidden');
+          });
+        }
       }
-    }
 
-    if (document.readyState !== 'loading') {
-      initCoursePage();
-    } else {
-      document.addEventListener('DOMContentLoaded', initCoursePage);
-    }
+      if (document.readyState !== 'loading') {
+        initCoursePage();
+      } else {
+        document.addEventListener('DOMContentLoaded', initCoursePage);
+      }
+
   </script>
   <div id="auth-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="bg-white p-6 rounded-xl text-center">
