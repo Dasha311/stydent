@@ -247,6 +247,39 @@ class MentorCoursesView(generics.ListAPIView):
 class AssignmentCreateView(generics.CreateAPIView):
     serializer_class = AssignmentSerializer
     permission_classes = [permissions.IsAuthenticated, IsStudent]
+    parser_classes = [
+        parsers.MultiPartParser,
+        parsers.FormParser,
+        parsers.JSONParser,
+    ]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        # Support frontend field names
+        file_obj = request.FILES.get("assignmentFile")
+        if file_obj and "file" not in data:
+            data["file"] = file_obj
+        if "lesson" not in data:
+            course_id = (
+                data.get("courseId")
+                or data.get("course_id")
+                or data.get("course")
+            )
+            if course_id:
+                lesson = (
+                    Lesson.objects.filter(course_id=course_id)
+                    .order_by("order")
+                    .first()
+                )
+                if lesson:
+                    data["lesson"] = lesson.id
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
@@ -294,6 +327,11 @@ class TestSubmitView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         test = get_object_or_404(Test, pk=self.kwargs["test_id"])
+        if TestAttempt.objects.filter(test=test, student=request.user).count() >= 2:
+            return Response(
+                {"error": "Превышено число попыток"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         answers = request.data.get("answers", {})
         attempt = TestAttempt.objects.create(test=test, student=request.user)
         correct = 0

@@ -352,7 +352,7 @@
           formData.append('assignmentFile', uploadInput.files[0]);
           formData.append('courseId', courseId);
           try {
-            const response = await fetch('/api/courses/submit-assignment/', {
+            const response = await fetch('/api/assignments/submit/', {
               method: 'POST',
               headers: { 'X-CSRFToken': getCookie('csrftoken') },
               body: formData

@@ -559,7 +559,7 @@
       </div>
     </section>
 
-    
+
 
     <section class="cta">
       <div class="container">
@@ -834,6 +834,7 @@
       const instructorName = instructor.username || instructor.name || 'Не указан';
       const instructorId = instructor.id;
       const progress = course.progress || 0;
+      localStorage.setItem(STORAGE_PROGRESS_PREFIX + data.id, progress);
 
       article.innerHTML = `
         <img src="${data.thumbnail || '{% static "Icons/aa8625109287767.5fd08439c7676.jpg" %}'}" alt="${data.title}" class="card-img" loading="lazy">
