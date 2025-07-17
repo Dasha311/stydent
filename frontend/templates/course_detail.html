@@ -659,7 +659,7 @@
     });
 
     // Initialization
-    document.addEventListener('DOMContentLoaded', () => {
+    function initCoursePage() {
       loadCourseDetails();
       if (!USER_ID) {
         const overlay = document.getElementById('auth-overlay');
@@ -675,7 +675,13 @@
           if (e.target === overlay) overlay.classList.add('hidden');
         });
       }
-    });
+    }
+
+    if (document.readyState !== 'loading') {
+      initCoursePage();
+    } else {
+      document.addEventListener('DOMContentLoaded', initCoursePage);
+    }
   </script>
   <div id="auth-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="bg-white p-6 rounded-xl text-center">
