@@ -117,9 +117,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        profile_picture = validated_data.pop('profile_picture', None)
-        bio = validated_data.pop('bio', None)
-        username = validated_data.pop('username', None)
+        profile_picture = validated_data.pop("profile_picture", None)
+        bio = validated_data.pop("bio", None)
+        user_data = validated_data.pop("user", {})
+        username = user_data.get("username")
+
         user = instance.user
         if profile_picture is not None:
             user.profile_picture = profile_picture
