@@ -365,8 +365,8 @@
             const successMsg = document.createElement('p');
             successMsg.className = 'mt-2 text-green-600';
             successMsg.textContent = 'Задание отправлено';
-            assignmentSection.appendChild(successMsg);
-            checkCourseCompletion();
+            assignmentSection.appendChild(successMsg);␊
+            saveProgress();
           } catch (error) {
             errorMessage.textContent = 'Не удалось отправить задание. Попробуйте позже.';
           }
@@ -398,7 +398,20 @@
         const btn = document.createElement('button');
         btn.textContent = 'Отправить ответы';
         btn.className = 'btn mt-6';
+        const attemptsKey = 'testAttempts:' + courseId;
+        const attemptsUsed = parseInt(localStorage.getItem(attemptsKey) || '0');
+        if (attemptsUsed >= 2) {
+          btn.disabled = true;
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
         btn.onclick = () => {
+          let attempts = parseInt(localStorage.getItem(attemptsKey) || '0');
+          if (attempts >= 2) {
+            alert('Вы исчерпали лимит попыток.');
+            return;
+          }
+          attempts++;
+          localStorage.setItem(attemptsKey, attempts);
           let correct = 0;
           questions.forEach((q, i) => {
             const val = document.querySelector(`input[name=q${i}]:checked`);
@@ -410,7 +423,7 @@
           if (correct === questions.length) {
             localStorage.setItem('testPassed:' + courseId, 'true');
           }
-          checkCourseCompletion();
+          saveProgress();
         };
         quiz.appendChild(btn);
         quiz.appendChild(result);
@@ -508,7 +521,11 @@
     function saveProgress() {
       const videos = course.videos || [];
       const watched = JSON.parse(localStorage.getItem(STORAGE_PROGRESS_DATA_PREFIX + courseId) || '[]');
-      const p = videos.length ? Math.round(watched.length / videos.length * 100) : 0;
+      const assignmentSubmitted = localStorage.getItem('assignmentSubmitted:' + courseId) === 'true';
+      const testPassed = localStorage.getItem('testPassed:' + courseId) === 'true';
+      const totalParts = videos.length + (course.assignment ? 1 : 0) + (course.test?.length ? 1 : 0);
+      const completedParts = watched.length + (assignmentSubmitted ? 1 : 0) + (testPassed ? 1 : 0);
+      const p = totalParts ? Math.round((completedParts / totalParts) * 100) : 0;
       localStorage.setItem(STORAGE_PROGRESS_PREFIX + courseId, p);
       localStorage.setItem(STORAGE_PROGRESS_DATA_PREFIX + courseId, JSON.stringify(watched));
       checkCourseCompletion();
