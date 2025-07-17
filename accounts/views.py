@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status, serializers
+from rest_framework import generics, permissions, status, serializers, parsers
 from rest_framework.response import Response
 from django.contrib.auth import logout
 from django.contrib.auth.tokens import default_token_generator
@@ -142,6 +142,11 @@ class PasswordResetConfirmView(generics.GenericAPIView):
 class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [
+        parsers.MultiPartParser,
+        parsers.FormParser,
+        parsers.JSONParser,
+    ]
     
 
     def get_object(self):
