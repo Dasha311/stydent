@@ -131,6 +131,11 @@
       return await response.json();
     }
 
+    function getCookie(name) {
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? m.pop() : '';
+    }
+
     // Mobile Menu
     function toggleMobileMenu(isOpen) {
       const mobileMenu = document.getElementById('mobile-menu');
@@ -211,7 +216,27 @@
       editAvatar.value = '';
     });
 
-    saveProfileBtn.addEventListener('click', () => {
+    saveProfileBtn.addEventListener('click', async () => {
+      const formData = new FormData();
+      const username = document.getElementById('edit-username').value.trim();
+      const bio = document.getElementById('edit-bio').value.trim();
+      if (username) formData.append('username', username);
+      if (bio) formData.append('bio', bio);
+      if (editAvatar.files[0]) {
+        formData.append('profile_picture', editAvatar.files[0]);
+      }
+      try {
+        const response = await fetch('/api/profile/', {
+          method: 'PATCH',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          body: formData
+        });
+        if (!response.ok) throw new Error('save failed');
+        userData = await response.json();
+        updateProfile();
+      } catch (error) {
+        alert('Не удалось сохранить изменения профиля.');
+      }
       editProfileForm.classList.add('hidden');
       editProfileBtn.classList.remove('hidden');
       document.getElementById('edit-username').value = '';
