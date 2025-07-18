@@ -101,7 +101,7 @@
   </style>
   <script>
     const STATIC_URL = "{% static '' %}";
-    const USER_ID = {{ request.user.id|default:"0" }};
+    const USER_ID = "{{ request.user.id|default:'0' }}";
     const STORAGE_ENROLLED = 'enrolledCourses_' + USER_ID;
     const STORAGE_PROGRESS_PREFIX = 'courseProgress_' + USER_ID + ':';
     const STORAGE_PROGRESS_DATA_PREFIX = 'courseProgressData_' + USER_ID + ':';
@@ -192,7 +192,7 @@
     const courseHeader = document.getElementById('course-header');
     const courseId = new URLSearchParams(window.location.search).get('course_id') || window.location.pathname.split('/').filter(Boolean).pop();
     const userRole = '{{ user.role|default:"student" }}';
-    const userId = {{ request.user.id|default:"0" }};
+    const userId = "{{ request.user.id|default:'0' }}";
     let course = null;
 
     async function loadCourseDetails() {
