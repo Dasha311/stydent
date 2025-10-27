@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>О нас — EduPath</title>
+  <title>О нас — NeXus</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -26,36 +26,19 @@
       -moz-osx-font-smoothing: grayscale;
     }
     .text-secondary { color: var(--color-text-secondary); }
-
-    /* Анимации */
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .animate-fade-in-up {
-      animation: fadeInUp 0.8s ease-out forwards;
-    }
-    
-    .hover-grow {
-      transition: transform 0.3s ease;
-    }
-    .hover-grow:hover {
-      transform: scale(1.03);
-    }
-    
+    .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+    .hover-grow { transition: transform 0.3s ease; }
+    .hover-grow:hover { transform: scale(1.03); }
     .gradient-text {
       background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
-    
     .card-hover {
       transition: all 0.3s ease;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -64,7 +47,6 @@
       box-shadow: 0 10px 25px rgba(108, 77, 255, 0.15);
       transform: translateY(-5px);
     }
-    
     .highlight {
       position: relative;
       z-index: 1;
@@ -80,222 +62,168 @@
       z-index: -1;
       transition: height 0.3s ease;
     }
-    .highlight:hover:after {
-      height: 40%;
-    }
-
-    /* Мобильное меню */
-    #mobile-menu {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-in-out;
-    }
+    .highlight:hover:after { height: 40%; }
+    #mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; }
     #mobile-menu.open { max-height: 1000px; }
-
     #mobile-menu-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.3);
-      z-index: 40;
-      transition: opacity 0.3s ease-in-out;
+      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3);
+      z-index: 40; transition: opacity 0.3s ease-in-out;
     }
     #mobile-menu-backdrop.show { display: block; opacity: 1; }
-
-    #mobile-menu a,
-    #mobile-menu button {
-      font-size: 1.125rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 1rem;
+    #mobile-menu a, #mobile-menu button {
+      font-size: 1.125rem; padding: 0.75rem 1.5rem; border-radius: 1rem;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
-
-    #mobile-menu a:hover,
-    #mobile-menu button:hover {
-      color: var(--color-primary);
-    }
-
-    #mobile-btn svg {
-      width: 28px;
-      height: 28px;
-      stroke: var(--color-text);
-    }
+    #mobile-menu a:hover, #mobile-menu button:hover { color: var(--color-primary); }
+    #mobile-btn svg { width: 28px; height: 28px; stroke: var(--color-text); }
   </style>
 </head>
+
 <body class="min-h-screen flex flex-col">
 
-  <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50 shadow-sm">
+  <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-      <a href="{% url 'main_menu' %}" class="hover-grow">
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10" />
+      <a href="{% url 'main_menu' %}">
+        <img src="{% static 'Icons/Logo.png' %}?v=2" alt="NeXus Logo" class="h-12 md:h-14" />
       </a>
+      
       <nav class="hidden md:flex space-x-8 text-sm font-medium">
-        <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Главная</a>
-        <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Курсы</a>
-        <a href="{% url 'about' %}" class="text-[var(--color-primary)] font-semibold transition-colors duration-300">О нас</a>
-        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Контакты</a>
+        <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
+        <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)]">ВУЗы</a>
+        <a href="{% url 'about' %}" class="text-[var(--color-primary)] font-semibold">О нас</a>
+        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
       </nav>
+      
       <div class="hidden md:flex items-center gap-4">
-        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline transition-colors duration-300">Войти</a>
-        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white rounded-xl font-semibold transition-all duration-300 py-2.5 px-5">Регистрация</a>
+        <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+        <a href="#" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
       </div>
+      
       <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </div>
+    
     <div id="mobile-menu-backdrop" tabindex="-1"></div>
     <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-white border-t border-[var(--color-bg-secondary)] z-50 relative" aria-label="Мобильное меню">
-      <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Главная</a>
-      <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Курсы</a>
-      <a href="{% url 'about' %}" class="text-[var(--color-primary)] font-semibold transition-colors duration-300">О нас</a>
-      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)] transition-colors duration-300">Контакты</a>
+      <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
+      <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)]">ВУЗы</a>
+      <a href="{% url 'about' %}" class="text-[var(--color-primary)] font-semibold">О нас</a>
+      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
       <div class="flex flex-col gap-4 mt-4">
-        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline w-full text-center transition-colors duration-300">Войти</a>
-        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white w-full rounded-xl font-semibold transition-all duration-300 py-3 text-center">Регистрация</a>
+        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline w-full text-center">Войти</a>
+        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white w-full rounded-xl font-semibold transition py-3 text-center">Регистрация</a>
       </div>
     </nav>
   </header>
 
   <main class="flex-grow">
+
     <!-- Герой секция -->
     <section class="relative overflow-hidden">
-      <div class="max-w-7xl mx-auto px-6 py-20 md:py-28">
-        <div class="text-center animate-fade-in-up" style="animation-delay: 0.1s;">
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-            <span class="gradient-text">EduPath</span> — ваш путь к знаниям
-          </h1>
-          <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Инновационная платформа для эффективного обучения и профессионального роста
-          </p>
-        </div>
+      <div class="max-w-7xl mx-auto px-6 py-20 md:py-28 text-center animate-fade-in-up">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+          <span class="gradient-text">NeXus</span> — найди себя и своё будущее
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          Онлайн-платформа, которая помогает школьникам определить интересы, выбрать профессию и найти подходящий университет.
+        </p>
       </div>
-      <div class="absolute inset-0 -z-10 opacity-10">
-        <div class="absolute inset-0 bg-gradient-to-r from-purple-100 to-indigo-100"></div>
+      <div class="absolute inset-0 -z-10 opacity-10 bg-gradient-to-r from-purple-100 to-indigo-100"></div>
+    </section>
+
+    <!-- О платформе -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="bg-white rounded-2xl shadow-xl p-10 md:p-12 text-center max-w-5xl mx-auto card-hover animate-fade-in-up">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 gradient-text">О платформе</h2>
+        <p class="text-gray-700 text-lg md:text-xl leading-relaxed">
+          <span class="highlight">NeXus</span> — это цифровой помощник для осознанного выбора будущей профессии. Мы объединяем профориентационные тесты, аналитику интересов и рекомендации ИИ, чтобы помочь школьникам найти своё направление и вуз мечты.
+        </p>
       </div>
     </section>
 
-    <!-- О компании -->
-    <section class="max-w-7xl mx-auto px-6 py-16">
-      <div class="bg-white rounded-2xl shadow-xl p-10 md:p-12 text-center max-w-5xl mx-auto card-hover animate-fade-in-up" style="animation-delay: 0.3s;">
-        <h2 class="text-3xl md:text-4xl font-bold mb-8 gradient-text">О нашей компании</h2>
-        <div class="space-y-6">
-          <p class="text-gray-700 text-lg md:text-xl leading-relaxed">
-            <span class="highlight">EduPath</span> — это современная образовательная платформа, созданная в 2025 году с целью сделать качественное образование доступным для каждого, независимо от местоположения и финансовых возможностей.
-          </p>
-          <p class="text-gray-700 text-lg md:text-xl leading-relaxed">
-            Мы объединяем лучших преподавателей и экспертов в своих областях, чтобы предложить вам актуальные знания и практические навыки, востребованные на современном рынке труда.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Наши преимущества -->
-    <section class="max-w-7xl mx-auto px-6 py-16">
-      <div class="text-center mb-16 animate-fade-in-up" style="animation-delay: 0.4s;">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-text">Почему выбирают нас</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto text-lg">Мы создаем уникальную образовательную среду для вашего развития</p>
-      </div>
-      
+    <!-- Преимущества -->
+    <section class="max-w-7xl mx-auto px-6 py-16 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6 gradient-text">Почему выбирают NeXus</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto mb-12 text-lg">Мы делаем выбор профессии простым и понятным</p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover animate-fade-in-up" style="animation-delay: 0.5s;">
-          <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold mb-3">Практические знания</h3>
-          <p class="text-gray-600">Наши курсы ориентированы на практику. Вы получаете навыки, которые можно сразу применить в работе.</p>
+        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
+          <h3 class="text-xl font-bold mb-3">Индивидуальные рекомендации</h3>
+          <p class="text-gray-600">ИИ анализирует ваши интересы и оценки, чтобы подобрать подходящие профессии и университеты.</p>
         </div>
-        
-        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover animate-fade-in-up" style="animation-delay: 0.6s;">
-          <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold mb-3">Гибкий график</h3>
-          <p class="text-gray-600">Учитесь в удобное время и в комфортном темпе. Доступ к материалам курса — 24/7.</p>
+        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
+          <h3 class="text-xl font-bold mb-3">Реальные отзывы студентов</h3>
+          <p class="text-gray-600">Читайте мнения студентов о вузах, прежде чем сделать выбор — только проверенные отзывы.</p>
         </div>
-        
-        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover animate-fade-in-up" style="animation-delay: 0.7s;">
-          <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold mb-3">Поддержка экспертов</h3>
-          <p class="text-gray-600">Получайте обратную связь от преподавателей и общайтесь с сокурсниками в комьюнити.</p>
+        <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
+          <h3 class="text-xl font-bold mb-3">Актуальная информация о поступлении</h3>
+          <p class="text-gray-600">Мы собираем данные о проходных баллах, грантах и условиях приёма в одном месте.</p>
         </div>
       </div>
     </section>
 
-    <!-- Наша миссия -->
+    <!-- Миссия -->
     <section class="max-w-7xl mx-auto px-6 py-16">
-      <div class="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] rounded-2xl p-10 md:p-12 text-white animate-fade-in-up" style="animation-delay: 0.8s;">
-        <div class="max-w-4xl mx-auto">
-          <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center">Наша миссия</h2>
-          <div class="space-y-6 text-lg leading-relaxed">
-            <p>
-              Мы верим, что образование должно быть доступным, увлекательным и эффективным. Наша цель — разрушить барьеры на пути к знаниям и помочь каждому раскрыть свой потенциал.
-            </p>
-            <p>
-              В современном мире непрерывное обучение — это необходимость. EduPath создает среду, где вы можете развивать навыки, которые действительно важны для вашей карьеры и личностного роста.
-            </p>
-          </div>
-        </div>
+      <div class="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] rounded-2xl p-10 md:p-12 text-white text-center animate-fade-in-up">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Наша миссия</h2>
+        <p class="max-w-3xl mx-auto text-lg leading-relaxed">
+          Мы хотим помочь каждому школьнику сделать осознанный выбор профессии и университета, чтобы будущее стало уверенным и понятным.  
+          NeXus — это не просто сайт, а ваш навигатор по миру возможностей.
+        </p>
       </div>
     </section>
 
     <!-- Команда -->
-<!-- Команда -->
-<section class="max-w-7xl mx-auto px-6 py-16">
-  <div class="text-center mb-16 animate-fade-in-up" style="animation-delay: 0.9s;">
-    <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-text">Наша команда</h2>
-    <p class="text-gray-600 max-w-2xl mx-auto text-lg">Профессионалы, которые делают EduPath лучше каждый день</p>
-  </div>
-  
-  <div class="flex flex-wrap justify-center gap-8"> <!-- Изменено на flex с выравниванием по центру -->
-    <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover animate-fade-in-up" style="animation-delay: 1.0s;">
-      <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
-        <img src="{% static 'Icons/Darya.jpg' %}" class="w-full h-full object-cover">
-      </div>
-      <h3 class="text-xl font-bold mb-1">Дарья Безрукова</h3>
-      <p class="text-indigo-600 mb-4">Капитан команды</p>
-      <p class="text-gray-600 text-sm">Создала EduPath с целью изменить подход к онлайн-образованию</p>
-    </div>
-    
-    <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover animate-fade-in-up" style="animation-delay: 1.1s;">
-      <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
-        <img src="{% static 'Icons/Olzas.jpg' %}" class="w-full h-full object-cover">
-      </div>
-      <h3 class="text-xl font-bold mb-1">Олжас Абдыхаев</h3>
-      <p class="text-indigo-600 mb-4">Бекенд</p>
-      <p class="text-gray-600 text-sm">Отвечает за технологическую составляющую платформы</p>
-    </div>
-    
-    <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover animate-fade-in-up" style="animation-delay: 1.3s;">
-      <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
-        <img src="{% static 'Icons/Daniar.jpg' %}" class="w-full h-full object-cover">
-      </div>
-      <h3 class="text-xl font-bold mb-1">Данияр Чабдарбаев</h3>
-      <p class="text-indigo-600 mb-4">Дизайнер</p>
-      <p class="text-gray-600 text-sm">Разрабатывает эффективные учебные программы и оптимальный дизайн</p>
-    </div>
-  </div>
-</section>
-
-    <!-- Призыв к действию -->
     <section class="max-w-7xl mx-auto px-6 py-16">
-      <div class="bg-white rounded-2xl shadow-xl p-10 md:p-12 text-center max-w-4xl mx-auto animate-fade-in-up" style="animation-delay: 1.4s;">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 gradient-text">Готовы начать обучение?</h2>
+      <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center gradient-text">Наша команда</h2>
+      <div class="flex flex-wrap justify-center gap-8">
+        <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover">
+          <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
+            <img src="{% static 'Icons/Dasha.jpg' %}" class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold mb-1">Дарья Безрукова</h3>
+          <p class="text-indigo-600 mb-4">Руководитель проекта</p>
+          <p class="text-gray-600 text-sm">Создала NeXus, чтобы помочь школьникам найти своё призвание</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover">
+          <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
+            <img src="{% static 'Icons/Olhas.jpg' %}" class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold mb-1">Олжас Абдыхаев</h3>
+          <p class="text-indigo-600 mb-4">Бэкенд-разработчик</p>
+          <p class="text-gray-600 text-sm">Отвечает за работу сервиса, базы данных и ИИ-аналитику</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover">
+          <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
+            <img src="{% static 'Icons/Bereket.jpg' %}" class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold mb-1">Файзуллаев Берекет</h3>
+          <p class="text-indigo-600 mb-4">UI/UX-дизайнер</p>
+          <p class="text-gray-600 text-sm">Создает удобный интерфейс, который помогает сделать выбор</p>
+        </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg text-center card-hover">
+          <div class="w-32 h-32 mx-auto rounded-full bg-indigo-100 mb-4 overflow-hidden">
+            <img src="{% static 'Icons/rahat.jpg' %}" class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold mb-1">Альшеров Рахат</h3>
+          <p class="text-indigo-600 mb-4">Фронтенд</p>
+          <p class="text-gray-600 text-sm">Реализация идей и менимезация пользовательского пути</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Призыв -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="bg-white rounded-2xl shadow-xl p-10 md:p-12 text-center max-w-4xl mx-auto animate-fade-in-up">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6 gradient-text">Готовы найти себя?</h2>
         <p class="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
-          Присоединяйтесь к тысячам студентов, которые уже выбрали EduPath для своего профессионального развития
+          Присоединяйтесь к NeXus и сделайте осознанный шаг в сторону вашего будущего.
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
           <a href="{% url 'course_view' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-semibold rounded-xl px-8 py-3.5 transition-colors duration-300 shadow-lg hover:shadow-indigo-200">
-            Выбрать курс
+            Найти университет
           </a>
           <a href="{% url 'register' %}" class="border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-indigo-50 font-semibold rounded-xl px-8 py-3.5 transition-colors duration-300">
             Зарегистрироваться
@@ -303,6 +231,7 @@
         </div>
       </div>
     </section>
+
   </main>
 
   {% include 'partials/footer.html' %}
@@ -316,29 +245,19 @@
       const isOpen = menu.classList.toggle('open');
       backdrop.classList.toggle('show', isOpen);
       btn.setAttribute('aria-expanded', isOpen);
-      document.body.style.overflow = isOpen ? 'hidden' : '';
     }
 
     btn.addEventListener('click', toggleMenu);
     backdrop.addEventListener('click', toggleMenu);
 
-    // Анимация при скролле
-    const animateOnScroll = () => {
-      const elements = document.querySelectorAll('.animate-fade-in-up');
-      
-      elements.forEach(element => {
-        const elementPosition = element.getBoundingClientRect().top;
-        const screenPosition = window.innerHeight / 1.2;
-        
-        if (elementPosition < screenPosition) {
-          element.style.opacity = '1';
-        }
+    // Принудительная перезагрузка логотипа для обхода кэша
+    window.addEventListener('load', function() {
+      const logos = document.querySelectorAll('img[alt="NeXus Logo"]');
+      logos.forEach(logo => {
+        const originalSrc = logo.src.split('?')[0];
+        logo.src = originalSrc + '?v=' + new Date().getTime();
       });
-    };
-
-    // Запускаем при загрузке и при скролле
-    window.addEventListener('load', animateOnScroll);
-    window.addEventListener('scroll', animateOnScroll);
+    });
   </script>
 </body>
 </html>

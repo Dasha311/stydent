@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>EduPath — Онлайн обучение</title>
+  <title>NeXus — Будущее без сомнений</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -66,16 +66,17 @@
 
   <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10" />
+      <!-- Увеличенное лого в хедере -->
+      <img src="{% static 'Icons/Logo.png' %}?v=2" alt="NeXus Logo" class="h-12 md:h-14" />
       <nav class="hidden md:flex space-x-8 text-sm font-medium">
         <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
-        <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">Курсы</a>
+        <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">ВУЗы</a>
         <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
-        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
+        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
       </nav>
       <div class="hidden md:flex items-center gap-4">
-        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
-        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
+        <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+        <a href="#" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
       </div>
       <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
@@ -86,9 +87,9 @@
     <div id="mobile-menu-backdrop" tabindex="-1"></div>
     <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-white border-t border-[var(--color-bg-secondary)] z-50 relative" aria-label="Мобильное меню">
       <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
-      <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">Курсы</a>
+      <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">ВУЗы</a>
       <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
-      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
+      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
       <div class="flex flex-col gap-4 mt-4">
         <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline w-full text-center">Войти</a>
         <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white w-full rounded-xl font-semibold transition py-3 text-center">Регистрация</a>
@@ -99,10 +100,10 @@
   <section class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
     <div>
       <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
-        Начни обучение <span class="text-[var(--color-primary)]">сегодня</span>
+        Начни смотреть в будущее <span class="text-[var(--color-primary)]">сегодня</span>
       </h1>
       <p class="text-secondary text-lg mb-8">
-        Лучшие онлайн-курсы по дизайну, программированию, маркетингу и многому другому. От практикующих экспертов.
+        Лучший помощник в выборе профессии уже у тебя в кармане. От практикующих экспертов.
       </p>
       <div class="flex gap-4 flex-wrap">
         <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-semibold text-base px-6 py-3 rounded-xl transition">Начать бесплатно</a>
@@ -116,24 +117,37 @@
 
   <section class="bg-white py-16">
     <div class="max-w-7xl mx-auto px-6">
-      <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center">Курсы, которые вам понравятся</h2>
+      <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center">ВУЗы, которые вам понравятся</h2>
         <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {% for course in courses %}
+          <!-- ВУЗ 1 - Almaty Management University -->
           <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
-            {% if course.thumbnail %}
-            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-48 object-cover" />
-            {% else %}
-            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="{{ course.title }}" class="w-full h-48 object-cover" />
-            {% endif %}
+            <img src="https://tse2.mm.bing.net/th/id/OIP.jmnQ2nXpWCuNWgmBDhCSbwHaEL?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Almaty Management University" class="w-full h-48 object-cover" />
             <div class="p-6">
-              <h3 class="text-xl font-semibold mb-2">{{ course.title }}</h3>
-              <p class="text-secondary text-sm mb-4">{{ course.description|default:"Описание отсутствует"|truncatewords:20 }}</p>
-              <a href="{% url 'course_detail' course.id %}" class="text-[var(--brand-primary)] hover:underline text-sm font-medium">Подробнее</a>
+              <h3 class="text-xl font-semibold mb-2">Almaty Management University</h3>
+              <p class="text-secondary text-sm mb-4">Предпринимательский и социально ответственный университет мирового уровня. Первая бизнес-школа в Казахстане.</p>
+              <a href="{% url 'video_detail' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
             </div>
           </article>
-          {% empty %}
-          <p>Курсы отсутствуют.</p>
-          {% endfor %}
+
+          <!-- ВУЗ 2 - Назарбаев Университет -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
+            <img src="https://smapse.com/storage/2019/09/x1-3.jpg" alt="Назарбаев Университет" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Назарбаев Университет</h3>
+              <p class="text-secondary text-sm mb-4">Ведущий исследовательский университет в Казахстане с международными стандартами образования и современной инфраструктурой.</p>
+              <a href="{% url 'video_detail2' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 3 - КБТУ -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
+            <img src="https://th.bing.com/th/id/R.8a9e84a375233bde57ac81c71c7ea967?rik=2DxCpttiUCRyQw&pid=ImgRaw&r=0" alt="КБТУ" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахстанско-Британский Технический Университет</h3>
+              <p class="text-secondary text-sm mb-4">Ведущий технический вуз Казахстана с сильными программами в области IT, инженерии и нефтегазовой отрасли.</p>
+              <a href="{% url 'video_detail3' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
         </div>
     </div>
   </section>
@@ -153,6 +167,15 @@
 
     btn.addEventListener('click', toggleMenu);
     backdrop.addEventListener('click', toggleMenu);
+
+    // Принудительная перезагрузка логотипа для обхода кэша
+    window.addEventListener('load', function() {
+      const logos = document.querySelectorAll('img[alt="NeXus Logo"]');
+      logos.forEach(logo => {
+        const originalSrc = logo.src.split('?')[0];
+        logo.src = originalSrc + '?v=' + new Date().getTime();
+      });
+    });
   </script>
 </body>
 </html>

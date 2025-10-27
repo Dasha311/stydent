@@ -226,3 +226,33 @@ def delete_account(request):
 def messages_view(request):
     """Simple chat page from profile."""
     return render(request, 'message.html')
+
+# ... остальные импорты и функции ...
+
+# Страницы ВУЗов
+def university_kaznu(request):
+    return render(request, 'university_kaznu.html')
+
+def university_kaznpu(request):
+    return render(request, 'university_kaznpu.html')
+
+def university_satbayev(request):
+    return render(request, 'university_satbayev.html')
+
+def university_kaznmu(request):
+    return render(request, 'university_kaznmu.html')
+
+def university_kazumo(request):
+    return render(request, 'university_kazumo.html')
+
+def university_german(request):
+    return render(request, 'university_german.html')
+
+def university_technological(request):
+    return render(request, 'university_technological.html')
+
+def university_arts(request):
+    return render(request, 'university_arts.html')
+
+def university_sports(request):
+    return render(request, 'university_sports.html')

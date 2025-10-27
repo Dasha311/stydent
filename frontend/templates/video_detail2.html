@@ -4,446 +4,215 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>LearnPath — Онлайн обучение</title>
+  <title>Назарбаев Университет - NeXus</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --color-primary: #007AFF; /* Apple blue */
-      --color-bg: #F5F5F7; /* Light gray background */
-      --color-bg-secondary: #FFFFFF; /* White for cards */
-      --color-text: #1D1D1F; /* Dark text */
-      --color-text-secondary: #6E6E73; /* Secondary text */
-      --color-border: #D2D2D7; /* Subtle border */
-      --color-shadow: rgba(0, 0, 0, 0.08); /* Soft shadow */
+      --color-primary: #6C4DFF;
+      --color-bg: #F9F9FB;
+      --color-bg-secondary: #EDEDED;
+      --color-text: #1C1C1E;
+      --color-text-secondary: rgba(60, 60, 67, 0.6);
+      --color-border: #D1D1D6;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      font-family: 'Inter', sans-serif;
       background-color: var(--color-bg);
       color: var(--color-text);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
-    .text-secondary { color: var(--color-text-secondary); }
-    /* Smooth transitions for interactive elements */
-    button, a, input, iframe {
-      transition: all 0.3s ease;
-    }
-    /* Custom radio buttons */
-    input[type="radio"] {
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--color-border);
-      border-radius: 50%;
-      outline: none;
-      cursor: pointer;
-    }
-    input[type="radio"]:checked {
-      border-color: var(--color-primary);
-      background: var(--color-primary);
-      box-shadow: inset 0 0 0 5px var(--color-bg-secondary);
-    }
-    /* Glassmorphism effect for cards */
-    .card {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--color-border);
-      border-radius: 18px;
-      box-shadow: 0 4px 30px var(--color-shadow);
-    }
-    /* Hover effects */
-    button:hover, a:hover {
-      transform: translateY(-1px);
-    }
-    /* Video container */
-    .video-container {
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 4px 30px var(--color-shadow);
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
-  <!-- Navbar -->
-  <header class="bg-[var(--color-bg-secondary)] sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-      <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="h-9 md:h-10" />
+  <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <img src="{% static 'Icons/logo.png' %}" alt="NeXus Logo" class="h-9 md:h-10" />
       <nav class="hidden md:flex space-x-8 text-sm font-medium">
-        <a href="{% url 'main_menu' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Главная</a>
-        <a href="{% url 'course_view' %}?course_id=1" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Курсы</a>
-        <a href="{% url 'about' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">О нас</a>
-        <a href="{% url 'contacts' %}" class="text-[var(--color-text)] hover:text-[var(--color-primary)]">Контакты</a>
+        <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
+        <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)]">ВУЗы</a>
+        <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
+        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
       </nav>
       <div class="hidden md:flex items-center gap-4">
-        <button class="text-[var(--color-primary)] text-sm font-medium hover:underline">Войти</button>
-        <button class="bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-[#0051CC] shadow-sm">Регистрация</button>
+        {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Профиль</a>
+          <form method="post" action="{% url 'logout' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Выйти</button>
+          </form>
+        {% else %}
+          <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+          <a href="#" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
+        {% endif %}
       </div>
-      <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
-        <img src="Icons/Burger.png" alt="Меню" class="w-6 h-6" />
-      </button>
     </div>
-    <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-[var(--color-bg-secondary)] border-t border-[var(--color-border)] hidden">
-      <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
-      <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--color-primary)]">Курсы</a>
-      <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
-      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">Контакты</a>
-      <div class="flex flex-col gap-4 mt-4">
-        <button class="text-[var(--color-primary)] hover:underline w-full text-left">Войти</button>
-        <button class="bg-[var(--color-primary)] text-white w-full rounded-full font-semibold py-3 hover:bg-[#0051CC] shadow-sm">Регистрация</button>
-      </div>
-    </nav>
   </header>
 
-  <!-- Video Hero Section -->
-  <section class="relative h-[400px] md:h-[600px] bg-cover bg-center" style="background-image: url('icons/aa8625109287767.5fd08439c7676.jpg');">
-    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60"></div>
-    <div class="relative z-10 max-w-5xl mx-auto h-full flex flex-col justify-center items-center text-center text-white px-4">
-        <a href="{% url 'main_menu' %}" class="absolute left-4 top-6">
-        <img src="Icons/Left.png" alt="Назад" class="w-8 md:w-10 opacity-80 hover:opacity-100" />
-      </a>
-      <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-4">Python для начинающих</h1>
-      <p class="text-lg md:text-xl mb-2 opacity-90">Автор: Балерино Капучино</p>
-      <p class="text-sm md:text-base opacity-70">12 уроков • 1 час 20 минут</p>
-    </div>
-  </section>
-
-  <!-- Video Player Section -->
-  <section class="max-w-5xl mx-auto px-6 py-12 flex-1">
-    <div class="video-container card">
-      <div class="relative" style="padding-bottom: 56.25%;">
-        <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Учебное видео" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
-    </div>
-  </section>
-
-  <!-- Test Section -->
-  <section class="max-w-5xl mx-auto px-6 py-12">
-    <h2 class="text-3xl font-semibold tracking-tight mb-8">Пройти тест</h2>
-    <div class="card p-8">
-      <h3 class="text-xl font-medium mb-6">Тестортино правильноответино</h3>
-      <div id="quiz">
-        <div class="p-6 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-border)]">
-          <p class="font-medium text-lg mb-4">1. Кто ее муж?</p>
-          <label class="block mb-3 flex items-center cursor-pointer">
-            <input type="radio" name="q1" value="a" class="mr-3"> Шпиониро Голубиро
-          </label>
-          <label class="block mb-3 flex items-center cursor-pointer">
-            <input type="radio" name="q1" value="b" class="mr-3"> Никто
-          </label>
-          <label class="block mb-3 flex items-center cursor-pointer">
-            <input type="radio" name="q1" value="c" class="mr-3"> Много кто
-          </label>
+  <main class="flex-grow">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-16">
+      <div class="max-w-7xl mx-auto px-6">
+        <a href="{% url 'main_menu' %}" class="inline-flex items-center text-white/80 hover:text-white mb-6 transition">
+          ← Назад на главную
+        </a>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">Назарбаев Университет</h1>
+            <p class="text-xl mb-6 opacity-90">Ведущий исследовательский университет с международными стандартами образования</p>
+            <div class="flex flex-wrap gap-4 text-sm">
+              <span class="bg-white/20 px-4 py-2 rounded-full">📍 Астана, Казахстан</span>
+              <span class="bg-white/20 px-4 py-2 rounded-full">🎓 Основан в 2010</span>
+              <span class="bg-white/20 px-4 py-2 rounded-full">⭐ Международный рейтинг</span>
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full">
+              <h3 class="text-xl font-semibold mb-4">Ключевая информация</h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span>Тип:</span>
+                  <span class="font-semibold">Исследовательский университет</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Язык обучения:</span>
+                  <span class="font-semibold">Английский</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Рейтинг:</span>
+                  <span class="font-semibold">★ 4.8/5</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Студентов:</span>
+                  <span class="font-semibold">~5,000</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <button id="submit-quiz" class="mt-6 bg-[var(--color-primary)] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#0051CC] shadow-sm">Отправить ответы</button>
-      <p id="quiz-result" class="mt-4 hidden text-lg"></p>
-    </div>
-  </section>
+    </section>
 
-  <!-- Course Selection Section -->
-  <section class="max-w-5xl mx-auto px-6 py-12">
-    <h2 class="text-3xl font-semibold tracking-tight mb-8">Содержание курса</h2>
-    <div class="grid gap-4 md:grid-cols-2">
-      <div class="flex items-center p-6 card">
-        <img src="Icons/play-icon.png" alt="Воспроизведение" class="w-10 h-10 mr-4 opacity-80" />
-        <div class="flex-1">
-          <p class="font-medium">Урок 1: Введение в UI и 3D</p>
-          <p class="text-sm text-secondary">1:10 мин</p>
+    <!-- University Details -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-12">
+          
+          <!-- About University -->
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6">Об университете</h2>
+            <div class="space-y-4 text-lg leading-relaxed">
+              <p><strong>Назарбаев Университет</strong> — автономный исследовательский университет в Астане, созданный по инициативе Первого Президента Республики Казахстан Н.А. Назарбаева.</p>
+              <p>Университет стремится стать исследовательским университетом мирового класса, способствующим развитию Казахстана и региона.</p>
+              <p><strong>Миссия:</strong> содействие развитию Казахстана через образование и исследования мирового уровня.</p>
+            </div>
+          </div>
+
+          <!-- Academic Programs -->
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6">Школы и программы</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-blue-50 rounded-2xl p-6">
+                <h3 class="text-xl font-semibold mb-4 text-blue-800">🎓 Бакалавриат</h3>
+                <ul class="space-y-2 text-blue-700">
+                  <li>• Инженерия и цифровые науки</li>
+                  <li>• Науки и технологии</li>
+                  <li>• Гуманитарные и социальные науки</li>
+                  <li>• Медицина</li>
+                  <li>• Бизнес</li>
+                </ul>
+              </div>
+              <div class="bg-purple-50 rounded-2xl p-6">
+                <h3 class="text-xl font-semibold mb-4 text-purple-800">📚 Магистратура & PhD</h3>
+                <ul class="space-y-2 text-purple-700">
+                  <li>• Магистратура по инженерии</li>
+                  <li>• Магистратура по наукам</li>
+                  <li>• Магистратура по бизнесу</li>
+                  <li>• Докторантура (PhD)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- International Partners -->
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6">Международные партнеры</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div class="bg-gray-50 p-4 rounded-xl">
+                <p class="font-semibold">University College London</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-xl">
+                <p class="font-semibold">University of Cambridge</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-xl">
+                <p class="font-semibold">University of Pennsylvania</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-xl">
+                <p class="font-semibold">University of Wisconsin-Madison</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <span class="text-sm text-secondary">00:00</span>
-      </div>
-      <div class="flex items-center p-6 card">
-        <img src="Icons/play-icon.png" alt="Воспроизведение" class="w-10 h-10 mr-4 opacity-80" />
-        <div class="flex-1">
-          <p class="font-medium">Урок 2: Основы Figma</p>
-          <p class="text-sm text-secondary">7:45 мин</p>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Contact Info -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-semibold mb-4">Контакты</h3>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">📍</span>
+                <div>
+                  <p class="font-medium">Адрес</p>
+                  <p class="text-sm text-secondary">г. Астана, Кабанбай батыра, 53</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">📞</span>
+                <div>
+                  <p class="font-medium">Телефон</p>
+                  <p class="text-sm text-secondary">+7 (7172) 70-66-00</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🌐</span>
+                <div>
+                  <p class="font-medium">Сайт</p>
+                  <a href="https://nu.edu.kz" class="text-sm text-blue-600 hover:underline">nu.edu.kz</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Facts -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-semibold mb-4">Ключевые преимущества</h3>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <span class="text-green-600 text-xl">✓</span>
+                <span class="text-sm">Международные стандарты образования</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-green-600 text-xl">✓</span>
+                <span class="text-sm">Исследовательские программы</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-green-600 text-xl">✓</span>
+                <span class="text-sm">Обучение на английском языке</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-green-600 text-xl">✓</span>
+                <span class="text-sm">Современный кампус</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <span class="text-sm text-secondary">00:00</span>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- Additional Videos Section -->
-  <section class="max-w-5xl mx-auto px-6 py-12">
-    <h2 class="text-3xl font-semibold tracking-tight mb-8">Дополнительные материалы</h2>
-    <div class="grid gap-8 md:grid-cols-2">
-      <div class="video-container card">
-        <iframe class="w-full h-full rounded-2xl" src="https://www.youtube.com/embed/tgbNymZ7vqY" title="Дополнительное видео 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
-      <div class="video-container card">
-        <iframe class="w-full h-full rounded-2xl" src="https://www.youtube.com/embed/oHg5SJYRHA0" title="Дополнительное видео 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
-    </div>
-  </section>
-
-  <!-- Chat Button -->
-  <button id="chat-toggle" aria-label="Открыть чат с автором" class="fixed bottom-6 right-6 bg-[var(--color-primary)] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#0051CC] transition-all z-60">
-    <img src="Icons/Message circle.png" alt="Чат" class="w-7 h-7" />
-  </button>
-
-  <!-- Chat Window -->
-  <div id="chat-window" class="fixed bottom-20 right-6 bg-[var(--color-bg-secondary)] rounded-2xl shadow-xl flex flex-col overflow-hidden transform scale-0 opacity-0 transition-all duration-300 origin-bottom-right z-60 card" style="width: 360px; max-height: 500px; max-width: 90vw; max-height: 80vh;">
-    <header class="flex justify-between items-center p-4 border-b border-[var(--color-border)]">
-      <h3 class="font-semibold text-[var(--color-text)]">Чат с автором</h3>
-      <button id="chat-close" aria-label="Закрыть чат" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] text-xl font-bold">×</button>
-    </header>
-    <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-[var(--color-bg)]">
-      <div class="text-center text-sm text-secondary select-none">Начните переписку с автором</div>
-    </div>
-    <form id="chat-form" class="flex p-3 border-t border-[var(--color-border)] gap-2" enctype="multipart/form-data" style="flex-wrap: wrap;">
-      <input type="text" id="chat-input" placeholder="Напишите сообщение..." required class="flex-grow min-w-[150px] border border-[var(--color-border)] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]" />
-      <label for="chat-file" class="cursor-pointer text-[var(--color-primary)] hover:underline flex items-center px-3 shrink-0" title="Прикрепить изображение">
-        <img src="Icons/Message circle.png" alt="Прикрепить" class="w-5 h-5" />
-      </label>
-      <input type="file" id="chat-file" accept="image/*" style="display:none" />
-      <button type="submit" class="bg-[var(--color-primary)] text-white rounded-xl font-semibold px-4 py-2 shrink-0 min-w-[80px] hover:bg-[#0051CC] shadow-sm">Отправить</button>
-    </form>
-  </div>
-
-  <!-- Footer -->
-    <!-- Footer -->
   {% include 'partials/footer.html' %}
-
-  <script>
-    // Mobile Menu
-    const mobileBtn = document.getElementById('mobile-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileBtn.addEventListener('click', () => {
-      const expanded = mobileBtn.getAttribute('aria-expanded') === 'true';
-      mobileBtn.setAttribute('aria-expanded', !expanded);
-      mobileMenu.classList.toggle('hidden');
-      mobileMenu.classList.toggle('animate-slide-in');
-    });
-
-    // Chat Functionality
-    const chatToggle = document.getElementById('chat-toggle');
-    const chatWindow = document.getElementById('chat-window');
-    const chatClose = document.getElementById('chat-close');
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatFileInput = document.getElementById('chat-file');
-
-// 🔑 Стоп‑слова, которые игнорируем при разборе запроса
-const stopWords = ['и', 'в', 'на', 'по', 'ли', 'это', 'а', 'к', 'у', 'за', 'то', 'же', 'от', 'с', 'без'];
-
-// 📚 Часто задаваемые вопросы + расширенные синонимы
-const faq = [
-  // Что такое курс
-  {
-    keywords: ['курс', 'что', 'такое', 'представляет', 'собой', 'значит'],
-    answer: 'Курс — это серия видеоуроков, практических заданий и поддержки наставника по конкретной теме.'
-  },
-  // Как записаться
-  {
-    keywords: ['как', 'записаться', 'начать', 'присоединиться', 'стартовать', 'подключиться'],
-    answer: 'На странице курса нажмите кнопку «Записаться» — и он появится у вас в профиле.'
-  },
-  // Бесплатно ли
-  {
-    keywords: ['бесплатно', 'оплата', 'цена', 'стоимость', 'платно', 'безоплатно'],
-    answer: 'Большинство наших курсов доступны бесплатно. Если курс платный, цена указана на его странице.'
-  },
-  // Что входит в курс
-  {
-    keywords: ['что', 'входит', 'содержит', 'структура', 'состав', 'контент'],
-    answer: 'Обычно в курс входят видеоуроки, тесты, практические задания и обратная связь преподавателя.'
-  },
-  // Длительность курса
-  {
-    keywords: ['сколько', 'длится', 'длительность', 'идет', 'времени', 'занимает'],
-    answer: 'Длительность зависит от темы: как правило, от 2 до 6 недель при комфортном темпе.'
-  },
-  // Сертификат
-  {
-    keywords: ['сертификат', 'выдается', 'получу', 'получить', 'документ'],
-    answer: 'После полного прохождения курса и всех заданий вы сможете скачать именной сертификат.'
-  },
-  // Сложность / подойдёт ли новичку
-  {
-    keywords: ['сложно', 'уровень', 'подойдет', 'новичку', 'тяжело', 'опыт'],
-    answer: 'В описании каждого курса указан рекомендуемый уровень. Множество курсов рассчитаны на абсолютных новичков.'
-  },
-  // Повторное прохождение
-  {
-    keywords: ['повторно', 'ещё', 'раз', 'заново', 'перепройти', 'повторить'],
-    answer: 'Вы можете вернуться и пройти курс заново в любое время — доступ остаётся навсегда.'
-  },
-  // Профиль / настройки
-  {
-    keywords: ['профиль', 'аккаунт', 'настройки', 'где', 'посмотреть', 'редактировать'],
-    answer: 'Ваш профиль находится в верхнем меню. Там же можно изменить данные, фото и увидеть прогресс.'
-  },
-  // Чат / вопрос
-  {
-    keywords: ['чат', 'написать', 'вопрос', 'наставник', 'преподаватель', 'связаться'],
-    answer: 'На странице курса откройте вкладку «Чат» — там можно задать вопрос преподавателю.'
-  },
-  // Ошибка / баг
-  {
-    keywords: ['ошибка', 'баг', 'не', 'работает', 'сбой', 'проблема'],
-    answer: 'Опишите, пожалуйста, проблему подробнее — я передам её в техподдержку.'
-  },
-  // Виртуальный помощник
-  {
-    keywords: ['ты', 'человек', 'бот', 'ассистент'],
-    answer: 'Я виртуальный помощник платформы. Если хочешь пообщаться с живым человеком, напиши «Позвать ассистента».'
-  },
-  // Позвать ассистента
-  {
-    keywords: ['позвать', 'ассистента', 'оператор', 'саппорт'],
-    answer: 'Зову ассистента, минуту…'
-  }
-];
-
-// 🍀 Ответ по умолчанию
-const defaultReply = 'Не уверена, что поняла запрос. Сейчас переключу вас на ассистента, подождите, пожалуйста.';
-
-// 🚀 Функция‑поисковик ответа
-function findAnswer(message) {
-  // 1. Токенизация: слова в нижнем регистре, без пустых, без стоп‑слов
-  const words = message
-    .toLowerCase()
-    .split(/[^a-zа-яё0-9ё]+/i)
-    .filter(w => w && !stopWords.includes(w));
-
-  // 2. Ищем лучший FAQ‑ответ
-  let best = { answer: defaultReply, score: 0 };
-  faq.forEach(item => {
-    const score = item.keywords.reduce(
-      (sum, kw) => (words.includes(kw) ? sum + 1 : sum),
-      0
-    );
-    if (score > best.score) best = { answer: item.answer, score };
-  });
-
-  // 3. Если не найдено ни одного совпадения — отдаём дефолт
-  return best.score > 0 ? best.answer : defaultReply;
-}
-
-/* ===== Пример использования =====
-console.log(findAnswer('Сколько длится курс по JavaScript?'));
-// → "Длительность курса зависит от темы: как правило, от 2 до 6 недель при комфортном темпе."
-
-console.log(findAnswer('А сертификат выдаётся?'));
-// → "После полного прохождения курса и всех заданий вы сможете скачать именной сертификат."
-*/
-
-    function toggleChat(open) {
-      if (open) {
-        chatWindow.style.transform = 'scale(1)';
-        chatWindow.style.opacity = '1';
-        chatInput.focus();
-      } else {
-        chatWindow.style.transform = 'scale(0)';
-        chatWindow.style.opacity = '0';
-      }
-    }
-
-    chatToggle.addEventListener('click', () => {
-      const isOpen = chatWindow.style.opacity === '1';
-      toggleChat(!isOpen);
-    });
-
-    chatClose.addEventListener('click', () => {
-      toggleChat(false);
-    });
-
-    let attachedImage = null;
-    chatFileInput.addEventListener('change', () => {
-      const file = chatFileInput.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) {
-        alert('Пожалуйста, выберите изображение');
-        chatFileInput.value = '';
-        return;
-      }
-      attachedImage = file;
-    });
-
-    chatForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const message = chatInput.value.trim();
-
-      const userMsg = document.createElement('div');
-      userMsg.className = 'text-right flex flex-col items-end space-y-1 animate-fade-in';
-
-      if (message) {
-        const textSpan = document.createElement('span');
-        textSpan.className = 'inline-block bg-[var(--color-primary)] text-white px-4 py-2 rounded-xl max-w-[75%] break-words';
-        textSpan.textContent = message;
-        userMsg.appendChild(textSpan);
-      }
-
-      if (attachedImage) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(attachedImage);
-        img.alt = 'Прикрепленное изображение';
-        img.className = 'max-w-[200px] rounded-xl shadow-md cursor-pointer';
-        img.onload = () => URL.revokeObjectURL(img.src);
-        userMsg.appendChild(img);
-        attachedImage = null;
-        chatFileInput.value = '';
-      }
-
-      if (!message && !userMsg.querySelector('img')) return;
-
-      chatMessages.appendChild(userMsg);
-      chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-
-      chatInput.value = '';
-      chatInput.focus();
-
-       const botReply = findAnswer(message);
-      setTimeout(() => {
-        const authorMsg = document.createElement('div');
-        authorMsg.className = 'text-left animate-fade-in';
-         authorMsg.innerHTML = `<span class="inline-block bg-[var(--color-bg)] text-[var(--color-text)] px-4 py-2 rounded-xl max-w-[75%] break-words border border-[var(--color-border)]">${botReply}</span>`;
-        chatMessages.appendChild(authorMsg);
-        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-      }, 500);
-    });
-
-    // Quiz Functionality
-    const submitQuiz = document.getElementById('submit-quiz');
-    const quizResult = document.getElementById('quiz-result');
-
-    submitQuiz.addEventListener('click', () => {
-      const answer = document.querySelector('input[name="q1"]:checked');
-      if (!answer) {
-        quizResult.textContent = 'Пожалуйста, выберите ответ.';
-        quizResult.classList.remove('hidden');
-        quizResult.classList.add('text-red-600');
-        return;
-      }
-      if (answer.value === 'a') {
-        quizResult.textContent = 'Правильно! UI дизайн — это дизайн пользовательского интерфейса.';
-        quizResult.classList.add('text-green-600');
-      } else {
-        quizResult.textContent = 'Неправильно. Правильный ответ: Дизайн пользовательского интерфейса.';
-        quizResult.classList.add('text-red-600');
-      }
-      quizResult.classList.remove('hidden');
-      quizResult.classList.add('animate-fade-in');
-    });
-
-    // Animation keyframes
-    const styleSheet = document.createElement('style');
-    styleSheet.innerHTML = `
-      @keyframes slide-in {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      .animate-slide-in { animation: slide-in 0.3s ease; }
-      .animate-fade-in { animation: fade-in 0.3s ease; }
-    `;
-    document.head.appendChild(styleSheet);
-  </script>
 </body>
 </html>

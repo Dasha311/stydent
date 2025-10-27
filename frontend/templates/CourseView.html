@@ -4,717 +4,282 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Курсы - EduPath</title>
+  <title>ВУЗы - NeXus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    /* Основные стили */
     :root {
-      --primary: #7c3aed;
-      --secondary: #e0d4ff;
-      --accent: #a78bfa;
-      --background: #f5f3ff;
-      --surface: #faf8ff;
-      --text-primary: #1c1b1f;
-      --text-subtle: #4c3d64;
-      --border: #d9d6e5;
-      --transition: 0.2s ease;
-      --border-color: #d9d6e5;
+      --color-primary: #6C4DFF;
+      --color-bg: #F9F9FB;
+      --color-bg-secondary: #EDEDED;
+      --color-text: #1C1C1E;
+      --color-text-secondary: rgba(60, 60, 67, 0.6);
+      --color-border: #D1D1D6;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: var(--background);
-      color: var(--text-primary);
-      line-height: 1.6;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Шапка */
-    header {
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    header .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-    }
-
-    .logo {
-      height: 40px;
-    }
-
-    /* Навигация */
-    .desktop-nav {
-      display: none;
-      gap: 25px;
-    }
-
-    .desktop-nav a {
-      color: var(--text-primary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: color var(--transition);
-    }
-
-    .desktop-nav a:hover {
-      color: var(--primary);
-    }
-
-    /* Кнопки */
-    .btn {
-      display: inline-block;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all var(--transition);
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-    }
-
-    .btn-secondary:hover {
-      background: var(--secondary);
-    }
-
-    /* Мобильное меню */
-    .mobile-menu-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 5px;
-      display: flex;
-    }
-
-    .mobile-menu-btn svg {
-      width: 24px;
-      height: 24px;
-      stroke: currentColor;
-    }
-
-    .mobile-menu-btn .close-icon {
-      display: none;
-    }
-
-    .mobile-menu-btn[aria-expanded="true"] .open-icon {
-      display: none;
-    }
-
-    .mobile-menu-btn[aria-expanded="true"] .close-icon {
-      display: block;
-    }
-
-    .mobile-menu-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 99;
-      display: none;
-    }
-
-    .mobile-menu-backdrop.show {
-      display: block;
-    }
-
-    .mobile-menu {
-      position: fixed;
-      top: 70px;
-      left: 0;
-      right: 0;
-      background: white;
-      padding: 20px;
-      display: none;
-      flex-direction: column;
-      gap: 15px;
-      z-index: 100;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .mobile-menu.show {
-      display: flex;
-    }
-
-    .mobile-menu a {
-      text-decoration: none;
-      color: var(--text-primary);
-      font-weight: 500;
-      padding: 10px 0;
-    }
-
-    /* Основной контент */
-    .courses {
-      padding: 40px 0;
-      flex: 1;
-    }
-
-    .courses h1 {
-      font-size: 2.5rem;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: var(--text-subtle);
-      margin-bottom: 30px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* Фильтры */
-    .filters {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
-      background: var(--secondary);
-      padding: 15px;
-      border-radius: 12px;
-    }
-
-    .filter-select {
-      padding: 12px 20px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: white;
-      font-size: 16px;
-      min-width: 200px;
-      cursor: pointer;
-    }
-
-    /* Стили для нового селектора категорий */
-    .category-select-container {
-      margin-bottom: 20px;
-      width: 100%;
-    }
-
-    .category-select-label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    .category-select {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 16px;
-      background-color: white;
-      cursor: pointer;
-    }
-
-    /* Карточки курсов */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
+    
+    #mobile-menu {
+      max-height: 0;
       overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      transition: transform var(--transition), box-shadow var(--transition);
+      transition: max-height 0.3s ease-in-out;
     }
+    #mobile-menu.open { max-height: 1000px; }
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-    }
-
-    .card-img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-
-    .card-content {
-      padding: 20px;
-    }
-
-    .card-title {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-
-    .card-text {
-      color: var(--text-subtle);
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-    }
-
-    .btn-main {
-      width: 100%;
-      text-align: center;
-      padding: 12px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .btn-main:hover {
-      background: var(--accent);
-    }
-
-    /* Ассистент */
-    .assistant-button {
+    #mobile-menu-backdrop {
+      display: none;
       position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--primary);
-      border: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all var(--transition);
-      z-index: 101;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 40;
+      transition: opacity 0.3s ease-in-out;
+    }
+    #mobile-menu-backdrop.show { display: block; opacity: 1; }
+
+    #mobile-menu a,
+    #mobile-menu button {
+      font-size: 1.125rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 1rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    .assistant-button:hover {
-      background: var(--accent);
-      transform: scale(1.1);
+    #mobile-menu a:hover,
+    #mobile-menu button:hover {
+      color: var(--color-primary);
     }
 
-    .assistant-button img {
+    #mobile-btn svg {
       width: 28px;
       height: 28px;
-    }
-
-    .assistant-modal {
-      position: fixed;
-      bottom: 100px;
-      right: 30px;
-      width: 350px;
-      max-height: 400px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      display: none;
-      flex-direction: column;
-      z-index: 102;
-      overflow: hidden;
-    }
-
-    .assistant-modal.show {
-      display: flex;
-    }
-
-    .assistant-header {
-      padding: 15px 20px;
-      background: var(--primary);
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .close-modal {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: 5px;
-    }
-
-    .chat-container {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      background: var(--background);
-    }
-
-    .message {
-      padding: 10px 15px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      max-width: 80%;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    .bot-message {
-      background: var(--secondary);
-      color: var(--text-primary);
-    }
-
-    .user-message {
-      background: var(--primary);
-      color: white;
-      margin-left: auto;
-    }
-
-    .chat-input-container {
-      display: flex;
-      padding: 15px;
-      border-top: 1px solid var(--border);
-      background: white;
-    }
-
-    .chat-input {
-      flex: 1;
-      padding: 12px 15px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 1rem;
-      margin-right: 10px;
-    }
-
-    /* Адаптивность */
-    @media (min-width: 768px) {
-      .desktop-nav {
-        display: flex;
-      }
-
-      .mobile-menu-btn {
-        display: none;
-      }
-
-      .courses h1 {
-        font-size: 3rem;
-      }
-
-      .filters {
-        justify-content: flex-start;
-      }
-      
-      .category-select {
-        max-width: 300px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 0 15px;
-      }
-
-      .filter-select {
-        width: 100%;
-      }
-
-      .assistant-modal {
-        width: calc(100% - 40px);
-        right: 20px;
-        bottom: 80px;
-      }
+      stroke: var(--color-text);
     }
   </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
+
   <!-- Шапка -->
-  <header>
-    <div class="container">
+  <header class="bg-white border-b border-[var(--color-bg-secondary)] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
       <a href="{% url 'main_menu' %}">
-        <img src="{% static 'Icons/Logo.png' %}" alt="EduPath Logo" class="logo">
+        <img src="{% static 'Icons/Logo.png' %}?v=2" alt="NeXus Logo" class="h-12 md:h-14" />
       </a>
       
-      <nav class="desktop-nav">
-        <a href="{% url 'main_menu' %}">Главная</a>
-        <a href="{% url 'course_view' %}">Курсы</a>
-        <a href="{% url 'about' %}">О нас</a>
-        <a href="{% url 'contacts' %}">Контакты</a>
+      <nav class="hidden md:flex space-x-8 text-sm font-medium">
+        <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
+        <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)]">ВУЗы</a>
+        <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
+        <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
       </nav>
       
-      <div class="auth-buttons">
-        <a href="{% url 'login' %}" class="btn btn-secondary">Войти</a>
-        <a href="{% url 'register' %}" class="btn btn-primary">Регистрация</a>
+      <div class="hidden md:flex items-center gap-4">
+          <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+          <a href="#" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
       </div>
       
-      <button class="mobile-menu-btn" aria-expanded="false" aria-label="Меню">
-        <svg class="open-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </div>
+    
+    <div id="mobile-menu-backdrop" tabindex="-1"></div>
+    <nav id="mobile-menu" class="md:hidden flex flex-col px-6 pb-6 space-y-4 text-base font-medium bg-white border-t border-[var(--color-bg-secondary)] z-50 relative" aria-label="Мобильное меню">
+      <a href="{% url 'main_menu' %}" class="hover:text-[var(--color-primary)]">Главная</a>
+      <a href="{% url 'course_view' %}" class="hover:text-[var(--color-primary)]">ВУЗы</a>
+      <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
+      <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
+      <div class="flex flex-col gap-4 mt-4">
+          <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+          <a href="#" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
+      </div>
+    </nav>
   </header>
 
-  <!-- Мобильное меню -->
-  <div class="mobile-menu-backdrop"></div>
-  <nav id="mobile-menu" class="mobile-menu">
-    <a href="{% url 'main_menu' %}">Главная</a>
-    <a href="{% url 'course_view' %}">Курсы</a>
-    <a href="{% url 'about' %}">О нас</a>
-    <a href="{% url 'contacts' %}">Контакты</a>
-    <div class="auth-buttons">
-      <a href="{% url 'login' %}" class="btn btn-secondary">Войти</a>
-      <a href="{% url 'register' %}" class="btn btn-primary">Регистрация</a>
-    </div>
-  </nav>
-
   <!-- Основной контент -->
-  <main>
-    <section class="courses">
-      <div class="container">
-        <h1>Найдите свой идеальный курс</h1>
-        <p class="subtitle">Выберите из множества курсов по различным категориям с честными отзывами и рейтингами.</p>
+  <main class="flex-1">
+    <section class="bg-white py-16">
+      <div class="max-w-7xl mx-auto px-6">
+        <h1 class="text-3xl md:text-4xl font-bold mb-4 text-center">Найдите свой идеальный ВУЗ</h1>
+        <p class="text-secondary text-lg mb-10 text-center max-w-2xl mx-auto">Выберите из лучших университетов Казахстана с подробной информацией и отзывами студентов.</p>
         
-        <div class="category-select-container">
-          <label for="course-category" class="category-select-label">Категория</label>
-          <select id="course-category" class="category-select" onchange="filterCoursesByCategory()">
-            <option value="" selected>Все категории</option>
-            <!-- Опции будут добавлены через JavaScript -->
+        <!-- Фильтр по городам -->
+        <div class="mb-10 max-w-md mx-auto">
+          <label for="university-city" class="block text-sm font-medium text-gray-700 mb-2">Город</label>
+          <select id="university-city" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent" onchange="filterUniversitiesByCity()">
+            <option value="" selected>Все города</option>
+            <option value="Алматы">Алматы</option>
+            <option value="Астана">Астана</option>
+            <option value="Шымкент">Шымкент</option>
+            <option value="Караганда">Караганда</option>
           </select>
         </div>
 
-        <div class="grid" id="courses-grid">
-          {% for course in courses %}
-          <div class="card" data-category="{{ course.category|escape }}">
-            {% if course.thumbnail %}
-            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="card-img">
-            {% else %}
-            <img src="{% static 'Icons/aa8625109287767.5fd08439c7676.jpg' %}" alt="{{ course.title }}" class="card-img">
-            {% endif %}
-            <div class="card-content">
-              <h3 class="card-title">{{ course.title }}</h3>
-              <p class="card-text">Категория: {{ course.category|default:"Не указана" }}</p>
-              <p class="card-text">{{ course.description|default:"Описание отсутствует"|truncatewords:20 }}</p>
-              <a href="{% url 'course_detail' course.id %}" class="btn-main">Подробнее</a>
+        <!-- Карточки университетов -->
+        <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" id="universities-grid">
+          <!-- ВУЗ 1 - Almaty Management University -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://tse2.mm.bing.net/th/id/OIP.jmnQ2nXpWCuNWgmBDhCSbwHaEL?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Almaty Management University" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Almaty Management University</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="{% url 'video_detail' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
             </div>
-          </div>
-          {% empty %}
-          <p>Курсы не найдены.</p>
-          {% endfor %}
+          </article>
+
+          <!-- ВУЗ 2 - Назарбаев Университет -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Астана">
+            <img src="https://smapse.com/storage/2019/09/x1-3.jpg" alt="Назарбаев Университет" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Назарбаев Университет</h3>
+              <p class="text-secondary text-sm mb-4">📍 Астана</p>
+              <a href="{% url 'video_detail2' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 3 - КБТУ -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://th.bing.com/th/id/R.8a9e84a375233bde57ac81c71c7ea967?rik=2DxCpttiUCRyQw&pid=ImgRaw&r=0" alt="КБТУ" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахстанско-Британский Технический Университет</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="{% url 'video_detail3' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 4 - КазНУ им. аль-Фараби -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://th.bing.com/th/id/R.d8291f92a562c6fbd6b31cd7f8ae7e7b?rik=3OHQ3Uqf7Lz%2fMw&pid=ImgRaw&r=0" alt="КазНУ им. аль-Фараби" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахский национальный университет им. аль-Фараби</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 5 - КазНПУ им. Абая -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://tse4.mm.bing.net/th/id/OIP.WO3f9gnF1taz-FfWCkO4pQHaEl?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3" alt="КазНПУ им. Абая" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахский национальный педагогический университет им. Абая</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 6 - Satbayev University -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://th.bing.com/th/id/R.244665811bae0bba745f82eba9d9f650?rik=E9HJW26UjIfGyA&riu=http%3a%2f%2fphotos.wikimapia.org%2fp%2f00%2f03%2f22%2f70%2f61_full.jpg&ehk=ZPbvxdEiwoT0Ez5Jxh%2fZcNaLHr54N%2bnj6Z3GovOoEhs%3d&risl=&pid=ImgRaw&r=0" alt="Satbayev University" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Satbayev University</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 7 - КазНМУ им. Асфендиярова -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://smapse.ru/storage/2020/05/kazakh-national2.jpg" alt="КазНМУ им. Асфендиярова" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахский национальный медицинский университет им. Асфендиярова</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 8 - КазУМОиМЯ им. Абылай хана -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://tse3.mm.bing.net/th/id/OIP.l-KeeHDZMIpV-D_R6rKWDAHaFj?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3" alt="КазУМОиМЯ им. Абылай хана" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахский университет международных отношений и мировых языков им. Абылай хана</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 9 - Казахстанско-Немецкий университет -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://i.ytimg.com/vi/zTYdqGuXtno/maxresdefault.jpg" alt="Казахстанско-Немецкий университет" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахстанско-Немецкий университет</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 10 - Алматы технологический университет -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://tse3.mm.bing.net/th/id/OIP.SLOuZ-18SgZJrlj3sN8j3wHaE7?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Алматы технологический университет" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Алматы технологический университет</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 11 - Казахская академия искусств -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://th.bing.com/th/id/R.99d8b0d217d6fd63fa3505455fae2ff1?rik=M00tYBp%2f9O4qYw&riu=http%3a%2f%2fizo-studia.kz%2fthumb%2f2%2fbsKWRoN-onOscRrzvRw2ow%2f580r450%2fd%2fkaznai_zhurgenova_almaty.jpg&ehk=IjHxp6d5KF9nHo00pwJYDb7LnZermAHnlVW5AWSPhb0%3d&risl=&pid=ImgRaw&r=0" alt="Казахская академия искусств" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахская академия искусств им. Жургенова</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
+
+          <!-- ВУЗ 12 - Казахская академия спорта и туризма -->
+          <article class="bg-[var(--color-bg)] rounded-2xl shadow hover:shadow-xl transition overflow-hidden" data-city="Алматы">
+            <img src="https://th.bing.com/th/id/R.7aa68391a31bc8a2bc45b826c541e29b?rik=sC8Xwy90FaA%2f0A&pid=ImgRaw&r=0" alt="Казахская академия спорта и туризма" class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Казахская академия спорта и туризма</h3>
+              <p class="text-secondary text-sm mb-4">📍 Алматы</p>
+              <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Подробнее</a>
+            </div>
+          </article>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- Подвал -->
   {% include 'partials/footer.html' %}
 
-  <!-- Чат-ассистент -->
-  <button class="assistant-button" aria-label="Чат-помощник">
-    <img src="{% static 'icons/assistant.png' %}" alt="Помощник">
-  </button>
-  
-  <div class="assistant-modal">
-    <div class="assistant-header">
-      <span>Ваш помощник</span>
-      <button class="close-modal" aria-label="Закрыть чат">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-    <div class="chat-container">
-      <div class="message bot-message">Здравствуйте! Чем могу помочь?</div>
-    </div>
-    <div class="chat-input-container">
-      <input type="text" class="chat-input" placeholder="Введите ваш вопрос...">
-      <button class="btn-primary send-button">Отправить</button>
-    </div>
-  </div>
-
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Мобильное меню
-      const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-      const mobileMenu = document.querySelector('.mobile-menu');
-      const mobileBackdrop = document.querySelector('.mobile-menu-backdrop');
+    // Мобильное меню
+    const btn = document.getElementById('mobile-btn');
+    const menu = document.getElementById('mobile-menu');
+    const backdrop = document.getElementById('mobile-menu-backdrop');
+
+    function toggleMenu() {
+      const isOpen = menu.classList.toggle('open');
+      backdrop.classList.toggle('show', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+    }
+
+    btn.addEventListener('click', toggleMenu);
+    backdrop.addEventListener('click', toggleMenu);
+
+    // Фильтрация университетов по городу
+    function filterUniversitiesByCity() {
+      const selectedCity = document.getElementById('university-city').value;
+      const cards = document.querySelectorAll('[data-city]');
       
-      mobileMenuBtn.addEventListener('click', function() {
-        const isExpanded = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', !isExpanded);
-        mobileMenu.classList.toggle('show', !isExpanded);
-        mobileBackdrop.classList.toggle('show', !isExpanded);
-        document.body.classList.toggle('no-scroll', !isExpanded);
-      });
-      
-      mobileBackdrop.addEventListener('click', function() {
-        mobileMenuBtn.setAttribute('aria-expanded', 'false');
-        mobileMenu.classList.remove('show');
-        this.classList.remove('show');
-        document.body.classList.remove('no-scroll');
-      });
-      
-      // Чат-ассистент
-      const assistantBtn = document.querySelector('.assistant-button');
-      const assistantModal = document.querySelector('.assistant-modal');
-      const closeModalBtn = document.querySelector('.close-modal');
-      const chatInput = document.querySelector('.chat-input');
-      const sendBtn = document.querySelector('.send-button');
-      const chatContainer = document.querySelector('.chat-container');
-      
-      assistantBtn.addEventListener('click', function() {
-        assistantModal.classList.toggle('show');
-      });
-      
-      closeModalBtn.addEventListener('click', function() {
-        assistantModal.classList.remove('show');
-      });
-      
-      function addMessage(text, isUser = false) {
-        const message = document.createElement('div');
-        message.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-        message.textContent = text;
-        chatContainer.appendChild(message);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-      
-      function handleUserMessage() {
-        const message = chatInput.value.trim();
-        if (!message) return;
+      cards.forEach(card => {
+        const cardCity = card.getAttribute('data-city');
         
-        addMessage(message, true);
-        chatInput.value = '';
-        sendBtn.disabled = true;
-        
-        // Имитация ответа бота
-        setTimeout(() => {
-          const responses = [
-            "Отличный вопрос! Давайте я помогу вам с этим.",
-            "Я могу рассказать вам больше об этом курсе.",
-            "Для уточнения информации вы можете посмотреть раздел 'О нас'.",
-            "Хотите, чтобы я помог вам выбрать подходящий курс?"
-          ];
-          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-          addMessage(randomResponse);
-        }, 1000);
-      }
-      
-      sendBtn.addEventListener('click', handleUserMessage);
-      
-      chatInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          handleUserMessage();
+        if (!selectedCity || selectedCity === cardCity) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
         }
       });
-      
-      chatInput.addEventListener('input', function() {
-        sendBtn.disabled = !this.value.trim();
-      });
-
-      // Загрузка категорий в выпадающий список
-      function loadCategoryOptions() {
-        const categories = [
-          "Frontend-разработка",
-          "Backend-разработка",
-          "Мобильная разработка",
-          "Data Science и машинное обучение",
-          "DevOps и системное администрирование",
-          "QA и тестирование",
-          "UI/UX дизайн",
-          "Базы данных",
-          "Веб-дизайн",
-          "Кибербезопасность",
-          "Бизнес-аналитика",
-          "Общее программирование",
-          "Soft Skills",
-          "Иностранные языки",
-          "Подготовка к сертификациям",
-          "Математика",
-          "Русский язык",
-          "Литература",
-          "Информатика",
-          "Физика",
-          "Химия",
-          "Биология",
-          "История",
-          "География",
-          "Обществознание",
-          "Английский язык",
-          "Немецкий язык",
-          "Французский язык",
-          "Музыка",
-          "Изобразительное искусство",
-          "Физическая культура",
-          "Технология (трудовое обучение)",
-          "Основы безопасности жизнедеятельности (ОБЖ)",
-          "Экология",
-          "Астрономия"
-        ];
-        
-        const select = document.getElementById('course-category');
-        
-        // Добавляем только уникальные категории из имеющихся курсов
-        const existingCategories = new Set();
-        document.querySelectorAll('.card[data-category]').forEach(card => {
-          const category = card.getAttribute('data-category');
-          if (category) existingCategories.add(category);
-        });
-        
-        // Добавляем категории из списка, которые есть в существующих курсах
-        categories.forEach(cat => {
-          if (existingCategories.has(cat)) {
-            const opt = document.createElement('option');
-            opt.value = cat;
-            opt.textContent = cat;
-            select.appendChild(opt);
-          }
-        });
-      }
-      
-      // Фильтрация курсов по категории
-      function filterCoursesByCategory() {
-        const selectedCategory = document.getElementById('course-category').value;
-        const cards = document.querySelectorAll('.card');
-        
-        cards.forEach(card => {
-          const cardCategory = card.getAttribute('data-category');
-          
-          if (!selectedCategory || selectedCategory === cardCategory) {
-            card.style.display = 'block';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      }
-      
-      // Инициализация
-      loadCategoryOptions();
-    });
+    }
   </script>
 </body>
 </html>

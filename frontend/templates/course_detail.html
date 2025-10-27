@@ -98,11 +98,6 @@
     nav a:hover {
       color: var(--brand-primary);
     }
-    #submit-answers-btn {
-      display: block !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
   </style>
   <script>
     const STATIC_URL = "{% static '' %}";
@@ -216,9 +211,7 @@
 
       try {
         const response = await fetch(`/api/courses/${courseId}/`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error('Ошибка загрузки курса');
         course = await response.json();
         console.log('Данные курса:', course);
         renderCourse();
@@ -228,12 +221,6 @@
         courseTitle.textContent = 'Курс не найден';
         pageTitle.textContent = 'Курс не найден';
         container.textContent = '';
-        
-        const retryBtn = document.createElement('button');
-        retryBtn.className = 'btn mt-4';
-        retryBtn.textContent = 'Попробовать снова';
-        retryBtn.onclick = loadCourseDetails;
-        errorMessage.appendChild(retryBtn);
       }
     }
 
@@ -250,11 +237,11 @@
       pageTitle.textContent = course.title || 'Курс';
       courseAuthorLink.textContent = course.instructor?.username || 'Неизвестный автор';
       courseAuthorLink.href = course.instructor?.id ? `/tutors/${course.instructor.id}/` : '#';
-      courseInfo.innerHTML = 
-        `${course.videos?.length ? `${course.videos.length} уроков` : 'Нет уроков'} • 
+      courseInfo.innerHTML = `
+        ${course.videos?.length ? `${course.videos.length} уроков` : 'Нет уроков'} • 
         ${course.duration || 'Длительность не указана'} • 
-        Уровень: ${course.level || 'Не указан'}`
-      ;
+        Уровень: ${course.level || 'Не указан'}
+      `;
       courseCategory.textContent = `Категория: ${course.category || 'Не указана'}`;
       if (course.description) {
         const desc = document.createElement('p');
@@ -269,12 +256,12 @@
       }
 
       // Enroll Button
-      const enrolledCourses = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || [];
+      const enrolledCourses = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
       enrollSection.innerHTML = `
         <button id="enroll-btn" class="btn ${enrolledCourses.includes(courseId) ? 'opacity-50 cursor-not-allowed' : ''}" ${enrolledCourses.includes(courseId) ? 'disabled' : ''}>
           ${enrolledCourses.includes(courseId) ? 'Вы записаны' : 'Записаться на курс'}
         </button>
-        <button id="message-btn" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]">Написать преподавателю</button>
+        <button id="message-btn" class="btn bg-white text-[var(--brand-primary)] border border-[var(--brand-primary)] hover:bg-[var(--bg-secondary)]" onclick="window.location.href='/messages/'">Написать преподавателю</button>
       `;
 
       // Video Section
@@ -301,16 +288,16 @@
                 <iframe class="absolute top-0 left-0 w-full h-full" src="${embedUrl}" title="Учебное видео ${idx + 1}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
             </div>
-            <button class="mt-4 btn mark-watched-btn ${watched.includes(idx) ? 'opacity-50 cursor-not-allowed' : ''}" ${watched.includes(idx) ? 'disabled' : ''}>
+            <button class="mt-4 btn ${watched.includes(idx) ? 'opacity-50 cursor-not-allowed' : ''}" ${watched.includes(idx) ? 'disabled' : ''}>
               ${watched.includes(idx) ? 'Просмотрено' : 'Отметить просмотренным'}
             </button>
           `;
-          videoDiv.querySelector('.mark-watched-btn').addEventListener('click', () => {
+          videoDiv.querySelector('button').addEventListener('click', () => {
             if (!watched.includes(idx)) {
               watched.push(idx);
-              videoDiv.querySelector('.mark-watched-btn').textContent = 'Просмотрено';
-              videoDiv.querySelector('.mark-watched-btn').disabled = true;
-              videoDiv.querySelector('.mark-watched-btn').classList.add('opacity-50', 'cursor-not-allowed');
+              videoDiv.querySelector('button').textContent = 'Просмотрено';
+              videoDiv.querySelector('button').disabled = true;
+              videoDiv.querySelector('button').classList.add('opacity-50', 'cursor-not-allowed');
               saveProgress();
             }
           });
@@ -342,14 +329,14 @@
       assignmentSection.innerHTML = `
         <h2 class="text-3xl font-semibold tracking-tight mb-8">Задание</h2>
         ${course.assignment ? `<p class="whitespace-pre-wrap break-words mb-4">${course.assignment}</p>` : '<p>Задание отсутствует.</p>'}
-        ${course.assignment ? 
-          `<div class="mb-4">
+        ${course.assignment ? `
+          <div class="mb-4">
             <label for="assignment-upload" class="block text-sm font-medium mb-1">Загрузите ваше задание</label>
             <input id="assignment-upload" type="file" accept=".pdf,.doc,.docx,.txt" class="w-full p-2 border border-[var(--border-color)] rounded-xl" ${isSubmitted ? 'disabled' : ''}>
           </div>
           <button id="submit-assignment" class="btn ${isSubmitted ? 'opacity-50 cursor-not-allowed' : ''}" ${isSubmitted ? 'disabled' : ''}>Отправить задание</button>
-          <p id="assignment-status" class="mt-2 ${isSubmitted ? 'text-green-600' : 'text-red-600 hidden'}">${isSubmitted ? 'Задание отправлено' : 'Ошибка при отправке задания'}</p>`
-         : ''}
+          <p id="assignment-status" class="mt-2 ${isSubmitted ? 'text-green-600' : 'text-red-600 hidden'}">${isSubmitted ? 'Задание отправлено' : 'Ошибка при отправке задания'}</p>
+        ` : ''}
       `;
       container.appendChild(assignmentSection);
 
@@ -394,110 +381,84 @@
 
       // Test Section
       const questions = course.test || [];
-      console.log('Rendering test section with questions:', questions);
-
-      if (questions.length && Array.isArray(questions) && questions[0].q && questions[0].a) {
+      if (questions.length) {
         const quiz = document.createElement('section');
         quiz.className = 'card p-8';
         quiz.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Пройти тест</h2>';
-        
         questions.forEach((q, i) => {
-          if (!q.q || !q.a) {
-            console.error('Invalid question format at index', i, q);
-            return;
-          }
-          
           const block = document.createElement('div');
           block.className = 'p-6 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)] mb-4';
           block.innerHTML = `
             <p class="font-medium text-lg mb-4">${q.q || 'Вопрос отсутствует'}</p>
             ${q.a?.map((opt, j) => `
-                <label class="block mb-3 flex items-center cursor-pointer">
-                    <input type="radio" name="q${i}" value="${j}" class="mr-3">${opt}
-                </label>
+              <label class="block mb-3 flex items-center cursor-pointer">
+                <input type="radio" name="q${i}" value="${j}" class="mr-3">${opt}
+              </label>
             `).join('') || '<p>Ответы отсутствуют</p>'}
           `;
           quiz.appendChild(block);
         });
-
         const result = document.createElement('p');
         result.className = 'mt-4 text-lg hidden';
         result.id = 'quiz-result';
-
         const btn = document.createElement('button');
         btn.textContent = 'Отправить ответы';
         btn.className = 'btn mt-6';
-        btn.id = 'submit-answers-btn';
-
         const attemptsKey = 'testAttempts:' + courseId;
         const attemptsUsed = parseInt(localStorage.getItem(attemptsKey) || '0');
-        console.log('Test attempts:', attemptsUsed);
-
         if (attemptsUsed >= 2) {
           btn.disabled = true;
           btn.classList.add('opacity-50', 'cursor-not-allowed');
-          result.textContent = `Вы исчерпали лимит попыток (${attemptsUsed}/2).`;
+          result.textContent = `Вы исчерпали лимит попыток (2/2).`;
           result.classList.remove('hidden');
           result.classList.add('text-red-600');
         }
-
         btn.onclick = () => {
-          console.log('Submit answers button clicked');
-          let attempts = parseInt(localStorage.getItem(attemptsKey)) || 0;
+          let attempts = parseInt(localStorage.getItem(attemptsKey) || '0');
           if (attempts >= 2) {
-            result.textContent = `Вы исчерпали лимит попыток (${attempts}/2).`;
+            result.textContent = `Вы исчерпали лимит попыток (2/2).`;
             result.classList.remove('hidden');
             result.classList.add('text-red-600');
             return;
           }
-
           let answered = true;
           questions.forEach((q, i) => {
-            if (!document.querySelector(`input[name="q${i}"]:checked`)) {
+            if (!document.querySelector(`input[name=q${i}]:checked`)) {
               answered = false;
             }
           });
-
           if (!answered) {
             result.textContent = 'Пожалуйста, ответьте на все вопросы.';
             result.classList.remove('hidden');
             result.classList.add('text-red-600');
             return;
           }
-
           attempts++;
-          localStorage.setItem(attemptsKey, attempts.toString());
-          
+          localStorage.setItem(attemptsKey, attempts);
           let correct = 0;
           questions.forEach((q, i) => {
-            const val = document.querySelector(`input[name="q${i}"]:checked`);
+            const val = document.querySelector(`input[name=q${i}]:checked`);
             if (val && Number(val.value) === q.c) correct++;
           });
-
           result.textContent = `Результат: ${correct} из ${questions.length} (Попытка ${attempts}/2)`;
           result.className = `mt-4 text-lg ${correct === questions.length ? 'text-green-600' : 'text-red-600'} animate-slide-in`;
           result.classList.remove('hidden');
-
           if (correct === questions.length) {
             localStorage.setItem('testPassed:' + courseId, 'true');
           }
-
           if (attempts >= 2) {
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
           }
-
           saveProgress();
         };
-
         quiz.appendChild(btn);
         quiz.appendChild(result);
         container.appendChild(quiz);
       } else {
-        console.warn('No valid questions found for test section');
         const quiz = document.createElement('section');
         quiz.className = 'card p-6';
-        quiz.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Тест</h2><p>Тест временно недоступен.</p>';
+        quiz.innerHTML = '<h2 class="text-3xl font-semibold tracking-tight mb-8">Тест</h2><p>Тест отсутствует.</p>';
         container.appendChild(quiz);
       }
 
@@ -568,7 +529,7 @@
           const data = await response.json();
           throw new Error(data.message || 'Ошибка при записи на курс');
         }
-        const enrolledCourses = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || []);
+        const enrolledCourses = JSON.parse(localStorage.getItem(STORAGE_ENROLLED) || '[]');
         if (!enrolledCourses.includes(courseId)) {
           enrolledCourses.push(courseId);
           localStorage.setItem(STORAGE_ENROLLED, JSON.stringify(enrolledCourses));
@@ -586,7 +547,7 @@
 
     function saveProgress() {
       const videos = course.videos || [];
-      const watched = JSON.parse(localStorage.getItem(STORAGE_PROGRESS_DATA_PREFIX + courseId) || []);
+      const watched = JSON.parse(localStorage.getItem(STORAGE_PROGRESS_DATA_PREFIX + courseId) || '[]');
       const assignmentSubmitted = localStorage.getItem('assignmentSubmitted:' + courseId) === 'true';
       const testPassed = localStorage.getItem('testPassed:' + courseId) === 'true';
       const totalParts = videos.length + (course.assignment ? 1 : 0) + (course.test?.length ? 1 : 0);
@@ -735,6 +696,5 @@
       document.addEventListener('DOMContentLoaded', initCoursePage);
     }
   </script>
-  
 </body>
 </html>
