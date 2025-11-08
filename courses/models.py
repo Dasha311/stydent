@@ -5,7 +5,6 @@ from accounts.models import CustomUser, UserProfile
 import datetime
 from accounts.tasks import (
     send_new_message_email,
-    send_module_reminder_email,
     send_new_course_invitation,
 )
 import os

@@ -12,7 +12,6 @@ from .models import (
     Category,
     Enrollment,
     Assignment,
-    LessonCompletion,
     Test,
     Question,
     TestAttempt,
@@ -21,7 +20,6 @@ from .models import (
     ChatMessage,
     ForumThread,
     ForumComment,
-    Rating,
 )
 from .serializers import (
     CourseSerializer,
@@ -32,9 +30,7 @@ from .serializers import (
     AssignmentSerializer,
     LessonCompletionSerializer,
     TestSerializer,
-    QuestionSerializer,
     TestAttemptSerializer,
-    QuestionAttemptSerializer,
     ChatRoomSerializer,
     ChatMessageSerializer,
     ForumThreadSerializer,
