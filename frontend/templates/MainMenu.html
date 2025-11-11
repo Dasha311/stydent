@@ -74,10 +74,10 @@
         <a href="{% url 'about' %}" class="hover:text-[var(--color-primary)]">О нас</a>
         <a href="{% url 'contacts' %}" class="hover:text-[var(--color-primary)]">ИИ - ассистент</a>
       </nav>
-      <div class="hidden md:flex items-center gap-4">
-        <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
-        <a href="#" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
-      </div>
+      <div class="hidden md:flex items-center gap-4">␊
+        <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+        <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
+      </div>␊
       <button id="mobile-btn" class="md:hidden" aria-label="Открыть меню" type="button" aria-expanded="false" aria-controls="mobile-menu">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />

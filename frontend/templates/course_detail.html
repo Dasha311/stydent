@@ -116,7 +116,6 @@
         <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Курсы</a>
         <a href="{% url 'about' %}" class="hover:text-[var(--brand-primary)]">О нас</a>
         <a href="{% url 'contacts' %}" class="hover:text-[var(--brand-primary)]">Контакты</a>
-        <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       </nav>
       <div class="hidden md:flex items-center gap-3">
         <form method="POST" action="{% url 'logout' %}">
@@ -133,7 +132,6 @@
       <a href="{% url 'course_view' %}?course_id=1" class="hover:text-[var(--brand-primary)]">Курсы</a>
       <a href="{% url 'about' %}" class="hover:text-[var(--brand-primary)]">О нас</a>
       <a href="{% url 'contacts' %}" class="hover:text-[var(--brand-primary)]">Контакты</a>
-      <a href="{% url 'profile' %}" class="hover:text-[var(--brand-primary)]">Профиль</a>
       <form method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
         <button type="submit" class="text-[var(--brand-primary)] hover:underline text-left">Выйти</button>

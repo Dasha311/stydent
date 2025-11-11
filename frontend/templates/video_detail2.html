@@ -37,14 +37,13 @@
       </nav>
       <div class="hidden md:flex items-center gap-4">
         {% if user.is_authenticated %}
-          <a href="{% url 'profile' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Профиль</a>
           <form method="post" action="{% url 'logout' %}" class="inline">
             {% csrf_token %}
             <button type="submit" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Выйти</button>
           </form>
         {% else %}
-          <a href="#" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
-          <a href="#" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
+          <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline text-sm font-medium">Войти</a>
+          <a href="{% url 'register' %}" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Регистрация</a>
         {% endif %}
       </div>
     </div>

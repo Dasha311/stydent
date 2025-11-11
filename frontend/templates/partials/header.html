@@ -4,13 +4,16 @@
     <div class="relative">
       <img id="logo-btn" src="{% static 'Icons/Logo.png' %}?v=2" alt="NeXus Logo" class="h-9 md:h-10 cursor-pointer" />
       <nav id="logo-menu" class="hidden absolute left-0 mt-2 w-48 rounded-xl shadow-lg bg-white py-2 text-sm">
-        <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-gray-100">Профиль</a>
-        <a href="{% url 'course_view' %}?course_id=1" class="block px-4 py-2 hover:bg-gray-100">Мои курсы</a>
-        <form method="post" action="{% url 'logout' %}" class="px-4 py-2">
-          {% csrf_token %}
-          <button type="submit" class="w-full text-left hover:bg-gray-100">Выйти</button>
-        </form>
-        <a href="{% url 'delete_account' %}" class="block px-4 py-2 text-red-600 hover:bg-gray-100">Удалить аккаунт</a>
+        <a href="{% url 'course_view' %}?course_id=1" class="block px-4 py-2 hover:bg-gray-100">Курсы</a>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'logout' %}" class="px-4 py-2">
+            {% csrf_token %}
+            <button type="submit" class="w-full text-left hover:bg-gray-100">Выйти</button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="block px-4 py-2 hover:bg-gray-100">Войти</a>
+          <a href="{% url 'register' %}" class="block px-4 py-2 hover:bg-gray-100">Регистрация</a>
+        {% endif %}
       </nav>
     </div>
     <button id="mobile-btn" class="md:hidden" aria-label="Меню" type="button" aria-expanded="false">

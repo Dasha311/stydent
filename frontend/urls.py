@@ -8,7 +8,6 @@ urlpatterns = [
     # Футер-страницы
     path('about/', views.about_view, name='about'),
     path('contacts/', views.contact_view, name='contacts'),
-    path('terms/', views.terms_view, name='terms'),
 
     # Страницы видео-курсов (уже работающие)
     path('course/video/', TemplateView.as_view(template_name='video_detail.html'), name='video_detail'),
